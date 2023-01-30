@@ -1,0 +1,125 @@
+package gen
+
+import (
+	"fmt"
+	"net/url"
+	"os"
+	"strings"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
+
+type DB struct {
+	db *gorm.DB
+}
+
+func NewDBFromEnvVars(name string) *DB {
+	urlString := name
+
+	if urlString == "" {
+		urlString = os.Getenv("DATABASE_URL")
+	}
+
+	if urlString == "" {
+		panic(fmt.Errorf("missing DATABASE_URL environment variable"))
+	}
+	return NewDBWithString(urlString)
+}
+
+func NewDBWithString(urlString string) *DB {
+	u, err := url.Parse(urlString)
+	if err != nil {
+		panic(err)
+	}
+
+	// urlString = GetConnectionString(u)
+
+	gormConfig := &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix: os.Getenv("TABLE_NAME_PREFIX"),
+		},
+	}
+
+	if os.Getenv("DEBUG") == "true" {
+		gormConfig.Logger = logger.Default.LogMode(logger.Info)
+	}
+
+	dsn, err := GetConnectionString(u)
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := gorm.Open(dsn, gormConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	return NewDB(db)
+}
+
+func GetConnectionString(u *url.URL) (gorm.Dialector, error) {
+	if u.Scheme == "postgres" {
+		password, _ := u.User.Password()
+		params := u.Query()
+		params.Set("host", strings.Split(u.Host, ":")[0])
+		params.Set("port", u.Port())
+		params.Set("user", u.User.Username())
+		params.Set("password", password)
+		params.Set("dbname", strings.TrimPrefix(u.Path, "/"))
+		return postgres.Open(strings.Replace(params.Encode(), "&", " ", -1)), nil
+	}
+
+	if u.Scheme == "sqlite3" {
+		return sqlite.Open(strings.Replace(u.String(), u.Scheme+"://", "", 1)), nil
+	}
+
+	if u.Scheme == "mysql" {
+		u.Host = "tcp(" + u.Host + ")"
+		q := u.Query()
+		q.Set("parseTime", "true")
+		u.RawQuery = q.Encode()
+		return mysql.Open(strings.Replace(u.String(), u.Scheme+"://", "", 1)), nil
+	}
+
+	return nil, fmt.Errorf("db not support")
+}
+
+func NewDB(db *gorm.DB) *DB {
+	v := DB{db}
+	// InitGorm(db)
+	return &v
+}
+
+func TableName(name string) string {
+	prefix := os.Getenv("TABLE_NAME_PREFIX")
+	if prefix != "" {
+		return prefix + "_" + name
+	}
+	return name
+}
+
+// Close ...
+func (db *DB) Close() error {
+	return db.Close()
+}
+
+// Query ...
+func (db *DB) Query() *gorm.DB {
+	return db.db
+}
+
+// AutoMigrate ...
+func (db *DB) AutoMigrate() error {
+	return db.db.AutoMigrate(
+		&Todo{},
+	)
+}
+
+func (db *DB) Ping() error {
+	return db.Ping()
+}

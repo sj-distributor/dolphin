@@ -24,3 +24,9 @@
   3. `make generate` 生成最新代码（`graphql`文件没改变可以不操作）
   4. `make migrate` 同步`graphql`数据表结构，没改变可以不用同步
   5. `make start` 启动项目
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2023 SJ Distributor

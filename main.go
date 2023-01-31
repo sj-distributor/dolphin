@@ -1,10 +1,13 @@
 package main
 
 import (
-	"codeup.aliyun.com/maiguangyang/graphql/cmd"
+	"fmt"
+
+	"github.com/sj-distributor/dolphin/cmd"
 )
 
 func main() {
+	fmt.Println("123")
 	cmd.Execute()
 }
 

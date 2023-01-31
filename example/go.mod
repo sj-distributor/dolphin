@@ -37,6 +37,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.15 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+	github.com/sj-distributor/dolphin v0.0.0-20230130120403-37fbe43598d5 // indirect
 	go.opencensus.io v0.22.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.1.0 // indirect

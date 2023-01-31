@@ -5,7 +5,7 @@ PORT = 8080
 DIR = go mod tidy
 
 generate:
-	$(DIR) && GO111MODULE=on go get github.com/99designs/gqlgen && go generate ./...
+	GO111MODULE=on go run github.com/sj-distributor/dolphin
 
 migrate:
 	$(DIR) && DATABASE_URL=$(DATABASE) PORT=$(PORT) go run *.go migrate

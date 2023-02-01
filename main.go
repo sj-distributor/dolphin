@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/sj-distributor/dolphin/cmd"
 )
 
 func main() {
-	fmt.Println("123")
 	cmd.Execute()
 }
 

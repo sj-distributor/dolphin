@@ -7,24 +7,35 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/sj-distributor/dolphin/model"
+	"github.com/sj-distributor/dolphin/templates"
 	"github.com/urfave/cli"
 )
+
+var fileName string = ""
 
 var genCmd = cli.Command{
 	Name:  "generate",
 	Usage: "generate contents",
 	Action: func(ctx *cli.Context) error {
 		if err := generate("*.graphql", "."); err != nil {
+			if err := DownDolphinPackage(); err != nil {
+				return cli.NewExitError(err, 1)
+			}
 			return cli.NewExitError(err, 1)
 		}
-		return nil
+
+		return DownDolphinPackage()
 	},
 }
 
-var fileName string = ""
+func DownDolphinPackage() error {
+	cmd := exec.Command("sh", "-c", "go get -d github.com/sj-distributor/dolphin")
+	return cmd.Run()
+}
 
 func generate(fileDirPath, p string) error {
 	fileDirPath = path.Join(p, "./model/"+fileDirPath)
@@ -33,13 +44,15 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
-	if len(matches) > 0 {
-		name := matches[0]
-		name = strings.Replace(name, ".graphql", "", -1)
-		arr := strings.Split(name, "-")
-		if len(arr) > 1 {
-			fileName = arr[1]
-		}
+	if len(matches) <= 0 {
+		return fmt.Errorf("model files is empty")
+	}
+
+	name := matches[0]
+	name = strings.Replace(name, ".graphql", "", -1)
+	arr := strings.Split(name, "-")
+	if len(arr) > 1 {
+		fileName = arr[1]
 	}
 
 	fmt.Println("Generating contents from", matches, "...")
@@ -77,6 +90,11 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
+	schemaSDL, err := model.PrintSchema(m)
+	if err != nil {
+		return err
+	}
+
 	schema, err := model.PrintSchema(m)
 	if err != nil {
 		return err
@@ -88,13 +106,27 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
+	var re = regexp.MustCompile(`(?sm)schema {[^}]+}`)
+	schemaSDL = re.ReplaceAllString(schemaSDL, ``)
+	var re2 = regexp.MustCompile(`(?sm)type _Service {[^}]+}`)
+	schemaSDL = re2.ReplaceAllString(schemaSDL, ``)
+	schemaSDL = strings.Replace(schemaSDL, "\n  _service: _Service!", "", 1)
+	schemaSDL = strings.Replace(schemaSDL, "\n  _entities(representations: [_Any!]!): [_Entity]!", "", 1)
+	schemaSDL = strings.Replace(schemaSDL, "\nscalar _Any", "", 1)
+	var re3 = regexp.MustCompile(`(?sm)[\n]{3,}`)
+	schemaSDL = re3.ReplaceAllString(schemaSDL, "\n\n")
+	schemaSDL = strings.Trim(schemaSDL, "\n")
+	constants := map[string]interface{}{
+		"SchemaSDL": schemaSDL,
+	}
+
+	if err := templates.WriteTemplateRaw(templates.Constants, path.Join(p, "gen/constants.go"), constants); err != nil {
+		return err
+	}
+
 	fmt.Printf("Running gqlgen generator in %s ...\n", path.Join(p, "gen"))
 
-	packageArray := []string{
-		"go run github.com/99designs/gqlgen",
-	}
-	packageToStr := strings.Join(packageArray, " && ")
-	cmd := exec.Command("sh", "-c", "cd "+path.Join(p, "gen")+" && "+packageToStr)
+	cmd := exec.Command("sh", "-c", "go get github.com/99designs/gqlgen && go generate ./...")
 	if err := cmd.Run(); err != nil {
 		return err
 	}

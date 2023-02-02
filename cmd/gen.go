@@ -90,10 +90,20 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
+	err = model.EnrichModel(&m)
+	if err != nil {
+		return err
+	}
+
 	schemaSDL, err := model.PrintSchema(m)
 	if err != nil {
 		return err
 	}
+
+	// err = model.BuildFederatedModel(&m)
+	// if err != nil {
+	// 	return err
+	// }
 
 	schema, err := model.PrintSchema(m)
 	if err != nil {
@@ -135,6 +145,11 @@ func generate(fileDirPath, p string) error {
 }
 
 func generateFiles(p string, m *model.Model, c *model.Config) error {
+	data := templates.TemplateData{Model: m, Config: c}
+
+	if err := templates.WriteTemplate(templates.Model, path.Join(p, "gen/models.go"), data); err != nil {
+		return err
+	}
 	return nil
 }
 

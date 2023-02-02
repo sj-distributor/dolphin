@@ -8,6 +8,31 @@ type Object struct {
 	Extension *ObjectExtension
 }
 
+// Name ...
+func (o *Object) Name() string {
+	return o.Def.Name.Value
+}
+
+// Columns ...
+func (o *Object) Columns() []ObjectField {
+	columns := []ObjectField{}
+	for _, f := range o.Fields() {
+		// if f.IsColumn() {
+		columns = append(columns, f)
+		// }
+	}
+	return columns
+}
+
+// Fields ...
+func (o *Object) Fields() []ObjectField {
+	fields := []ObjectField{}
+	for _, f := range o.Def.Fields {
+		fields = append(fields, ObjectField{f, o})
+	}
+	return fields
+}
+
 func (o *Object) Directive(name string) *ast.Directive {
 	for _, d := range o.Def.Directives {
 		if d.Name.Value == name {
@@ -38,4 +63,16 @@ func (o *Object) Relationships() []*ObjectRelationship {
 
 func (o *Object) HasDirective(name string) bool {
 	return o.Directive(name) != nil
+}
+
+func (o *Object) IsFederatedType() bool {
+	return o.HasDirective("key")
+}
+
+func (o *Object) Interfaces() []string {
+	interfaces := []string{}
+	for _, item := range o.Def.Interfaces {
+		interfaces = append(interfaces, item.Name.Value)
+	}
+	return interfaces
 }

@@ -9,6 +9,16 @@ type Model struct {
 	// Objects []Object
 }
 
+var defaultScalars map[string]bool = map[string]bool{
+	"Int":     true,
+	"Float":   true,
+	"String":  true,
+	"Boolean": true,
+	"ID":      true,
+	"Any":     true,
+	"Time":    true,
+}
+
 func (m *Model) Objects() []Object {
 	objs := []Object{}
 	for _, def := range m.Doc.Definitions {
@@ -27,6 +37,18 @@ func (m *Model) Objects() []Object {
 	return objs
 }
 
+func (m *Model) HasObject(name string) bool {
+	if name == "Query" || name == "Mutation" || name == "Subscription" {
+		return true
+	}
+	for _, o := range m.Objects() {
+		if o.Name() == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *Model) ObjectEntities() []Object {
 	objs := []Object{}
 	for _, def := range m.Doc.Definitions {
@@ -41,18 +63,22 @@ func (m *Model) ObjectEntities() []Object {
 	return objs
 }
 
+func (m *Model) HasFederatedTypes() bool {
+	for _, o := range m.Objects() {
+		if o.IsFederatedType() {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (m *Model) ObjectExtensions() []ObjectExtension {
 	objs := []ObjectExtension{}
 	for _, def := range m.Doc.Definitions {
 		def, ok := def.(*ast.TypeExtensionDefinition)
 		if ok {
 			obj := &Object{Def: def.Definition, Model: m}
-			// obj.Def.Directives = filterDirective(obj.Def.Directives, "entity")
-			// fmt.Println(def.Directives[0].Arguments[0].Value.GetValue())
-			// fmt.Println(def.Definition.Fields[0].Name)
-			// fmt.Println(obj.Def.Fields[0].Name.Value)
-			// for _, child := range obj.Def.Fields[0].Arguments {
-			// }
 			objs = append(objs, ObjectExtension{Def: def, Model: m, Object: obj})
 		}
 	}

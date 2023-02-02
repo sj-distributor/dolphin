@@ -21,10 +21,24 @@
 ### example 示例说明
   1. `cd example`
   2. 修改 `makefile` 文件的 `DATABASE` 值
-  3. `make generate` 生成最新代码（`graphql`文件没改变可以不操作）
-  4. `make migrate` 同步`graphql`数据表结构，没改变可以不用同步
-  5. `make start` 启动项目
+  3. 修改`model`目录下的`graphql`的文件（可选）
+  4. `make generate` 生成最新代码（`graphql`文件没改变可以不操作）
+  5. `make migrate` 同步`graphql`数据表结构，没改变可以不用同步
+  6. `make start` 启动项目
 
+### model目录下的graphql文件说明
+```
+type Todo @entity(title: "代办事项") {
+	title: String!
+}
+```
+```
+  .
+  ├── Todo  这里指数据库表的命名
+  └── @entity  指令
+      └── title  Todo的描述说明
+    └── title  表字段
+```
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)

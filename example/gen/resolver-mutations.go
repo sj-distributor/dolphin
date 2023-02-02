@@ -2,7 +2,6 @@ package gen
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -28,6 +27,7 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	item = &Todo{}
 
 	now := time.Now()
+	milliTime := now.UnixNano() / 1e6
 	// 获取操作人Id
 	principalID := GetPrincipalIDFromContext(ctx)
 
@@ -35,7 +35,7 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		Type:        EventTypeCreated,
 		Entity:      "Todo",
 		EntityID:    item.ID,
-		Date:        now.UnixNano() / 1e6,
+		Date:        milliTime,
 		PrincipalID: principalID,
 	})
 
@@ -54,6 +54,7 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}()
 
 	item.ID = uuid.Must(uuid.NewV4()).String()
+	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
 	if _, ok := input["title"]; ok && (item.Title != changes.Title) {
@@ -61,9 +62,6 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 
 		event.AddNewValue("title", changes.Title)
 	}
-
-	fmt.Println("item", item)
-	fmt.Println("changes", changes)
 
 	if err := tx.Create(item).Error; err != nil {
 		tx.Rollback()

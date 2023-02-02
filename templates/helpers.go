@@ -11,8 +11,19 @@ import (
 	"path"
 	"text/template"
 
+	"github.com/sj-distributor/dolphin/model"
 	"github.com/urfave/cli"
 )
+
+type TemplateData struct {
+	Model     *model.Model
+	Config    *model.Config
+	RawSchema *string
+}
+
+func WriteTemplate(t, filename string, data TemplateData) error {
+	return WriteTemplateRaw(t, filename, data)
+}
 
 func WriteTemplateRaw(t, filename string, data interface{}) error {
 	temp, err := template.New(filename).Parse(t)

@@ -1,0 +1,4 @@
+
+type Todo @entity(title: "代办事项") {
+	title: String!
+}

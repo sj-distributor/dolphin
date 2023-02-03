@@ -11,7 +11,7 @@ func EnrichModelObjects(m *Model) error {
 
 	createdAt := columnDefinition("createdAt", "Int", true)
 	updatedAt := columnDefinition("updatedAt", "Int", false)
-	// deletedAt := columnDefinition("deletedAt", "Int", false)
+	deletedAt := columnDefinition("deletedAt", "Int", false)
 	createdBy := columnDefinition("createdBy", "ID", false)
 	updatedBy := columnDefinition("updatedBy", "ID", false)
 	deletedBy := columnDefinition("deletedBy", "ID", false)
@@ -23,7 +23,7 @@ func EnrichModelObjects(m *Model) error {
 				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", false))
 			}
 		}
-		o.Def.Fields = append(o.Def.Fields, deletedBy, updatedBy, createdBy, updatedAt, createdAt)
+		o.Def.Fields = append(o.Def.Fields, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
 	}
 	return nil
 }
@@ -37,7 +37,7 @@ func EnrichModel(m *Model) error {
 				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", nonNull(listType(nonNull(namedType("ID"))))))
 			}
 		}
-		definitions = append(definitions, createObjectDefinition(o))
+		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o))
 		// definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))
 		// definitions = append(definitions, createObjectRelationship(o), updateObjectRelationship(o))
 		// definitions = append(definitions, createReverseRelationship(o), updateReverseRelationship(o))

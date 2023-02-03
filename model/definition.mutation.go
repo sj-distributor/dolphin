@@ -18,7 +18,7 @@ func mutationDefinition(m *Model) *ast.ObjectDefinition {
 
 	for _, obj := range m.ObjectEntities() {
 		// fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj), deleteFieldDefinition(obj), recoveryFieldDefinition(obj))
-		fields = append(fields, createFieldDefinition(obj))
+		fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj))
 	}
 	return &ast.ObjectDefinition{
 		Kind:   kinds.ObjectDefinition,
@@ -43,6 +43,27 @@ func createFieldDefinition(obj Object) *ast.FieldDefinition {
 		Type: nonNull(namedType(obj.Name())),
 		Arguments: []*ast.InputValueDefinition{
 			createFieldInput(obj),
+		},
+	}
+}
+
+func updateFieldInput(obj Object) *ast.InputValueDefinition {
+	d := updateObjectDefinition(obj)
+	return &ast.InputValueDefinition{
+		Kind: kinds.InputValueDefinition,
+		Name: nameNode("input"),
+		Type: nonNull(namedType(d.Name.Value)),
+	}
+}
+
+func updateFieldDefinition(obj Object) *ast.FieldDefinition {
+	return &ast.FieldDefinition{
+		Kind: kinds.FieldDefinition,
+		Name: nameNode("update" + inflection.Singular(obj.Name())),
+		Type: nonNull(namedType(obj.Name())),
+		Arguments: []*ast.InputValueDefinition{
+			&idInput,
+			updateFieldInput(obj),
 		},
 	}
 }

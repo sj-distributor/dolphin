@@ -66,6 +66,10 @@ func (o *ObjectField) IsCreatable() bool {
 	return !(o.Name() == "id" || o.Name() == "createdAt" || o.Name() == "updatedAt" || o.Name() == "deletedAt" || o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy")
 }
 
+func (o *ObjectField) IsUpdatable() bool {
+	return !(o.Name() == "createdAt" || o.Name() == "updatedAt" || o.Name() == "deletedAt" || o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy")
+}
+
 // IsReadonlyType ..
 func (o *ObjectField) IsReadonlyType() bool {
 	if o.IsEmbeddedColumn() {

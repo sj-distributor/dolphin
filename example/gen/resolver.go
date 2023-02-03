@@ -18,6 +18,7 @@ type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
 
 	CreateTodo func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Todo, err error)
+	UpdateTodo func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Todo, err error)
 	Todo       func(ctx context.Context, r *GeneratedResolver, id string) (*Todo, error)
 	// QueryTodo     func(ctx context.Context, r *GeneratedResolver, opts QueryTodoHandlerOptions) (*Todo, error)
 	// QueryTodos    func(ctx context.Context, r *GeneratedResolver, opts QueryTodosHandlerOptions) (*TodoResultType, error)
@@ -28,6 +29,7 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 		OnEvent: func(ctx context.Context, r *GeneratedResolver, e *Event) error { return nil },
 
 		CreateTodo: CreateTodoHandler,
+		UpdateTodo: UpdateTodoHandler,
 		Todo:       QueryTodoHandler,
 
 		// QueryTodo:     QueryTodoHandler,

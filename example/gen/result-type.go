@@ -3,9 +3,31 @@ package gen
 import (
 	"context"
 	"strings"
-	"gorm.io/gorm"
+
 	"github.com/vektah/gqlparser/v2/ast"
+	"gorm.io/gorm"
 )
+
+func GetItem(ctx context.Context, db *gorm.DB, out interface{}, id *string) error {
+	// Joins := ""
+	// wheres := []string{}
+	// values := []interface{}{}
+
+	// var dialect gorm.Dialect
+
+	// if dialect != nil {
+	// 	for _, v := range wheres {
+	// 		if find := strings.Contains(v, dialect.Quote("deleted_at")+" IS NOT NULL"); find {
+	// 			isFind = true
+	// 			break
+	// 		}
+	// 	}
+	// }
+
+	// return db.Joins(Joins).Where(strings.Join(wheres, " AND "), values...).Find(out, db.NewScope(out).TableName()+".id = ?", id).Error
+
+	return db.Find(out, "id = ?", id).Error
+}
 
 type EntityFilter interface {
 	Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error

@@ -24,11 +24,13 @@ type TodoResultType struct {
 type Todo struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
 	Title     string  `json:"title" gorm:"default:null"`
-	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment '删除人';default:null;"`
-	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment '更新人';default:null;"`
-	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment '创建人';default:null;"`
-	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment '更新时间';default:null;autoUpdateTime:milli"`
-	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment '创建时间';default:null;index:created_at;autoCreateTime:milli"`
+	Remark    *string `json:"remark" gorm:"default:null"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deletedBy';default:null;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updatedBy';default:null;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'createdBy';default:null;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deletedAt';default:null;autoUpdateTime:milli"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updatedAt';default:null;autoUpdateTime:milli"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'createdAt';default:null;index:created_at;autoCreateTime:milli"`
 }
 
 func (m *Todo) Is_Entity() {}
@@ -36,9 +38,11 @@ func (m *Todo) Is_Entity() {}
 type TodoChanges struct {
 	ID        string
 	Title     string
+	Remark    *string
 	DeletedBy *string
 	UpdatedBy *string
 	CreatedBy *string
+	DeletedAt *int64
 	UpdatedAt *int64
 	CreatedAt int64
 }

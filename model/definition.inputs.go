@@ -29,3 +29,23 @@ func createObjectDefinition(obj Object) *ast.InputObjectDefinition {
 		Fields: fields,
 	}
 }
+
+func updateObjectDefinition(obj Object) *ast.InputObjectDefinition {
+	fields := []*ast.InputValueDefinition{}
+	for _, col := range obj.Columns() {
+		if !col.IsCreatable() || col.Name() == "id" {
+			continue
+		}
+		fields = append(fields, &ast.InputValueDefinition{
+			Kind:        kinds.InputValueDefinition,
+			Name:        col.Def.Name,
+			Description: col.Def.Description,
+			Type:        col.InputType(),
+		})
+	}
+	return &ast.InputObjectDefinition{
+		Kind:   kinds.InputObjectDefinition,
+		Name:   nameNode(obj.Name() + "UpdateInput"),
+		Fields: fields,
+	}
+}

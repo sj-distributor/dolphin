@@ -2,10 +2,14 @@ package gen
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/iancoleman/strcase"
+	"github.com/sj-distributor/dolphin-example/enums"
 	"github.com/vektah/gqlparser/v2/ast"
 	"gorm.io/gorm"
 )
@@ -86,18 +90,18 @@ func AddMutationEvent(ctx context.Context, e Event) {
 }
 
 func GetFieldsRequested(ctx context.Context, alias string) []string {
-	reqCtx := graphql.GetRequestContext(ctx)
-	fieldSelections := graphql.GetResolverContext(ctx).Field.Selections
+	reqCtx := graphql.GetOperationContext(ctx)
+	fieldSelections := graphql.GetFieldContext(ctx).Field.Selections
 	return recurseSelectionSets(reqCtx, []string{}, fieldSelections, alias)
 }
 
-func recurseSelectionSets(reqCtx *graphql.RequestContext, fields []string, selection ast.SelectionSet, alias string) []string {
+func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, selection ast.SelectionSet, alias string) []string {
 	goTypeMap := []string{"String", "Time", "ID", "Float", "Int", "Boolean"}
 
 	for _, sel := range selection {
 		switch sel := sel.(type) {
 		case *ast.Field:
-			if !strings.HasPrefix(sel.Name, "__") && strings.Index(sel.Name, "Ids") == -1 {
+			if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
 				if len(sel.SelectionSet) == 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) != -1 {
 					if alias != "" {
 						fields = append(fields, alias+"."+SnakeString(sel.Name))
@@ -105,8 +109,8 @@ func recurseSelectionSets(reqCtx *graphql.RequestContext, fields []string, selec
 						fields = append(fields, SnakeString(sel.Name))
 					}
 				} else {
-					IsToMany, _ := regexp.MatchString("^\\[(.+?)\\]", sel.Definition.Type.String())
-					if IsToMany == false {
+					reg, _ := regexp.Compile(`^\\[(.+?)\\]`)
+					if ok := reg.MatchString(sel.Definition.Type.String()); ok {
 						if alias != "" {
 							fields = append(fields, alias+"."+SnakeString(sel.Name)+"_id")
 						} else {
@@ -119,4 +123,25 @@ func recurseSelectionSets(reqCtx *graphql.RequestContext, fields []string, selec
 	}
 
 	return fields
+}
+
+// CheckStructFieldIsEmpty ...
+func CheckStructFieldIsEmpty(item interface{}, input map[string]interface{}) (err error) {
+	res := []string{}
+	data := reflect.TypeOf(item)
+	elem := data.Elem()
+	for i := 0; i < elem.NumField(); i++ {
+		field := elem.Field(i)
+		if field.Type.Name() != "" {
+			name := strcase.ToSnake(strcase.ToLowerCamel(field.Name))
+			if _, ok := input[name]; ok && (input[name] == "") {
+				res = append(res, name)
+			}
+		}
+	}
+
+	if len(res) > 0 {
+		err = fmt.Errorf(fmt.Sprintf(enums.CannotBeEmpty, strings.Join(res, "，")))
+	}
+	return err
 }

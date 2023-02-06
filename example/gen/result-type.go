@@ -8,25 +8,19 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetItem(ctx context.Context, db *gorm.DB, out interface{}, id *string) error {
-	// Joins := ""
-	// wheres := []string{}
-	// values := []interface{}{}
+func GetItem(ctx context.Context, db *gorm.DB, table string, out interface{}, id *string) error {
+	selects := GetFieldsRequested(ctx, table)
+	if len(selects) <= 0 {
+		return db.Find(out, "id = ?", id).Error
+	}
 
-	// var dialect gorm.Dialect
-
-	// if dialect != nil {
-	// 	for _, v := range wheres {
-	// 		if find := strings.Contains(v, dialect.Quote("deleted_at")+" IS NOT NULL"); find {
-	// 			isFind = true
-	// 			break
-	// 		}
-	// 	}
-	// }
-
-	// return db.Joins(Joins).Where(strings.Join(wheres, " AND "), values...).Find(out, db.NewScope(out).TableName()+".id = ?", id).Error
-
-	return db.Find(out, "id = ?", id).Error
+	if IndexOf(selects, table+"."+"updated_by") == -1 {
+		selects = append(selects, table+"."+"updated_by")
+	}
+	if IndexOf(selects, table+"."+"deleted_by") == -1 {
+		selects = append(selects, table+"."+"deleted_by")
+	}
+	return db.Select(selects).Where(table+".deleted_at IS NOT NULL").Find(out, table+".id = ?", id).Error
 }
 
 type EntityFilter interface {

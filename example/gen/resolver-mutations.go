@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/sj-distributor/dolphin-example/enums"
 )
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -51,21 +52,22 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	err = ApplyChanges(input, &changes)
 
 	if err != nil {
-		return item, err
+		return nil, err
+	}
+
+	err = CheckStructFieldIsEmpty(item, input)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	item.ID = uuid.Must(uuid.NewV4()).String()
 	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
-	if _, ok := input["title"]; ok {
-		if input["title"] == "" {
-			return nil, fmt.Errorf("the title cannot be empty")
-		}
-		if item.Title != changes.Title {
-			event.AddNewValue("title", changes.Title)
-			item.Title = changes.Title
-		}
+	if _, ok := input["title"]; ok && (item.Title != changes.Title) {
+		event.AddNewValue("title", changes.Title)
+		item.Title = changes.Title
 	}
 
 	if _, ok := input["remark"]; ok && (item.Remark != changes.Remark) {
@@ -75,12 +77,12 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 
 	if err := tx.Create(item).Error; err != nil {
 		tx.Rollback()
-		return item, err
+		return nil, err
 	}
 
 	AddMutationEvent(ctx, event)
 
-	return item, nil
+	return
 }
 
 func (r *GeneratedMutationResolver) UpdateTodo(ctx context.Context, id string, input map[string]interface{}) (item *Todo, err error) {
@@ -94,7 +96,9 @@ func (r *GeneratedMutationResolver) UpdateTodo(ctx context.Context, id string, i
 }
 func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Todo, err error) {
 	item = &Todo{}
+	newItem := &Todo{}
 
+	isChange := false
 	now := time.Now()
 	milliTime := now.UnixNano() / 1e6
 	// 获取操作人Id
@@ -119,45 +123,47 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	err = ApplyChanges(input, &changes)
 	if err != nil {
 		tx.Rollback()
-		return
+		return nil, err
 	}
 
-	item.UpdatedAt = &milliTime
-	item.UpdatedBy = principalID
-
-	if err = GetItem(ctx, tx, item, &id); err != nil {
+	err = CheckStructFieldIsEmpty(item, input)
+	if err != nil {
 		tx.Rollback()
-		return
+		return nil, err
 	}
 
-	fmt.Println("item", item)
-
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
+	if err = GetItem(ctx, tx, "todos", item, &id); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
-	if _, ok := input["title"]; ok {
-		if input["title"] == "" {
-			return nil, fmt.Errorf("the title cannot be empty")
-		}
-		if item.Title != changes.Title {
-			event.AddOldValue("title", item.Title)
-			event.AddNewValue("title", changes.Title)
-			item.Title = changes.Title
-		}
+	if *item.UpdatedBy != *principalID {
+		newItem.UpdatedBy = principalID
+	}
+
+	if _, ok := input["title"]; ok && (item.Title != changes.Title) {
+		event.AddOldValue("title", item.Title)
+		event.AddNewValue("title", changes.Title)
+		item.Title = changes.Title
+		newItem.Title = changes.Title
+		isChange = true
 	}
 
 	if _, ok := input["remark"]; ok && (item.Remark != changes.Remark) {
 		event.AddOldValue("remark", item.Remark)
 		event.AddNewValue("remark", changes.Remark)
 		item.Remark = changes.Remark
+		newItem.Remark = changes.Remark
+		isChange = true
 	}
 
-	if err := tx.Model(&item).Save(item).Error; err != nil {
+	if !isChange {
+		return nil, fmt.Errorf(enums.DataNotChange)
+	}
+
+	if err := tx.Where("id = ?", item.ID).Updates(newItem).Error; err != nil {
 		tx.Rollback()
-		return item, err
+		return nil, err
 	}
 
 	AddMutationEvent(ctx, event)

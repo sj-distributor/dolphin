@@ -7,6 +7,7 @@ require (
 	github.com/cloudevents/sdk-go v1.2.0
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/iancoleman/strcase v0.2.0
 	github.com/maiguangyang/cloudevents-aws-transport v0.0.0-20200430035158-c952a06ccf03
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/cors v1.8.3
@@ -29,7 +30,6 @@ require (
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/graphql-go/graphql v0.8.0 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/iancoleman/strcase v0.2.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.2.0 // indirect

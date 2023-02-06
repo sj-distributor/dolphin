@@ -205,13 +205,13 @@ func (o *ObjectField) ModelTags() string {
 		switch o.Name() {
 		case "createdAt":
 			tye = "type:bigint(13)"
-			comment = "'createdAt';default:null;index:created_at;autoCreateTime:milli"
+			comment = "'createdAt';default:null;index:created_at;"
 		case "updatedAt":
 			tye = "type:bigint(13)"
-			comment = "'updatedAt';default:null;autoUpdateTime:milli"
+			comment = "'updatedAt';default:null;"
 		case "deletedAt":
 			tye = "type:bigint(13)"
-			comment = "'deletedAt';default:null;autoUpdateTime:milli"
+			comment = "'deletedAt';default:null;"
 		case "createdBy":
 			tye = "type:varchar(36)"
 			comment = "'createdBy';default:null;"

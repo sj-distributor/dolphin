@@ -23,14 +23,14 @@ type TodoResultType struct {
 
 type Todo struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	Title     string  `json:"title" gorm:"default:null"`
+	Title     string  `json:"title" gorm:"default:null" validator:"type:password;max:2"`
 	Remark    *string `json:"remark" gorm:"default:null"`
 	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deletedBy';default:null;"`
 	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updatedBy';default:null;"`
 	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'createdBy';default:null;"`
-	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deletedAt';default:null;autoUpdateTime:milli"`
-	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updatedAt';default:null;autoUpdateTime:milli"`
-	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'createdAt';default:null;index:created_at;autoCreateTime:milli"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deletedAt';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updatedAt';default:null;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'createdAt';default:null;index:created_at;"`
 }
 
 func (m *Todo) Is_Entity() {}

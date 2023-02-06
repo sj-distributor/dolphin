@@ -1,6 +1,10 @@
 package model
 
-import "github.com/graphql-go/graphql/language/ast"
+import (
+	"github.com/graphql-go/graphql/language/ast"
+	"github.com/iancoleman/strcase"
+	"github.com/jinzhu/inflection"
+)
 
 type Object struct {
 	Def       *ast.ObjectDefinition
@@ -11,6 +15,22 @@ type Object struct {
 // Name ...
 func (o *Object) Name() string {
 	return o.Def.Name.Value
+}
+
+func (o *Object) PluralName() string {
+	return inflection.Plural(o.Name())
+}
+func (o *Object) ToLowerPluralName() string {
+	return strcase.ToLowerCamel(o.PluralName())
+}
+func (o *Object) LowerName() string {
+	return strcase.ToLowerCamel(o.Name())
+}
+func (o *Object) ToSnakeName() string {
+	return strcase.ToSnake(o.Name())
+}
+func (o *Object) TableName() string {
+	return strcase.ToSnake(inflection.Plural(o.LowerName()))
 }
 
 // Columns ...

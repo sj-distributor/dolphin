@@ -25,6 +25,8 @@ type Mutation {
 type Todo {
   id: ID!
   title: String!
+  age: Int
+  money: Int!
   remark: String
   deletedBy: ID
   updatedBy: ID
@@ -36,11 +38,15 @@ type Todo {
 
 input TodoCreateInput {
   title: String!
+  age: Int
+  money: Int!
   remark: String
 }
 
 input TodoUpdateInput {
   title: String!
+  age: Int
+  money: Int!
   remark: String
 }`
 )

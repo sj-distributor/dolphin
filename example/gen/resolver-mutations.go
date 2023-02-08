@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/sj-distributor/dolphin-example/enums"
+	"github.com/sj-distributor/dolphin-example/validator"
 )
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -149,12 +150,33 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		isChange = true
 	}
 
-	if _, ok := input["remark"]; ok && (item.Remark != changes.Remark) {
+	if _, ok := input["money"]; ok && (item.Money != changes.Money) {
+		event.AddOldValue("money", item.Money)
+		event.AddNewValue("money", changes.Money)
+		item.Money = changes.Money
+		newItem.Money = changes.Money
+		isChange = true
+	}
+
+	if _, ok := input["age"]; ok && (item.Age != changes.Age) {
+		event.AddOldValue("age", item.Age)
+		event.AddNewValue("age", changes.Age)
+		item.Age = changes.Age
+		newItem.Age = changes.Age
+		isChange = true
+	}
+
+	if _, ok := input["remark"]; ok && (item.Remark != changes.Remark) && (item.Remark == nil || changes.Remark == nil || *item.Remark != *changes.Remark) {
 		event.AddOldValue("remark", item.Remark)
 		event.AddNewValue("remark", changes.Remark)
 		item.Remark = changes.Remark
 		newItem.Remark = changes.Remark
 		isChange = true
+	}
+
+	if err := validator.Struct(item); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	if !isChange {

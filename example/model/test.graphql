@@ -1,5 +1,7 @@
 
 type Todo @entity(title: "代办事项") {
-	title: String!
+  title: String! @validator(type: "password")
+  age: Int
+  money: Int!
   remark: String
 }

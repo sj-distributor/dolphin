@@ -64,6 +64,105 @@ func Max[T int64 | float64](value T, max interface{}) error {
 	return nil
 }
 
+// CheckStrLen ...
+func CheckStrLen(mapData map[string]interface{}, field reflect.Value) error {
+	if mapData["len"] != nil {
+		value := field.Interface()
+		newValue := field.String()
+		if field.Kind() == reflect.Ptr && value.(*string) != nil {
+			newValue = string(*value.(*string))
+		}
+		if err := Len(newValue, mapData["len"]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// CheckMinAndMax ...
+func CheckMinAndMax(mapData map[string]interface{}, field reflect.Value) error {
+	value := field.Interface()
+	newValue := int64(value.(int64))
+	if field.Kind() == reflect.Ptr && value.(*int64) != nil {
+		newValue = int64(*value.(*int64))
+	}
+
+	if mapData["min"] != nil {
+		if err := Min(newValue, mapData["min"]); err != nil {
+			return err
+		}
+	}
+
+	if mapData["max"] != nil {
+		if mapData["min"] != nil {
+			min, _ := convertor.ToInt(mapData["min"])
+			max, _ := convertor.ToInt(mapData["max"])
+			if max < min {
+				return fmt.Errorf("max cannot be less than min")
+			}
+		}
+		if err := Max(newValue, mapData["max"]); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// CheckRuleValue ...
+func CheckRuleValue(mapData map[string]interface{}, field reflect.Value) error {
+	if mapData["type"] != nil {
+		value := field.Interface()
+		rl := utils.Rule[mapData["type"].(string)] // utils.Rule 为正则规则
+		if rl["rgx"] == nil {
+			return fmt.Errorf("type " + mapData["type"].(string) + " is empty")
+		}
+		newValue := field.String()
+		if field.Kind() == reflect.Ptr && value.(*string) != nil {
+			newValue = string(*value.(*string))
+		}
+
+		if isVerify := regexp.MustCompile(rl["rgx"].(string)).MatchString(newValue); !isVerify {
+			return fmt.Errorf(rl["msg"].(string))
+		}
+	}
+	return nil
+}
+
+// Validate ...
+func Validate(field reflect.Value, tag reflect.StructTag) error {
+	validator := tag.Get("validator")
+
+	if validator != "" {
+		arr := strings.Split(validator, ";")
+		mapData := generateMap(arr)
+
+		value := field.Interface()
+		title := tag.Get("json")
+
+		switch reflect.TypeOf(value).String() {
+		// 字符串长度限制
+		case "string", "*string":
+			if err := CheckStrLen(mapData, field); err != nil {
+				return fmt.Errorf(title + " " + err.Error())
+			}
+
+		// 整数最小值、最大值限制
+		case "int64", "*int64":
+			if err := CheckMinAndMax(mapData, field); err != nil {
+				return fmt.Errorf(title + " " + err.Error())
+			}
+		}
+
+		// 正则验证
+		if err := CheckRuleValue(mapData, field); err != nil {
+			return fmt.Errorf(title + " " + err.Error())
+		}
+	}
+
+	return nil
+}
+
 // Struct ...
 func Struct(item interface{}) error {
 	data := reflect.ValueOf(item)
@@ -72,71 +171,9 @@ func Struct(item interface{}) error {
 
 	for i := 0; i < elem.NumField(); i++ {
 		tag := elemKey.Field(i).Tag
-		validator := tag.Get("validator")
 
-		if validator != "" {
-			arr := strings.Split(validator, ";")
-			mapData := generateMap(arr)
-
-			field := elem.Field(i)
-			value := field.Interface()
-			title := tag.Get("json")
-
-			switch reflect.TypeOf(value).String() {
-			// 字符串长度限制
-			case "string", "*string":
-				if mapData["len"] != nil {
-					newValue := field.String()
-					if field.Kind() == reflect.Ptr && value.(*string) != nil {
-						newValue = string(*value.(*string))
-					}
-					if err := Len(newValue, mapData["len"]); err != nil {
-						return fmt.Errorf(title + " " + err.Error())
-					}
-				}
-
-			// 整数最小值、最大值限制
-			case "int64", "*int64":
-				newValue := int64(value.(int64))
-				if field.Kind() == reflect.Ptr && value.(*int64) != nil {
-					newValue = int64(*value.(*int64))
-				}
-
-				if mapData["min"] != nil {
-					if err := Min(newValue, mapData["min"]); err != nil {
-						return fmt.Errorf(title + " " + err.Error())
-					}
-				}
-
-				if mapData["max"] != nil {
-					if mapData["min"] != nil {
-						min, _ := convertor.ToInt(mapData["min"])
-						max, _ := convertor.ToInt(mapData["max"])
-						if max < min {
-							return fmt.Errorf(title + " max cannot be less than min")
-						}
-					}
-					if err := Max(newValue, mapData["max"]); err != nil {
-						return fmt.Errorf(title + " " + err.Error())
-					}
-				}
-			}
-
-			// 正则验证
-			if mapData["type"] != nil {
-				rl := utils.Rule[mapData["type"].(string)] // utils.Rule 为正则规则
-				if rl["rgx"] == nil {
-					return fmt.Errorf(title + " type " + mapData["type"].(string) + " is empty")
-				}
-				newValue := field.String()
-				if field.Kind() == reflect.Ptr && value.(*string) != nil {
-					newValue = string(*value.(*string))
-				}
-
-				if isVerify := regexp.MustCompile(rl["rgx"].(string)).MatchString(newValue); !isVerify {
-					return fmt.Errorf(title + " " + rl["msg"].(string))
-				}
-			}
+		if err := Validate(elem.Field(i), tag); err != nil {
+			return err
 		}
 	}
 	return nil

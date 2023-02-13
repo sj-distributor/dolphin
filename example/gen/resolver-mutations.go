@@ -133,7 +133,7 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	if err = GetItem(ctx, tx, "todos", item, &id); err != nil {
+	if err = GetItem(ctx, tx, TableName("todos"), item, &id); err != nil {
 		tx.Rollback()
 		return nil, err
 	}

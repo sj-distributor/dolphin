@@ -28,7 +28,7 @@ type EntityFilter interface {
 }
 
 type EntityFilterQuery interface {
-	Apply(ctx context.Context, selectionSet *ast.SelectionSet, wheres *[]string, values *[]interface{}, joins *[]string) error
+	Apply(ctx context.Context, db *gorm.DB, selectionSet *ast.SelectionSet, wheres *[]string, values *[]interface{}, joins *[]string) error
 }
 
 type EntitySort interface {
@@ -81,11 +81,11 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 	joins := []string{}
 	sorts := []string{}
 
-	if r.Rand != nil && *r.Rand == true {
+	if r.Rand != nil && *r.Rand {
 		sorts = append(sorts, "Rand()")
 	}
 
-	err := r.Query.Apply(ctx, r.SelectionSet, &wheres, &values, &joins)
+	err := r.Query.Apply(ctx, db, r.SelectionSet, &wheres, &values, &joins)
 	if err != nil {
 		return err
 	}
@@ -104,12 +104,12 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 	isAt := false
 
 	for _, s := range sorts {
-		if strings.Index(s, "_at") != -1 {
+		if strings.Contains(s, "_at") {
 			isAt = true
 		}
 	}
 
-	if isAt == false {
+	if !isAt {
 		sorts = append(sorts, opts.Alias+".created_at DESC")
 	}
 

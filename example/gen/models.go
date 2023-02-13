@@ -23,10 +23,10 @@ type TodoResultType struct {
 
 type Todo struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	Title     string  `json:"title" gorm:"default:null" validator:"type:password;"`
+	Title     string  `json:"title" gorm:"default:null"`
 	Age       *int64  `json:"age" gorm:"default:null"`
-	Money     int64   `json:"money" gorm:"default:null" validator:"max:2;"`
-	Remark    *string `json:"remark" gorm:"default:null" validator:"type:password;len:12;"`
+	Money     int64   `json:"money" gorm:"default:null"`
+	Remark    *string `json:"remark" gorm:"default:null"`
 	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deletedBy';default:null;"`
 	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updatedBy';default:null;"`
 	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'createdBy';default:null;"`
@@ -70,7 +70,7 @@ func ApplyChanges(changes map[string]interface{}, to interface{}) error {
 				case reflect.Int64:
 					return time.Unix(0, v.(int64)*int64(time.Millisecond)), nil
 				default:
-					return v, fmt.Errorf("unable to parse date from %v", v)
+					return v, fmt.Errorf("Unable to parse date from %v", v)
 				}
 			}
 

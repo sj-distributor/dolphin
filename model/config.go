@@ -23,7 +23,7 @@ func LoadConfig() (c Config, err error) {
 
 func LoadConfigFromPath(p string) (c Config, err error) {
 
-	configSource, err := ioutil.ReadFile(path.Join(p, "graphql-orm.yml"))
+	configSource, err := ioutil.ReadFile(path.Join(p, "dolphin.yml"))
 	if err != nil {
 		return
 	}

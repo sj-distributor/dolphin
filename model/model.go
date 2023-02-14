@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql/language/ast"
 )
 
@@ -83,4 +85,13 @@ func (m *Model) ObjectExtensions() []ObjectExtension {
 		}
 	}
 	return objs
+}
+
+func (m *Model) Object(name string) Object {
+	for _, o := range m.Objects() {
+		if o.Name() == name {
+			return o
+		}
+	}
+	panic(fmt.Sprintf("Object with name %s not found in model", name))
 }

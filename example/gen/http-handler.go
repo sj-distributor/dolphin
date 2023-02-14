@@ -7,7 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/gqlgen/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
+
 	jwtgo "github.com/golang-jwt/jwt/v4"
 )
 
@@ -15,11 +17,11 @@ func GetHTTPServeMux(r ResolverRoot, db *DB) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	executableSchema := NewExecutableSchema(Config{Resolvers: r})
-	gqlHandler := handler.GraphQL(executableSchema)
+	gqlHandler := handler.NewDefaultServer(executableSchema)
 
-	// loaders := GetLoaders(db)
+	loaders := GetLoaders(db)
 
-	playgroundHandler := handler.Playground("GraphQL playground", "/graphql")
+	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
 	mux.HandleFunc("/automigrate", func(res http.ResponseWriter, req *http.Request) {
 		err := db.AutoMigrate()
 		if err != nil {
@@ -37,13 +39,13 @@ func GetHTTPServeMux(r ResolverRoot, db *DB) *http.ServeMux {
 		if principalID != nil {
 			ctx = context.WithValue(ctx, KeyPrincipalID, principalID)
 		}
-		// ctx = context.WithValue(ctx, KeyLoaders, loaders)
+		ctx = context.WithValue(ctx, KeyLoaders, loaders)
 		ctx = context.WithValue(ctx, KeyExecutableSchema, executableSchema)
 		req = req.WithContext(ctx)
 		if req.Method == "GET" {
 			playgroundHandler(res, req)
 		} else {
-			gqlHandler(res, req)
+			gqlHandler.ServeHTTP(res, req)
 		}
 	})
 	handler := mux

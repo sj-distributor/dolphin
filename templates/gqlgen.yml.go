@@ -1,5 +1,7 @@
-# Generated with dolphin
+package templates
 
+var GQLGen = `# Generated with dolphin
+{{$config:=.Config}}
 schema:
   - schema.graphql
 exec:
@@ -13,11 +15,11 @@ resolver:
   type: Resolver
   package: gen
 autobind:
-- "github.com/sj-distributor/dolphin-example/gen"
+- "{{.Config.Package}}/gen"
 
 models:
-  TodoResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.TodoResultType
+  {{range $obj := .Model.ObjectEntities}}{{$obj.Name}}ResultType:
+    model: {{$config.Package}}/gen.{{$obj.Name}}ResultType
     fields:
       data:
         resolver: true
@@ -29,10 +31,11 @@ models:
         resolver: true
       total_page:
         resolver: true
-  TodoCreateInput:
+  {{$obj.Name}}CreateInput:
     model: "map[string]interface{}"
-  TodoUpdateInput:
+  {{$obj.Name}}UpdateInput:
     model: "map[string]interface{}"
-  
+  {{end}}
   _Any:
-    model: github.com/sj-distributor/dolphin-example/gen._Any
+    model: {{$config.Package}}/gen._Any
+`

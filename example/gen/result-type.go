@@ -54,6 +54,10 @@ type GetItemsOptions struct {
 	Item       interface{}
 }
 
+type CountResult struct {
+	Count int
+}
+
 func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetItemsOptions, out interface{}) error {
 	q := db
 
@@ -139,4 +143,60 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 	}
 
 	return q.Find(out).Error
+}
+
+// GetTotal ...
+func (r *EntityResultType) GetTotal(ctx context.Context, db *gorm.DB, table string, out interface{}) (count int, err error) {
+	q := db.Model(out).Select(table + ".id")
+
+	wheres := []string{}
+	values := []interface{}{}
+	joins := []string{}
+
+	err = r.Query.Apply(ctx, db, r.SelectionSet, &wheres, &values, &joins)
+	if err != nil {
+		return 0, err
+	}
+
+	if r.Filter != nil {
+		err = r.Filter.Apply(ctx, &wheres, &values, &joins)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	if len(wheres) > 0 {
+		q = q.Where(strings.Join(wheres, " AND "), values...)
+	}
+
+	uniqueJoinsMap := map[string]bool{}
+	uniqueJoins := []string{}
+	for _, join := range joins {
+		if !uniqueJoinsMap[join] {
+			uniqueJoinsMap[join] = true
+			uniqueJoins = append(uniqueJoins, join)
+		}
+	}
+
+	for _, join := range uniqueJoins {
+		q = q.Joins(join)
+	}
+
+	var result CountResult
+
+	for _, v := range wheres {
+		if find := strings.Contains(v, table+".deleted_at"+" IS NOT NULL"); find {
+			break
+		}
+	}
+
+	err = q.Select("DISTINCT COUNT(" + table + ".id) as count").Scan(&result).Error
+
+	count = result.Count
+
+	return
+}
+
+func (r *EntityResultType) GetSortStrings() []string {
+	return []string{}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/graphql-go/graphql/language/ast"
+	"github.com/iancoleman/strcase"
 )
 
 var goTypeMap = map[string]string{
@@ -83,6 +84,10 @@ func (o *ObjectField) IsEnumType() bool {
 	return o.Obj.Model.HasEnum(o.TargetType())
 }
 
+func (o *ObjectField) IsWritableType() bool {
+	return !o.IsReadonlyType()
+}
+
 // IsScalarType ...
 func (o *ObjectField) IsScalarType() bool {
 	return o.Obj.Model.HasScalar(o.TargetType())
@@ -106,6 +111,10 @@ func (o *ObjectField) IsEmbeddedColumn() bool {
 func (o *ObjectField) IsSearchable() bool {
 	t := getNamedType(o.Def.Type).(*ast.Named)
 	return t.Name.Value == "String" || t.Name.Value == "Int" || t.Name.Value == "Float"
+}
+
+func (o *ObjectField) IsSortable() bool {
+	return !o.IsReadonlyType() && o.IsScalarType()
 }
 
 func (o *ObjectField) IsString() bool {
@@ -259,4 +268,45 @@ func (o *ObjectField) ModelTags() string {
 	}
 
 	return str
+}
+
+func (f *FilterMappingItem) IsLike() bool {
+	return f.SuffixCamel() == "Like"
+}
+
+func (f *FilterMappingItem) SuffixCamel() string {
+	return strcase.ToCamel(f.Suffix)
+}
+
+func (f *FilterMappingItem) WrapValueVariable(v string) string {
+	return fmt.Sprintf(f.ValueFormat, v)
+}
+
+type FilterMappingItem struct {
+	Suffix      string
+	Operator    string
+	InputType   ast.Type
+	ValueFormat string
+}
+
+func (o *ObjectField) FilterMapping() []FilterMappingItem {
+	t := getNamedType(o.Def.Type)
+	mapping := []FilterMappingItem{
+		{"", "= ?", t, "%s"},
+		{"_ne", "!= ?", t, "%s"},
+		{"_gt", "> ?", t, "%s"},
+		{"_lt", "< ?", t, "%s"},
+		{"_gte", ">= ?", t, "%s"},
+		{"_lte", "<= ?", t, "%s"},
+		{"_in", "IN (?)", listType(nonNull(t)), "%s"},
+	}
+	_t := t.(*ast.Named)
+	if _t.Name.Value == "String" {
+		mapping = append(mapping,
+			FilterMappingItem{"_like", "LIKE ?", t, "strings.Replace(strings.Replace(*%s,\"?\",\"_\",-1),\"*\",\"%%\",-1)"},
+			FilterMappingItem{"_prefix", "LIKE ?", t, "fmt.Sprintf(\"%%s%%%%\",*%s)"},
+			FilterMappingItem{"_suffix", "LIKE ?", t, "fmt.Sprintf(\"%%%%%%s\",*%s)"},
+		)
+	}
+	return mapping
 }

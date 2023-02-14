@@ -37,11 +37,11 @@ func EnrichModel(m *Model) error {
 				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", nonNull(listType(nonNull(namedType("ID"))))))
 			}
 		}
-		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o))
+		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))
 		// definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))
 		// definitions = append(definitions, createObjectRelationship(o), updateObjectRelationship(o))
 		// definitions = append(definitions, createReverseRelationship(o), updateReverseRelationship(o))
-		// definitions = append(definitions, objectResultTypeDefinition(&o))
+		definitions = append(definitions, objectResultTypeDefinition(&o))
 	}
 
 	schemaHeaderNodes := []ast.Node{
@@ -51,7 +51,7 @@ func EnrichModel(m *Model) error {
 		schemaDefinition(m),
 		queryDefinition(m),
 		mutationDefinition(m),
-		// createObjectSortEnum(),
+		createObjectSortEnum(),
 	}
 	m.Doc.Definitions = append(schemaHeaderNodes, m.Doc.Definitions...)
 	m.Doc.Definitions = append(m.Doc.Definitions, definitions...)

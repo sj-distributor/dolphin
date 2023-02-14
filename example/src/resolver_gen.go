@@ -28,3 +28,11 @@ func (r *Resolver) Mutation() gen.MutationResolver {
 func (r *Resolver) Query() gen.QueryResolver {
 	return &QueryResolver{&gen.GeneratedQueryResolver{r.GeneratedResolver}}
 }
+
+type TodoResultTypeResolver struct {
+	*gen.GeneratedTodoResultTypeResolver
+}
+
+func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
+	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{r.GeneratedResolver}}
+}

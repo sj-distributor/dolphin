@@ -21,3 +21,12 @@ func (o *ObjectRelationship) IsToMany() bool {
 func (o *ObjectRelationship) IsToOne() bool {
 	return !o.IsToMany()
 }
+
+func (o *ObjectRelationship) Target() *Object {
+	target := o.Obj.Model.Object(o.TargetType())
+	return &target
+}
+func (o *ObjectRelationship) TargetType() string {
+	nt := getNamedType(o.Def.Type).(*ast.Named)
+	return nt.Name.Value
+}

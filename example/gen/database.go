@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/iancoleman/strcase"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -100,7 +101,7 @@ func TableName(name string) string {
 	if prefix != "" {
 		return prefix + "_" + name
 	}
-	return name
+	return strcase.ToSnake(strcase.ToLowerCamel(name))
 }
 
 // Close ...

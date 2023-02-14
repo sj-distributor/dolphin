@@ -11,7 +11,7 @@ func createFederationEntitiesQueryField() *ast.FieldDefinition {
 		Name: nameNode("_entities"),
 		Type: nonNull(listType(namedType("_Entity"))),
 		Arguments: []*ast.InputValueDefinition{
-			&ast.InputValueDefinition{
+			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("representations"),
 				Type: nonNull(listType(nonNull(namedType("_Any")))),

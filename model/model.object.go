@@ -1,6 +1,8 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/graphql-go/graphql/language/ast"
 	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
@@ -71,6 +73,13 @@ func (o *Object) isRelationship(f *ast.FieldDefinition) bool {
 	return false
 }
 
+func (o *Object) IsToManyColumn(c ObjectField) bool {
+	if c.Obj.Name() != o.Name() {
+		return false
+	}
+	return o.HasRelationship(strings.TrimSuffix(c.Name(), "Ids"))
+}
+
 func (o *Object) Relationships() []*ObjectRelationship {
 	relationships := []*ObjectRelationship{}
 	for _, f := range o.Def.Fields {
@@ -79,6 +88,15 @@ func (o *Object) Relationships() []*ObjectRelationship {
 		}
 	}
 	return relationships
+}
+
+func (o *Object) HasRelationship(name string) bool {
+	for _, rel := range o.Relationships() {
+		if rel.Name() == name {
+			return true
+		}
+	}
+	return false
 }
 
 func (o *Object) HasDirective(name string) bool {
@@ -95,4 +113,8 @@ func (o *Object) Interfaces() []string {
 		interfaces = append(interfaces, item.Name.Value)
 	}
 	return interfaces
+}
+
+func (o *Object) IsExtended() bool {
+	return o.Extension != nil
 }

@@ -17,7 +17,7 @@ func queryDefinition(m *Model) *ast.ObjectDefinition {
 	}
 
 	for _, obj := range m.ObjectEntities() {
-		fields = append(fields, fetchFieldDefinition(obj))
+		fields = append(fields, fetchFieldDefinition(obj), listFieldDefinition(obj))
 	}
 	return &ast.ObjectDefinition{
 		Kind: kinds.ObjectDefinition,
@@ -35,7 +35,7 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 		Name: nameNode(inflection.Singular(strcase.ToLowerCamel(obj.Name()))),
 		Type: namedType(obj.Name()),
 		Arguments: []*ast.InputValueDefinition{
-			&ast.InputValueDefinition{
+			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("id"),
 				// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "Input for searching by object ID"}, // 这是描述说明
@@ -52,35 +52,35 @@ func listFieldDefinition(obj Object) *ast.FieldDefinition {
 		Name: nameNode(inflection.Plural(strcase.ToLowerCamel(obj.Name()))),
 		Type: namedType(obj.Name() + "ResultType"),
 		Arguments: []*ast.InputValueDefinition{
-			&ast.InputValueDefinition{
+			{
 				Kind:         kinds.InputValueDefinition,
 				Name:         nameNode("current_page"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "1"},
 				Type:         namedType("Int"),
 			},
-			&ast.InputValueDefinition{
+			{
 				Kind:         kinds.InputValueDefinition,
 				Name:         nameNode("per_page"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "10"},
 				Type:         namedType("Int"),
 			},
 
-			&ast.InputValueDefinition{
+			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("q"),
 				Type: namedType("String"),
 			},
-			&ast.InputValueDefinition{
+			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("sort"),
 				Type: listType(nonNull(namedType(obj.Name() + "SortType"))),
 			},
-			&ast.InputValueDefinition{
+			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("filter"),
 				Type: namedType(obj.Name() + "FilterType"),
 			},
-			&ast.InputValueDefinition{
+			{
 				Kind:         kinds.InputValueDefinition,
 				Name:         nameNode("rand"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},

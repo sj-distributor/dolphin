@@ -22,11 +22,11 @@ type QueryResolver struct {
 }
 
 func (r *Resolver) Mutation() gen.MutationResolver {
-	return &MutationResolver{&gen.GeneratedMutationResolver{r.GeneratedResolver}}
+	return &MutationResolver{&gen.GeneratedMutationResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
 func (r *Resolver) Query() gen.QueryResolver {
-	return &QueryResolver{&gen.GeneratedQueryResolver{r.GeneratedResolver}}
+	return &QueryResolver{&gen.GeneratedQueryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
 type TodoResultTypeResolver struct {
@@ -34,5 +34,5 @@ type TodoResultTypeResolver struct {
 }
 
 func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
-	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{r.GeneratedResolver}}
+	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }

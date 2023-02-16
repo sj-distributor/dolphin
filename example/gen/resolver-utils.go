@@ -128,14 +128,18 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 // CheckStructFieldIsEmpty ...
 func CheckStructFieldIsEmpty(item interface{}, input map[string]interface{}) (err error) {
 	res := []string{}
-	data := reflect.TypeOf(item)
-	elem := data.Elem()
+	value := reflect.ValueOf(item)
+	elem := value.Elem()
+	elemKey := elem.Type()
+
 	for i := 0; i < elem.NumField(); i++ {
 		field := elem.Field(i)
-		if field.Type.Name() != "" {
-			name := strcase.ToSnake(strcase.ToLowerCamel(field.Name))
-			if _, ok := input[name]; ok && (input[name] == "") {
-				res = append(res, name)
+		if !strings.Contains(reflect.TypeOf(field.Interface()).String(), "*") {
+			name := strcase.ToSnake(strcase.ToLowerCamel(elemKey.Field(i).Name))
+			if v, ok := input[name]; ok {
+				if v == "" || (strings.Contains(reflect.TypeOf(v).String(), "[]") && len(v.([]interface{})) <= 0) {
+					res = append(res, name)
+				}
 			}
 		}
 	}

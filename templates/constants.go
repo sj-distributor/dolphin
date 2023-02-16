@@ -2,9 +2,6 @@ package templates
 
 var Constants = `package gen
 
-import (
-)
-
 type key int
 
 const (
@@ -14,6 +11,5 @@ const (
 	KeyMutationTransaction  key = iota
 	KeyMutationEvents       key = iota
 	KeyExecutableSchema     key = iota
-	SchemaSDL string        = ` + "`{{.SchemaSDL}}`" + `
 )
 `

@@ -28,9 +28,25 @@ func (o *ObjectField) Name() string {
 	return o.Def.Name.Value
 }
 
+func (o *ObjectField) LowerName() string {
+	return strcase.ToLowerCamel(o.Name())
+}
+
+func (o *ObjectField) ToSnakeName() string {
+	return strcase.ToSnake(o.Name())
+}
+
 func (o *ObjectField) MethodName() string {
 	name := o.Name()
 	return templates.ToGo(name)
+}
+
+func (o *ObjectField) ArgumentsValue() []ObjectFieldInput {
+	arguments := []ObjectFieldInput{}
+	for _, f := range o.Def.Arguments {
+		arguments = append(arguments, ObjectFieldInput{f, o})
+	}
+	return arguments
 }
 
 // TargetType ...
@@ -117,9 +133,23 @@ func (o *ObjectField) IsSortable() bool {
 	return !o.IsReadonlyType() && o.IsScalarType()
 }
 
+func (o *ObjectField) IsID() bool {
+	t := getNamedType(o.Def.Type).(*ast.Named)
+	return t.Name.Value == "ID"
+}
+
+func (o *ObjectField) IsInt() bool {
+	t := getNamedType(o.Def.Type).(*ast.Named)
+	return t.Name.Value == "Int"
+}
+
 func (o *ObjectField) IsString() bool {
 	t := getNamedType(o.Def.Type).(*ast.Named)
 	return t.Name.Value == "String"
+}
+
+func (o *ObjectField) IsRequired() bool {
+	return isNonNullType(o.Def.Type)
 }
 
 func (m *Model) HasScalar(name string) bool {
@@ -176,20 +206,24 @@ func (o *ObjectField) InputType() ast.Type {
 }
 
 func (o *ObjectField) GoType() string {
-	return o.GoTypeWithPointer(true)
+	return o.GoTypeWithPointer()
 }
-func (o *ObjectField) GoTypeWithPointer(showPointer bool) string {
+func (o *ObjectField) GoTypeWithPointer() string {
 	t := o.Def.Type
 	st := ""
 
-	if o.IsOptional() && showPointer {
+	if o.IsOptional() {
 		st += "*"
 	} else {
 		t = getNullableType(t)
 	}
 
 	if isListType(t) {
-		st += "[]*"
+		if o.IsRequired() {
+			st = "[]"
+		} else {
+			st += "[]*"
+		}
 	}
 
 	v, ok := getNamedType(o.Def.Type).(*ast.Named)
@@ -206,43 +240,24 @@ func (o *ObjectField) GoTypeWithPointer(showPointer bool) string {
 }
 
 func (o *ObjectField) ModelTags() string {
-	_gorm := fmt.Sprintf("default:null")
+	_gorm := "default:null"
+
+	if o.IsString() {
+		_gorm = fmt.Sprintf("type:varchar(255) comment '%s';default:null;", o.ToSnakeName())
+	} else if o.IsID() {
+		_gorm = fmt.Sprintf("type:varchar(36) comment '%s';default:null;", o.ToSnakeName())
+	} else if o.IsInt() {
+		_gorm = fmt.Sprintf("type:bigint(13) comment '%s';default:null;", o.ToSnakeName())
+	}
+
 	_valid := ""
 
-	dateArr := []interface{}{"createdAt", "updatedAt", "deletedAt", "createdBy", "updatedBy", "deletedBy"}
-	// required/是否必填，type/正则校验类型，repeat/是否允许重复数据，relation/是否和公司id一起关联，join/重复数据和字段join，edit/是否允许编辑
-	fields := []interface{}{}
+	if o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy" {
+		_gorm += fmt.Sprintf("index:%s;", o.ToSnakeName())
+	}
 
 	if o.Name() == "id" {
 		_gorm = "type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"
-	}
-
-	if IndexOf(dateArr, o.Name()) != -1 {
-		tye := "type:varchar(255)"
-
-		comment := "null;default:null"
-		switch o.Name() {
-		case "createdAt":
-			tye = "type:bigint(13)"
-			comment = "'createdAt';default:null;index:created_at;"
-		case "updatedAt":
-			tye = "type:bigint(13)"
-			comment = "'updatedAt';default:null;"
-		case "deletedAt":
-			tye = "type:bigint(13)"
-			comment = "'deletedAt';default:null;"
-		case "createdBy":
-			tye = "type:varchar(36)"
-			comment = "'createdBy';default:null;"
-		case "updatedBy":
-			tye = "type:varchar(36)"
-			comment = "'updatedBy';default:null;"
-		case "deletedBy":
-			tye = "type:varchar(36)"
-			comment = "'deletedBy';default:null;"
-		}
-		_gorm = fmt.Sprintf("%s comment %s", tye, comment)
-
 	}
 
 	for _, d := range o.Def.Directives {
@@ -254,7 +269,7 @@ func (o *ObjectField) ModelTags() string {
 			}
 		} else if d.Name.Value == "validator" {
 			for _, arg := range d.Arguments {
-				if arg.Value.GetValue() != nil && IndexOf(fields, arg.Name.Value) != -1 {
+				if arg.Value.GetValue() != nil {
 					_valid += fmt.Sprintf("%v", arg.Name.Value+":"+arg.Value.GetValue().(string)+";")
 				}
 			}

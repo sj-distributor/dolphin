@@ -23,16 +23,16 @@ type TodoResultType struct {
 
 type Todo struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	Title     string  `json:"title" gorm:"default:null"`
-	Age       *int64  `json:"age" gorm:"default:null"`
-	Money     int64   `json:"money" gorm:"default:null"`
-	Remark    *string `json:"remark" gorm:"default:null"`
-	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deletedBy';default:null;"`
-	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updatedBy';default:null;"`
-	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'createdBy';default:null;"`
-	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deletedAt';default:null;"`
-	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updatedAt';default:null;"`
-	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'createdAt';default:null;index:created_at;"`
+	Title     string  `json:"title" gorm:"type:varchar(255) comment 'title';default:null;" validator:"type:password;"`
+	Age       *int64  `json:"age" gorm:"type:bigint(13) comment 'age';default:null;"`
+	Money     int64   `json:"money" gorm:"type:bigint(13) comment 'money';default:null;"`
+	Remark    *string `json:"remark" gorm:"type:varchar(255) comment 'remark';default:null;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null;"`
 }
 
 func (m *Todo) Is_Entity() {}

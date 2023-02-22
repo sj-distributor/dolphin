@@ -6,6 +6,517 @@ import (
 	"strings"
 )
 
+func (f *UserFilterType) IsEmpty(ctx context.Context) bool {
+	wheres := []string{}
+	values := []interface{}{}
+	joins := []string{}
+	err := f.ApplyWithAlias(ctx, "companies", &wheres, &values, &joins)
+	if err != nil {
+		panic(err)
+	}
+	return len(wheres) == 0
+}
+func (f *UserFilterType) Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error {
+	return f.ApplyWithAlias(ctx, TableName("users"), wheres, values, joins)
+}
+func (f *UserFilterType) ApplyWithAlias(ctx context.Context, alias string, wheres *[]string, values *[]interface{}, joins *[]string) error {
+	if f == nil {
+		return nil
+	}
+	aliasPrefix := alias + "."
+
+	_where, _values := f.WhereContent(aliasPrefix)
+	*wheres = append(*wheres, _where...)
+	*values = append(*values, _values...)
+
+	if f.Or != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, or := range f.Or {
+			_cs := []string{}
+			err := or.ApplyWithAlias(ctx, alias, &_cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+			cs = append(cs, strings.Join(_cs, " AND "))
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, "("+strings.Join(cs, " OR ")+")")
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
+	if f.And != nil {
+		cs := []string{}
+		vs := []interface{}{}
+		js := []string{}
+		for _, and := range f.And {
+			err := and.ApplyWithAlias(ctx, alias, &cs, &vs, &js)
+			if err != nil {
+				return err
+			}
+		}
+		if len(cs) > 0 {
+			*wheres = append(*wheres, strings.Join(cs, " AND "))
+		}
+		*values = append(*values, vs...)
+		*joins = append(*joins, js...)
+	}
+
+	if f.Todo != nil {
+		_alias := alias + "_todo"
+		*joins = append(*joins, "LEFT JOIN "+"todos"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"todo_id")
+		err := f.Todo.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (f *UserFilterType) WhereContent(aliasPrefix string) (conditions []string, values []interface{}) {
+	conditions = []string{}
+	values = []interface{}{}
+
+	if f.ID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" = ?")
+		values = append(values, f.ID)
+	}
+
+	if f.IDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" != ?")
+		values = append(values, f.IDNe)
+	}
+
+	if f.IDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" > ?")
+		values = append(values, f.IDGt)
+	}
+
+	if f.IDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" < ?")
+		values = append(values, f.IDLt)
+	}
+
+	if f.IDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" >= ?")
+		values = append(values, f.IDGte)
+	}
+
+	if f.IDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" <= ?")
+		values = append(values, f.IDLte)
+	}
+
+	if f.IDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("id")+" IN (?)")
+		values = append(values, f.IDIn)
+	}
+
+	if f.IDNull != nil {
+		if *f.IDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("id")+" IS NULL"+" OR "+aliasPrefix+SnakeString("id")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("id")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("id")+" <> ''")
+		}
+	}
+
+	if f.Username != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" = ?")
+		values = append(values, f.Username)
+	}
+
+	if f.UsernameNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" != ?")
+		values = append(values, f.UsernameNe)
+	}
+
+	if f.UsernameGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" > ?")
+		values = append(values, f.UsernameGt)
+	}
+
+	if f.UsernameLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" < ?")
+		values = append(values, f.UsernameLt)
+	}
+
+	if f.UsernameGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" >= ?")
+		values = append(values, f.UsernameGte)
+	}
+
+	if f.UsernameLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" <= ?")
+		values = append(values, f.UsernameLte)
+	}
+
+	if f.UsernameIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" IN (?)")
+		values = append(values, f.UsernameIn)
+	}
+
+	if f.UsernameLike != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" LIKE ?")
+		values = append(values, "%"+strings.Replace(strings.Replace(*f.UsernameLike, "?", "_", -1), "*", "%", -1)+"%")
+	}
+
+	if f.UsernamePrefix != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" LIKE ?")
+		values = append(values, fmt.Sprintf("%s%%", *f.UsernamePrefix))
+	}
+
+	if f.UsernameSuffix != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("username")+" LIKE ?")
+		values = append(values, fmt.Sprintf("%%%s", *f.UsernameSuffix))
+	}
+
+	if f.UsernameNull != nil {
+		if *f.UsernameNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("username")+" IS NULL"+" OR "+aliasPrefix+SnakeString("username")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("username")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("username")+" <> ''")
+		}
+	}
+
+	if f.TodoID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" = ?")
+		values = append(values, f.TodoID)
+	}
+
+	if f.TodoIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" != ?")
+		values = append(values, f.TodoIDNe)
+	}
+
+	if f.TodoIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" > ?")
+		values = append(values, f.TodoIDGt)
+	}
+
+	if f.TodoIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" < ?")
+		values = append(values, f.TodoIDLt)
+	}
+
+	if f.TodoIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" >= ?")
+		values = append(values, f.TodoIDGte)
+	}
+
+	if f.TodoIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" <= ?")
+		values = append(values, f.TodoIDLte)
+	}
+
+	if f.TodoIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" IN (?)")
+		values = append(values, f.TodoIDIn)
+	}
+
+	if f.TodoIDNull != nil {
+		if *f.TodoIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("todoId")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("todoId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("todoId")+" <> ''")
+		}
+	}
+
+	if f.DeletedBy != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" = ?")
+		values = append(values, f.DeletedBy)
+	}
+
+	if f.DeletedByNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" != ?")
+		values = append(values, f.DeletedByNe)
+	}
+
+	if f.DeletedByGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" > ?")
+		values = append(values, f.DeletedByGt)
+	}
+
+	if f.DeletedByLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" < ?")
+		values = append(values, f.DeletedByLt)
+	}
+
+	if f.DeletedByGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" >= ?")
+		values = append(values, f.DeletedByGte)
+	}
+
+	if f.DeletedByLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" <= ?")
+		values = append(values, f.DeletedByLte)
+	}
+
+	if f.DeletedByIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" IN (?)")
+		values = append(values, f.DeletedByIn)
+	}
+
+	if f.DeletedByNull != nil {
+		if *f.DeletedByNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" IS NULL"+" OR "+aliasPrefix+SnakeString("deletedBy")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("deletedBy")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("deletedBy")+" <> ''")
+		}
+	}
+
+	if f.UpdatedBy != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" = ?")
+		values = append(values, f.UpdatedBy)
+	}
+
+	if f.UpdatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" != ?")
+		values = append(values, f.UpdatedByNe)
+	}
+
+	if f.UpdatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" > ?")
+		values = append(values, f.UpdatedByGt)
+	}
+
+	if f.UpdatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" < ?")
+		values = append(values, f.UpdatedByLt)
+	}
+
+	if f.UpdatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" >= ?")
+		values = append(values, f.UpdatedByGte)
+	}
+
+	if f.UpdatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" <= ?")
+		values = append(values, f.UpdatedByLte)
+	}
+
+	if f.UpdatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" IN (?)")
+		values = append(values, f.UpdatedByIn)
+	}
+
+	if f.UpdatedByNull != nil {
+		if *f.UpdatedByNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" IS NULL"+" OR "+aliasPrefix+SnakeString("updatedBy")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("updatedBy")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("updatedBy")+" <> ''")
+		}
+	}
+
+	if f.CreatedBy != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" = ?")
+		values = append(values, f.CreatedBy)
+	}
+
+	if f.CreatedByNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" != ?")
+		values = append(values, f.CreatedByNe)
+	}
+
+	if f.CreatedByGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" > ?")
+		values = append(values, f.CreatedByGt)
+	}
+
+	if f.CreatedByLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" < ?")
+		values = append(values, f.CreatedByLt)
+	}
+
+	if f.CreatedByGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" >= ?")
+		values = append(values, f.CreatedByGte)
+	}
+
+	if f.CreatedByLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" <= ?")
+		values = append(values, f.CreatedByLte)
+	}
+
+	if f.CreatedByIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" IN (?)")
+		values = append(values, f.CreatedByIn)
+	}
+
+	if f.CreatedByNull != nil {
+		if *f.CreatedByNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" IS NULL"+" OR "+aliasPrefix+SnakeString("createdBy")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("createdBy")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("createdBy")+" <> ''")
+		}
+	}
+
+	if f.DeletedAt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" = ?")
+		values = append(values, f.DeletedAt)
+	}
+
+	if f.DeletedAtNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" != ?")
+		values = append(values, f.DeletedAtNe)
+	}
+
+	if f.DeletedAtGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" > ?")
+		values = append(values, f.DeletedAtGt)
+	}
+
+	if f.DeletedAtLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" < ?")
+		values = append(values, f.DeletedAtLt)
+	}
+
+	if f.DeletedAtGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" >= ?")
+		values = append(values, f.DeletedAtGte)
+	}
+
+	if f.DeletedAtLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" <= ?")
+		values = append(values, f.DeletedAtLte)
+	}
+
+	if f.DeletedAtIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" IN (?)")
+		values = append(values, f.DeletedAtIn)
+	}
+
+	if f.DeletedAtNull != nil {
+		if *f.DeletedAtNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" IS NULL"+" OR "+aliasPrefix+SnakeString("deletedAt")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("deletedAt")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("deletedAt")+" <> ''")
+		}
+	}
+
+	if f.UpdatedAt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" = ?")
+		values = append(values, f.UpdatedAt)
+	}
+
+	if f.UpdatedAtNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" != ?")
+		values = append(values, f.UpdatedAtNe)
+	}
+
+	if f.UpdatedAtGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" > ?")
+		values = append(values, f.UpdatedAtGt)
+	}
+
+	if f.UpdatedAtLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" < ?")
+		values = append(values, f.UpdatedAtLt)
+	}
+
+	if f.UpdatedAtGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" >= ?")
+		values = append(values, f.UpdatedAtGte)
+	}
+
+	if f.UpdatedAtLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" <= ?")
+		values = append(values, f.UpdatedAtLte)
+	}
+
+	if f.UpdatedAtIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" IN (?)")
+		values = append(values, f.UpdatedAtIn)
+	}
+
+	if f.UpdatedAtNull != nil {
+		if *f.UpdatedAtNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" IS NULL"+" OR "+aliasPrefix+SnakeString("updatedAt")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("updatedAt")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("updatedAt")+" <> ''")
+		}
+	}
+
+	if f.CreatedAt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" = ?")
+		values = append(values, f.CreatedAt)
+	}
+
+	if f.CreatedAtNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" != ?")
+		values = append(values, f.CreatedAtNe)
+	}
+
+	if f.CreatedAtGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" > ?")
+		values = append(values, f.CreatedAtGt)
+	}
+
+	if f.CreatedAtLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" < ?")
+		values = append(values, f.CreatedAtLt)
+	}
+
+	if f.CreatedAtGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" >= ?")
+		values = append(values, f.CreatedAtGte)
+	}
+
+	if f.CreatedAtLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" <= ?")
+		values = append(values, f.CreatedAtLte)
+	}
+
+	if f.CreatedAtIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" IN (?)")
+		values = append(values, f.CreatedAtIn)
+	}
+
+	if f.CreatedAtNull != nil {
+		if *f.CreatedAtNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" IS NULL"+" OR "+aliasPrefix+SnakeString("createdAt")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("createdAt")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("createdAt")+" <> ''")
+		}
+	}
+
+	return
+}
+
+// AndWith convenience method for combining two or more filters with AND statement
+func (f *UserFilterType) AndWith(f2 ...*UserFilterType) *UserFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &UserFilterType{
+		And: append(_f2, f),
+	}
+}
+
+// OrWith convenience method for combining two or more filters with OR statement
+func (f *UserFilterType) OrWith(f2 ...*UserFilterType) *UserFilterType {
+	_f2 := f2[:0]
+	for _, x := range f2 {
+		if x != nil {
+			_f2 = append(_f2, x)
+		}
+	}
+	if len(_f2) == 0 {
+		return f
+	}
+	return &UserFilterType{
+		Or: append(_f2, f),
+	}
+}
+
 func (f *TodoFilterType) IsEmpty(ctx context.Context) bool {
 	wheres := []string{}
 	values := []interface{}{}
@@ -62,6 +573,15 @@ func (f *TodoFilterType) ApplyWithAlias(ctx context.Context, alias string, where
 		}
 		*values = append(*values, vs...)
 		*joins = append(*joins, js...)
+	}
+
+	if f.User != nil {
+		_alias := alias + "_user"
+		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"user_id")
+		err := f.User.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -313,6 +833,49 @@ func (f *TodoFilterType) WhereContent(aliasPrefix string) (conditions []string, 
 			conditions = append(conditions, aliasPrefix+SnakeString("remark")+" IS NULL"+" OR "+aliasPrefix+SnakeString("remark")+" =''")
 		} else {
 			conditions = append(conditions, aliasPrefix+SnakeString("remark")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("remark")+" <> ''")
+		}
+	}
+
+	if f.UserID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" = ?")
+		values = append(values, f.UserID)
+	}
+
+	if f.UserIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" != ?")
+		values = append(values, f.UserIDNe)
+	}
+
+	if f.UserIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" > ?")
+		values = append(values, f.UserIDGt)
+	}
+
+	if f.UserIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" < ?")
+		values = append(values, f.UserIDLt)
+	}
+
+	if f.UserIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" >= ?")
+		values = append(values, f.UserIDGte)
+	}
+
+	if f.UserIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" <= ?")
+		values = append(values, f.UserIDLte)
+	}
+
+	if f.UserIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IN (?)")
+		values = append(values, f.UserIDIn)
+	}
+
+	if f.UserIDNull != nil {
+		if *f.UserIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("userId")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("userId")+" <> ''")
 		}
 	}
 

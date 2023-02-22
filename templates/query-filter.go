@@ -84,7 +84,7 @@ func (qf *{{$object.Name}}QueryFilter) applyQueryWithFields(db *gorm.DB, fields 
 			}
 		}
 		q := {{$rel.Target.Name}}QueryFilter{qf.Query}
-		err := q.applyQueryWithFields(dialect, _fields, query, _alias, ors, values, joins)
+		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
 		if err != nil {
 			return err
 		}

@@ -12,11 +12,15 @@ schema {
 }
 
 type Query {
+  user(id: ID!): User
+  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
   todo(id: ID!): Todo
   todos(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TodoSortType!], filter: TodoFilterType, rand: Boolean = false): TodoResultType
 }
 
 type Mutation {
+  createUser(input: UserCreateInput!): User!
+  updateUser(id: ID!, input: UserUpdateInput!): User!
   createTodo(input: TodoCreateInput!): Todo!
   updateTodo(id: ID!, input: TodoUpdateInput!): Todo!
 }
@@ -26,12 +30,11 @@ enum ObjectSortType {
   DESC
 }
 
-type Todo {
+type User {
   id: ID!
-  title: String!
-  age: Int
-  money: Int!
-  remark: String
+  username: String!
+  todo: Todo
+  todoId: ID
   deletedBy: ID
   updatedBy: ID
   createdBy: ID
@@ -40,11 +43,164 @@ type Todo {
   createdAt: Int!
 }
 
+type Todo {
+  id: ID!
+  title: String!
+  age: Int
+  money: Int!
+  remark: String
+  user: User
+  userId: ID
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+}
+
+input UserCreateInput {
+  username: String!
+  todoId: ID
+}
+
+input UserUpdateInput {
+  username: String!
+  todoId: ID
+}
+
+input UserSortType {
+  id: ObjectSortType
+  username: ObjectSortType
+  todoId: ObjectSortType
+  deletedBy: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  deletedAt: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  todo: TodoSortType
+}
+
+input UserFilterType {
+  AND: [UserFilterType!]
+  OR: [UserFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_null: Boolean
+  username: String
+  username_ne: String
+  username_gt: String
+  username_lt: String
+  username_gte: String
+  username_lte: String
+  username_in: [String!]
+  username_like: String
+  username_prefix: String
+  username_suffix: String
+  username_null: Boolean
+  todoId: ID
+  todoId_ne: ID
+  todoId_gt: ID
+  todoId_lt: ID
+  todoId_gte: ID
+  todoId_lte: ID
+  todoId_in: [ID!]
+  todoId_null: Boolean
+  deletedBy: ID
+  deletedBy_ne: ID
+  deletedBy_gt: ID
+  deletedBy_lt: ID
+  deletedBy_gte: ID
+  deletedBy_lte: ID
+  deletedBy_in: [ID!]
+  deletedBy_null: Boolean
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  updatedBy_null: Boolean
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
+  createdBy_null: Boolean
+  deletedAt: Int
+  deletedAt_ne: Int
+  deletedAt_gt: Int
+  deletedAt_lt: Int
+  deletedAt_gte: Int
+  deletedAt_lte: Int
+  deletedAt_in: [Int!]
+  deletedAt_null: Boolean
+  updatedAt: Int
+  updatedAt_ne: Int
+  updatedAt_gt: Int
+  updatedAt_lt: Int
+  updatedAt_gte: Int
+  updatedAt_lte: Int
+  updatedAt_in: [Int!]
+  updatedAt_null: Boolean
+  createdAt: Int
+  createdAt_ne: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_null: Boolean
+  todo: TodoFilterType
+}
+
+input UserCreateRelationship {
+  username: String!
+  todo: TodoCreateReverseRelationship
+  todoId: ID
+}
+
+input UserUpdateRelationship {
+  id: ID
+  username: String
+  todo: TodoUpdateReverseRelationship
+  todoId: ID
+}
+
+input UserCreateReverseRelationship {
+  username: String!
+  todoId: ID
+}
+
+input UserUpdateReverseRelationship {
+  id: ID
+  username: String!
+  todoId: ID
+}
+
+type UserResultType {
+  data: [User!]!
+  total: Int!
+  current_page: Int!
+  per_page: Int!
+  total_page: Int!
+}
+
 input TodoCreateInput {
   title: String!
   age: Int
   money: Int!
   remark: String
+  userId: ID
 }
 
 input TodoUpdateInput {
@@ -52,6 +208,7 @@ input TodoUpdateInput {
   age: Int
   money: Int!
   remark: String
+  userId: ID
 }
 
 input TodoSortType {
@@ -60,12 +217,14 @@ input TodoSortType {
   age: ObjectSortType
   money: ObjectSortType
   remark: ObjectSortType
+  userId: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
+  user: UserSortType
 }
 
 input TodoFilterType {
@@ -117,6 +276,14 @@ input TodoFilterType {
   remark_prefix: String
   remark_suffix: String
   remark_null: Boolean
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
+  userId_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -165,6 +332,43 @@ input TodoFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
+  user: UserFilterType
+}
+
+input TodoCreateRelationship {
+  title: String!
+  age: Int
+  money: Int!
+  remark: String
+  user: UserCreateReverseRelationship
+  userId: ID
+}
+
+input TodoUpdateRelationship {
+  id: ID
+  title: String
+  age: Int
+  money: Int
+  remark: String
+  user: UserUpdateReverseRelationship
+  userId: ID
+}
+
+input TodoCreateReverseRelationship {
+  title: String!
+  age: Int
+  money: Int!
+  remark: String
+  userId: ID
+}
+
+input TodoUpdateReverseRelationship {
+  id: ID
+  title: String!
+  age: Int
+  money: Int!
+  remark: String
+  userId: ID
 }
 
 type TodoResultType {

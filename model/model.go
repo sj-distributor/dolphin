@@ -95,3 +95,12 @@ func (m *Model) Object(name string) Object {
 	}
 	panic(fmt.Sprintf("Object with name %s not found in model", name))
 }
+
+func (m *Model) HasObjectExtension(name string) bool {
+	for _, e := range m.ObjectExtensions() {
+		if e.Object.Name() == name {
+			return true
+		}
+	}
+	return false
+}

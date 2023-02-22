@@ -59,6 +59,15 @@ func (o *ObjectField) IsColumn() bool {
 	return o.HasDirective("column")
 }
 
+func (o *ObjectField) IsListType() bool {
+	return isListType(getNullableType(o.Def.Type))
+}
+
+func (o *ObjectField) TargetObject() *Object {
+	obj := o.Obj.Model.Object(o.TargetType())
+	return &obj
+}
+
 func (o *ObjectField) Directive(name string) *ast.Directive {
 	for _, d := range o.Def.Directives {
 		if d.Name.Value == name {
@@ -66,6 +75,15 @@ func (o *ObjectField) Directive(name string) *ast.Directive {
 		}
 	}
 	return nil
+}
+func (o *ObjectField) IsRelationship() bool {
+	return o.HasDirective("relationship")
+}
+func (o *ObjectField) NeedsQueryResolver() bool {
+	return o.IsEmbedded()
+}
+func (o *ObjectField) IsHasUpperId() bool {
+	return strings.Index(o.Name(), "Id") != -1 && o.IsRelationship()
 }
 
 // IsIdentifier ...
@@ -117,6 +135,10 @@ func (o *ObjectField) IsOptional() bool {
 // IsList ...
 func (o *ObjectField) IsList() bool {
 	return isListType(o.Def.Type)
+}
+
+func (o *ObjectField) IsEmbedded() bool {
+	return !o.IsColumn() && !o.IsRelationship()
 }
 
 // IsEmbeddedColumn ...
@@ -208,6 +230,7 @@ func (o *ObjectField) InputType() ast.Type {
 func (o *ObjectField) GoType() string {
 	return o.GoTypeWithPointer()
 }
+
 func (o *ObjectField) GoTypeWithPointer() string {
 	t := o.Def.Type
 	st := ""

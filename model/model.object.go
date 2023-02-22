@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/graphql-go/graphql/language/ast"
@@ -40,8 +41,9 @@ func (o *Object) Columns() []ObjectField {
 	columns := []ObjectField{}
 	for _, f := range o.Fields() {
 		// if f.IsColumn() {
-		columns = append(columns, f)
-		// }
+		if !f.IsRelationship() {
+			columns = append(columns, f)
+		}
 	}
 	return columns
 }
@@ -53,6 +55,15 @@ func (o *Object) Fields() []ObjectField {
 		fields = append(fields, ObjectField{f, o})
 	}
 	return fields
+}
+
+func (o *Object) HasEmbeddedField() bool {
+	for _, f := range o.Fields() {
+		if f.IsEmbedded() {
+			return true
+		}
+	}
+	return false
 }
 
 func (o *Object) Directive(name string) *ast.Directive {
@@ -90,6 +101,15 @@ func (o *Object) Relationships() []*ObjectRelationship {
 	return relationships
 }
 
+func (o *Object) Relationship(name string) *ObjectRelationship {
+	for _, rel := range o.Relationships() {
+		if rel.Name() == name {
+			return rel
+		}
+	}
+	panic(fmt.Sprintf("relationship %s->%s not found", o.Name(), name))
+}
+
 func (o *Object) HasRelationship(name string) bool {
 	for _, rel := range o.Relationships() {
 		if rel.Name() == name {
@@ -98,7 +118,12 @@ func (o *Object) HasRelationship(name string) bool {
 	}
 	return false
 }
-
+func (o *Object) HasAnyRelationships() bool {
+	return len(o.Relationships()) > 0
+}
+func (o *Object) NeedsQueryResolver() bool {
+	return o.HasAnyRelationships() || o.HasEmbeddedField() || o.Model.HasObjectExtension(o.Name())
+}
 func (o *Object) HasDirective(name string) bool {
 	return o.Directive(name) != nil
 }

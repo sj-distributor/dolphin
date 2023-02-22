@@ -1,7 +1,13 @@
 
+type User @entity(title: "用户管理") {
+  username: String! @column(gorm: "type:varchar(64) comment '用户名称';DEFAULT NULL;index:username;")
+  todo: Todo @relationship(inverse:"user")
+}
+
 type Todo @entity(title: "代办事项") {
   title: String! @validator(type: "password")
   age: Int
   money: Int!
   remark: String
+  user: User @relationship(inverse:"todo")
 }

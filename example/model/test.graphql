@@ -5,9 +5,9 @@ type User @entity(title: "用户管理") {
 }
 
 type Todo @entity(title: "代办事项") {
-  title: String! @validator(type: "password")
-  age: Int
-  money: Int!
-  remark: String
+  title: String! @column @validator(type: "password")
+  age: Int @column
+  money: Int! @column
+  remark: String @column
   user: User @relationship(inverse:"todo")
 }

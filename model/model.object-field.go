@@ -68,6 +68,15 @@ func (o *ObjectField) TargetObject() *Object {
 	return &obj
 }
 
+func (o *ObjectField) HasTargetObjectExtension() bool {
+	return o.Obj.Model.HasObjectExtension(o.TargetType())
+}
+
+func (o *ObjectField) TargetObjectExtension() *ObjectExtension {
+	e := o.Obj.Model.ObjectExtension(o.TargetType())
+	return &e
+}
+
 func (o *ObjectField) Directive(name string) *ast.Directive {
 	for _, d := range o.Def.Directives {
 		if d.Name.Value == name {
@@ -76,12 +85,25 @@ func (o *ObjectField) Directive(name string) *ast.Directive {
 	}
 	return nil
 }
+
 func (o *ObjectField) IsRelationship() bool {
 	return o.HasDirective("relationship")
 }
+
 func (o *ObjectField) NeedsQueryResolver() bool {
 	return o.IsEmbedded()
 }
+
+func (o *ObjectField) HasTargetTypeWithIDField() bool {
+	if o.HasTargetObject() && o.TargetObject().HasField("id") {
+		return true
+	}
+	if o.HasTargetObjectExtension() && o.TargetObjectExtension().Object.HasField("id") {
+		return true
+	}
+	return false
+}
+
 func (o *ObjectField) IsHasUpperId() bool {
 	return strings.Index(o.Name(), "Id") != -1 && o.IsRelationship()
 }
@@ -137,8 +159,14 @@ func (o *ObjectField) IsList() bool {
 	return isListType(o.Def.Type)
 }
 
+// IsEmbedded ...
 func (o *ObjectField) IsEmbedded() bool {
 	return !o.IsColumn() && !o.IsRelationship()
+}
+
+// HasTargetObject ...
+func (o *ObjectField) HasTargetObject() bool {
+	return o.Obj.Model.HasObject(o.TargetType())
 }
 
 // IsEmbeddedColumn ...

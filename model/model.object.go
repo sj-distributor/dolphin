@@ -36,16 +36,45 @@ func (o *Object) TableName() string {
 	return strcase.ToSnake(inflection.Plural(o.LowerName()))
 }
 
+func (o *Object) HasColumn(name string) bool {
+	return o.Column(name) != nil
+}
+func (o *Object) HasField(name string) bool {
+	return o.Field(name) != nil
+}
+func (o *Object) Column(name string) *ObjectField {
+	for _, f := range o.Def.Fields {
+		if f.Name.Value == name {
+			field := &ObjectField{f, o}
+			if field.IsColumn() {
+				return field
+			} else {
+				return nil
+			}
+		}
+	}
+	return nil
+}
+
 // Columns ...
 func (o *Object) Columns() []ObjectField {
 	columns := []ObjectField{}
 	for _, f := range o.Fields() {
-		// if f.IsColumn() {
-		if !f.IsRelationship() {
+		if f.IsColumn() {
+			// if !f.IsRelationship() {
 			columns = append(columns, f)
 		}
 	}
 	return columns
+}
+
+func (o *Object) Field(name string) *ObjectField {
+	for _, f := range o.Def.Fields {
+		if f.Name.Value == name {
+			return &ObjectField{f, o}
+		}
+	}
+	return nil
 }
 
 // Fields ...
@@ -124,6 +153,21 @@ func (o *Object) HasAnyRelationships() bool {
 func (o *Object) NeedsQueryResolver() bool {
 	return o.HasAnyRelationships() || o.HasEmbeddedField() || o.Model.HasObjectExtension(o.Name())
 }
+
+func (o *Object) PreloadableRelationships() []*ObjectRelationship {
+	result := []*ObjectRelationship{}
+	for _, r := range o.Relationships() {
+		if r.Preload() {
+			result = append(result, r)
+		}
+	}
+	return result
+}
+
+func (o *Object) HasPreloadableRelationships() bool {
+	return len(o.PreloadableRelationships()) > 0
+}
+
 func (o *Object) HasDirective(name string) bool {
 	return o.Directive(name) != nil
 }

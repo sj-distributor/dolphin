@@ -36,3 +36,11 @@ type TodoResultTypeResolver struct {
 func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
 	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
+
+type UserResultTypeResolver struct {
+	*gen.GeneratedUserResultTypeResolver
+}
+
+func (r *Resolver) UserResultType() gen.UserResultTypeResolver {
+	return &UserResultTypeResolver{&gen.GeneratedUserResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+}

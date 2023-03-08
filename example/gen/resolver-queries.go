@@ -118,30 +118,8 @@ func (r *GeneratedUserResultTypeResolver) Data(ctx context.Context, obj *UserRes
 	return
 }
 
-func (r *GeneratedUserResultTypeResolver) Pages(ctx context.Context, obj *UserResultType) (interface{}, error) {
-	total, _ := r.Total(ctx, obj)
-	totalPage, _ := r.TotalPage(ctx, obj)
-	perPage, _ := r.PerPage(ctx, obj)
-	currentPage, _ := r.CurrentPage(ctx, obj)
-
-	return map[string]int{
-		"total":        total,
-		"total_page":   totalPage,
-		"per_page":     perPage,
-		"current_page": currentPage,
-	}, nil
-}
-
 func (r *GeneratedUserResultTypeResolver) Total(ctx context.Context, obj *UserResultType) (count int, err error) {
 	return obj.GetTotal(ctx, r.DB.db, TableName("users"), &User{})
-}
-
-func (r *GeneratedUserResultTypeResolver) CurrentPage(ctx context.Context, obj *UserResultType) (count int, err error) {
-	return int(*obj.EntityResultType.CurrentPage), nil
-}
-
-func (r *GeneratedUserResultTypeResolver) PerPage(ctx context.Context, obj *UserResultType) (count int, err error) {
-	return int(*obj.EntityResultType.PerPage), nil
 }
 
 func (r *GeneratedUserResultTypeResolver) TotalPage(ctx context.Context, obj *UserResultType) (count int, err error) {
@@ -153,6 +131,14 @@ func (r *GeneratedUserResultTypeResolver) TotalPage(ctx context.Context, obj *Us
 	}
 
 	return totalPage, nil
+}
+
+func (r *GeneratedUserResultTypeResolver) CurrentPage(ctx context.Context, obj *UserResultType) (count int, err error) {
+	return int(*obj.EntityResultType.CurrentPage), nil
+}
+
+func (r *GeneratedUserResultTypeResolver) PerPage(ctx context.Context, obj *UserResultType) (count int, err error) {
+	return int(*obj.EntityResultType.PerPage), nil
 }
 
 type GeneratedUserResolver struct{ *GeneratedResolver }
@@ -283,30 +269,8 @@ func (r *GeneratedTodoResultTypeResolver) Data(ctx context.Context, obj *TodoRes
 	return
 }
 
-func (r *GeneratedTodoResultTypeResolver) Pages(ctx context.Context, obj *TodoResultType) (interface{}, error) {
-	total, _ := r.Total(ctx, obj)
-	totalPage, _ := r.TotalPage(ctx, obj)
-	perPage, _ := r.PerPage(ctx, obj)
-	currentPage, _ := r.CurrentPage(ctx, obj)
-
-	return map[string]int{
-		"total":        total,
-		"total_page":   totalPage,
-		"per_page":     perPage,
-		"current_page": currentPage,
-	}, nil
-}
-
 func (r *GeneratedTodoResultTypeResolver) Total(ctx context.Context, obj *TodoResultType) (count int, err error) {
 	return obj.GetTotal(ctx, r.DB.db, TableName("todos"), &Todo{})
-}
-
-func (r *GeneratedTodoResultTypeResolver) CurrentPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
-	return int(*obj.EntityResultType.CurrentPage), nil
-}
-
-func (r *GeneratedTodoResultTypeResolver) PerPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
-	return int(*obj.EntityResultType.PerPage), nil
 }
 
 func (r *GeneratedTodoResultTypeResolver) TotalPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
@@ -318,6 +282,14 @@ func (r *GeneratedTodoResultTypeResolver) TotalPage(ctx context.Context, obj *To
 	}
 
 	return totalPage, nil
+}
+
+func (r *GeneratedTodoResultTypeResolver) CurrentPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
+	return int(*obj.EntityResultType.CurrentPage), nil
+}
+
+func (r *GeneratedTodoResultTypeResolver) PerPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
+	return int(*obj.EntityResultType.PerPage), nil
 }
 
 type GeneratedTodoResolver struct{ *GeneratedResolver }

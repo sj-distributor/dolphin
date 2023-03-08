@@ -190,7 +190,7 @@ func (r *EntityResultType) GetTotal(ctx context.Context, db *gorm.DB, table stri
 		}
 	}
 
-	err = q.Select("DISTINCT COUNT(" + table + ".id) as count").Scan(&result).Error
+	err = q.Select("COUNT(DISTINCT " + table + ".id) as count").Scan(&result).Error
 
 	count = result.Count
 

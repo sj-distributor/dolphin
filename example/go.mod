@@ -21,20 +21,10 @@ require (
 )
 
 require (
-	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/graphql-go/graphql v0.8.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/sj-distributor/dolphin v0.0.0-00010101000000-000000000000 // indirect
-	github.com/urfave/cli/v2 v2.24.4 // indirect
-	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
-	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/tools v0.6.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
 require (

@@ -18,6 +18,11 @@
   ├── makefile  自动化操作make配置文件
 ```
 
+```
+1. go get -d golang.org/x/tools/cmd/goimports
+2. go install golang.org/x/tools/cmd/goimports
+```
+
 ### example 示例说明
   1. `cd example`
   2. 修改 `makefile` 文件的 `DATABASE` 值

@@ -46,6 +46,9 @@ func WriteTemplateRaw(t, filename string, data interface{}) error {
 
 	if path.Ext(filename) == ".go" {
 		err := RunInteractive(fmt.Sprintf("$GOPATH/bin/goimports -w %s", filename))
+		if err != nil {
+			fmt.Println("goimports is error ", err)
+		}
 		return err
 	}
 	return nil

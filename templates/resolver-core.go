@@ -1,6 +1,7 @@
 package templates
 
-var ResolverCore = `package gen
+var ResolverCore = `//go:generate go run github.com/99designs/gqlgen generate
+package gen
 
 import (
 	"context"

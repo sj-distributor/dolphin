@@ -1,4 +1,6 @@
-package gen
+package templates
+
+var Database = `package gen
 
 import (
 	"fmt"
@@ -117,12 +119,11 @@ func (db *DB) Query() *gorm.DB {
 
 // AutoMigrate ...
 func (db *DB) AutoMigrate() error {
-	return db.db.AutoMigrate(
-		User{},
-		Todo{},
+	return db.db.AutoMigrate({{range $obj := .Model.ObjectEntities}}
+		{{.Name}}{},{{end}}
 	)
 }
 
 func (db *DB) Ping() error {
 	return db.Ping()
-}
+}`

@@ -146,6 +146,9 @@ func generate(fileDirPath, p string) error {
 
 func generateFiles(p string, m *model.Model, c *model.Config) error {
 	data := templates.TemplateData{Model: m, Config: c}
+	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.GQLGen, path.Join(p, "gen/gqlgen.yml"), data); err != nil {
 		return err
 	}

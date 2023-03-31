@@ -484,17 +484,13 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputTodoCreateRelationship,
-		ec.unmarshalInputTodoCreateReverseRelationship,
 		ec.unmarshalInputTodoFilterType,
 		ec.unmarshalInputTodoSortType,
 		ec.unmarshalInputTodoUpdateRelationship,
-		ec.unmarshalInputTodoUpdateReverseRelationship,
 		ec.unmarshalInputUserCreateRelationship,
-		ec.unmarshalInputUserCreateReverseRelationship,
 		ec.unmarshalInputUserFilterType,
 		ec.unmarshalInputUserSortType,
 		ec.unmarshalInputUserUpdateRelationship,
-		ec.unmarshalInputUserUpdateReverseRelationship,
 	)
 	first := true
 
@@ -4870,74 +4866,6 @@ func (ec *executionContext) unmarshalInputTodoCreateRelationship(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "age", "money", "remark", "user", "userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "age":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("age"))
-			it.Age, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "money":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("money"))
-			it.Money, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "remark":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
-			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "user":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserCreateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserCreateReverseRelationship(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTodoCreateReverseRelationship(ctx context.Context, obj interface{}) (TodoCreateReverseRelationship, error) {
-	var it TodoCreateReverseRelationship
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
 	fieldsInOrder := [...]string{"title", "age", "money", "remark", "userId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
@@ -5982,97 +5910,13 @@ func (ec *executionContext) unmarshalInputTodoUpdateRelationship(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "title", "age", "money", "remark", "user", "userId"}
+	fieldsInOrder := [...]string{"title", "age", "money", "remark", "userId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "age":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("age"))
-			it.Age, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "money":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("money"))
-			it.Money, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "remark":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remark"))
-			it.Remark, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "user":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
-			it.User, err = ec.unmarshalOUserUpdateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserUpdateReverseRelationship(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "userId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
-			it.UserID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputTodoUpdateReverseRelationship(ctx context.Context, obj interface{}) (TodoUpdateReverseRelationship, error) {
-	var it TodoUpdateReverseRelationship
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "title", "age", "money", "remark", "userId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "title":
 			var err error
 
@@ -6121,50 +5965,6 @@ func (ec *executionContext) unmarshalInputTodoUpdateReverseRelationship(ctx cont
 
 func (ec *executionContext) unmarshalInputUserCreateRelationship(ctx context.Context, obj interface{}) (UserCreateRelationship, error) {
 	var it UserCreateRelationship
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"username", "todo", "todoId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "todo":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todo"))
-			it.Todo, err = ec.unmarshalOTodoCreateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoCreateReverseRelationship(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "todoId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-			it.TodoID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUserCreateReverseRelationship(ctx context.Context, obj interface{}) (UserCreateReverseRelationship, error) {
-	var it UserCreateReverseRelationship
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -6950,73 +6750,13 @@ func (ec *executionContext) unmarshalInputUserUpdateRelationship(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "username", "todo", "todoId"}
+	fieldsInOrder := [...]string{"username", "todoId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "username":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
-			it.Username, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "todo":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todo"))
-			it.Todo, err = ec.unmarshalOTodoUpdateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoUpdateReverseRelationship(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "todoId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoId"))
-			it.TodoID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputUserUpdateReverseRelationship(ctx context.Context, obj interface{}) (UserUpdateReverseRelationship, error) {
-	var it UserUpdateReverseRelationship
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "username", "todoId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "username":
 			var err error
 
@@ -8657,11 +8397,11 @@ func (ec *executionContext) marshalOTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdo
 	return ec._Todo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTodoCreateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoCreateReverseRelationship(ctx context.Context, v interface{}) (*TodoCreateReverseRelationship, error) {
+func (ec *executionContext) unmarshalOTodoCreateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoCreateRelationship(ctx context.Context, v interface{}) (*TodoCreateRelationship, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTodoCreateReverseRelationship(ctx, v)
+	res, err := ec.unmarshalInputTodoCreateRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -8728,11 +8468,11 @@ func (ec *executionContext) unmarshalOTodoSortType2ᚖgithubᚗcomᚋsjᚑdistri
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTodoUpdateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoUpdateReverseRelationship(ctx context.Context, v interface{}) (*TodoUpdateReverseRelationship, error) {
+func (ec *executionContext) unmarshalOTodoUpdateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoUpdateRelationship(ctx context.Context, v interface{}) (*TodoUpdateRelationship, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputTodoUpdateReverseRelationship(ctx, v)
+	res, err := ec.unmarshalInputTodoUpdateRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -8743,11 +8483,11 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdo
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOUserCreateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserCreateReverseRelationship(ctx context.Context, v interface{}) (*UserCreateReverseRelationship, error) {
+func (ec *executionContext) unmarshalOUserCreateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserCreateRelationship(ctx context.Context, v interface{}) (*UserCreateRelationship, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputUserCreateReverseRelationship(ctx, v)
+	res, err := ec.unmarshalInputUserCreateRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -8814,11 +8554,11 @@ func (ec *executionContext) unmarshalOUserSortType2ᚖgithubᚗcomᚋsjᚑdistri
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOUserUpdateReverseRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserUpdateReverseRelationship(ctx context.Context, v interface{}) (*UserUpdateReverseRelationship, error) {
+func (ec *executionContext) unmarshalOUserUpdateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserUpdateRelationship(ctx context.Context, v interface{}) (*UserUpdateRelationship, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputUserUpdateReverseRelationship(ctx, v)
+	res, err := ec.unmarshalInputUserUpdateRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

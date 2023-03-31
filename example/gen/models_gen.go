@@ -9,15 +9,6 @@ import (
 )
 
 type TodoCreateRelationship struct {
-	Title  string                         `json:"title"`
-	Age    *int                           `json:"age,omitempty"`
-	Money  int                            `json:"money"`
-	Remark *string                        `json:"remark,omitempty"`
-	User   *UserCreateReverseRelationship `json:"user,omitempty"`
-	UserID *string                        `json:"userId,omitempty"`
-}
-
-type TodoCreateReverseRelationship struct {
 	Title  string  `json:"title"`
 	Age    *int    `json:"age,omitempty"`
 	Money  int     `json:"money"`
@@ -150,17 +141,6 @@ type TodoSortType struct {
 }
 
 type TodoUpdateRelationship struct {
-	ID     *string                        `json:"id,omitempty"`
-	Title  *string                        `json:"title,omitempty"`
-	Age    *int                           `json:"age,omitempty"`
-	Money  *int                           `json:"money,omitempty"`
-	Remark *string                        `json:"remark,omitempty"`
-	User   *UserUpdateReverseRelationship `json:"user,omitempty"`
-	UserID *string                        `json:"userId,omitempty"`
-}
-
-type TodoUpdateReverseRelationship struct {
-	ID     *string `json:"id,omitempty"`
 	Title  string  `json:"title"`
 	Age    *int    `json:"age,omitempty"`
 	Money  int     `json:"money"`
@@ -169,12 +149,6 @@ type TodoUpdateReverseRelationship struct {
 }
 
 type UserCreateRelationship struct {
-	Username string                         `json:"username"`
-	Todo     *TodoCreateReverseRelationship `json:"todo,omitempty"`
-	TodoID   *string                        `json:"todoId,omitempty"`
-}
-
-type UserCreateReverseRelationship struct {
 	Username string  `json:"username"`
 	TodoID   *string `json:"todoId,omitempty"`
 }
@@ -274,14 +248,6 @@ type UserSortType struct {
 }
 
 type UserUpdateRelationship struct {
-	ID       *string                        `json:"id,omitempty"`
-	Username *string                        `json:"username,omitempty"`
-	Todo     *TodoUpdateReverseRelationship `json:"todo,omitempty"`
-	TodoID   *string                        `json:"todoId,omitempty"`
-}
-
-type UserUpdateReverseRelationship struct {
-	ID       *string `json:"id,omitempty"`
 	Username string  `json:"username"`
 	TodoID   *string `json:"todoId,omitempty"`
 }

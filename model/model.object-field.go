@@ -105,12 +105,16 @@ func (o *ObjectField) HasTargetTypeWithIDField() bool {
 }
 
 func (o *ObjectField) IsHasUpperId() bool {
-	return strings.Index(o.Name(), "Id") != -1 && o.IsRelationship()
+	return strings.Contains(o.Name(), "Id") && o.IsRelationship()
 }
 
 // IsIdentifier ...
 func (o *ObjectField) IsIdentifier() bool {
-	return o.Name() == "id"
+	return o.HasName("id")
+}
+
+func (o *ObjectField) HasName(name string) bool {
+	return o.Name() == name
 }
 
 // IsRelationshipIdentifier ...

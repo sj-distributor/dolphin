@@ -1,88 +1,53 @@
 package model
 
 import (
+	"strings"
+
 	"github.com/graphql-go/graphql/language/kinds"
 
 	"github.com/graphql-go/graphql/language/ast"
 )
 
-func createObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	fields := []*ast.InputValueDefinition{}
-	for _, col := range obj.Columns() {
-		if !col.IsCreatable() {
-			continue
-		}
-		t := col.InputType()
-		if col.IsIdentifier() {
-			t = getNamedType(t)
-		}
-		fields = append(fields, &ast.InputValueDefinition{
-			Kind:        kinds.InputValueDefinition,
-			Name:        col.Def.Name,
-			Description: col.Def.Description,
-			Type:        t,
-		})
-	}
-	return &ast.InputObjectDefinition{
-		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "CreateInput"),
-		Fields: fields,
-	}
-}
-
-func updateObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	fields := []*ast.InputValueDefinition{}
-	for _, col := range obj.Columns() {
-		if !col.IsCreatable() || col.Name() == "id" {
-			continue
-		}
-		fields = append(fields, &ast.InputValueDefinition{
-			Kind:        kinds.InputValueDefinition,
-			Name:        col.Def.Name,
-			Description: col.Def.Description,
-			Type:        col.InputType(),
-		})
-	}
-	return &ast.InputObjectDefinition{
-		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "UpdateInput"),
-		Fields: fields,
-	}
-}
-
-func createObjectRelationship(obj Object) *ast.InputObjectDefinition {
+// objectDefinitionFunc ...
+func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
 	for _, col := range obj.Fields() {
-		if !col.IsCreatable() || col.Name() == "id" {
-			continue
-		}
 		t := col.Def.Type
-		if col.Name() == "id" {
-			t = getNamedType(t)
+		tName := ""
+		if strings.Contains(name, CREATE) {
+			tName = CREATE
+			if !col.IsCreatable() {
+				continue
+			}
+
+			if col.Name() == "id" {
+				t = getNamedType(t)
+			}
 		}
+
+		if strings.Contains(name, UPDATE) {
+			tName = UPDATE
+			if !col.IsUpdatable() || col.Name() == "id" {
+				continue
+			}
+		}
+
 		if isListType(getNullableType(t)) {
 			t = getNullableType(t)
 		}
 
 		if col.IsRelationship() {
-			required := ""
-			// if col.IsRequired() {
-			// 	required = "!"
-			// }
-
-			// 判断是否一对一或其他
 			if col.IsListType() {
-				t = namedType("[" + col.TargetObject().Name() + "CreateReverseRelationship" + "]" + required)
+				t = namedType("[" + col.TargetObject().Name() + tName + "Relationship" + "]")
 			} else {
-				t = namedType(col.TargetObject().Name() + "CreateReverseRelationship" + required)
+				t = namedType(col.TargetObject().Name() + tName + "Relationship")
 			}
 
-			field := ast.InputValueDefinition{
+			fields = append(fields, &ast.InputValueDefinition{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode(col.Name()),
 				Type: t,
-			}
-			fields = append(fields, &field)
+			})
 		} else {
 			fields = append(fields, &ast.InputValueDefinition{
 				Kind:        kinds.InputValueDefinition,
@@ -91,61 +56,16 @@ func createObjectRelationship(obj Object) *ast.InputObjectDefinition {
 				Type:        t,
 			})
 		}
-
 	}
 	return &ast.InputObjectDefinition{
 		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "CreateRelationship"),
+		Name:   nameNode(obj.Name() + name),
 		Fields: fields,
 	}
 }
 
-func updateObjectRelationship(obj Object) *ast.InputObjectDefinition {
-	fields := []*ast.InputValueDefinition{}
-	for _, col := range obj.Fields() {
-		if !col.IsUpdatable() {
-			continue
-		}
-		t := col.Def.Type
-		if col.Name() == "id" {
-			t = getNamedType(t)
-		}
-		if isListType(getNullableType(t)) {
-			t = getNullableType(t)
-		}
-
-		if col.IsRelationship() {
-			// 判断是否一对一或其他
-			t := col.Def.Type
-			if col.IsListType() {
-				t = namedType("[" + col.TargetObject().Name() + "UpdateReverseRelationship" + "]")
-			} else {
-				t = namedType(col.TargetObject().Name() + "UpdateReverseRelationship")
-			}
-
-			field := ast.InputValueDefinition{
-				Kind: kinds.InputValueDefinition,
-				Name: nameNode(col.Name()),
-				Type: t,
-			}
-			fields = append(fields, &field)
-		} else {
-			fields = append(fields, &ast.InputValueDefinition{
-				Kind:        kinds.InputValueDefinition,
-				Name:        col.Def.Name,
-				Description: col.Def.Description,
-				Type:        getNullableType(col.Def.Type),
-			})
-		}
-	}
-	return &ast.InputObjectDefinition{
-		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "UpdateRelationship"),
-		Fields: fields,
-	}
-}
-
-func createReverseRelationship(obj Object) *ast.InputObjectDefinition {
+// objectRelationshipFunc ...
+func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
 	for _, col := range obj.Columns() {
 		if !col.IsCreatable() || col.IsReadonlyType() || col.Name() == "id" {
@@ -168,35 +88,23 @@ func createReverseRelationship(obj Object) *ast.InputObjectDefinition {
 	}
 	return &ast.InputObjectDefinition{
 		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "CreateReverseRelationship"),
+		Name:   nameNode(obj.Name() + name),
 		Fields: fields,
 	}
 }
 
-func updateReverseRelationship(obj Object) *ast.InputObjectDefinition {
-	fields := []*ast.InputValueDefinition{}
-	for _, col := range obj.Columns() {
-		if !col.IsUpdatable() || col.IsReadonlyType() {
-			continue
-		}
-		t := col.Def.Type
-		if col.Name() == "id" {
-			t = getNamedType(t)
-		}
-		if isListType(getNullableType(t)) {
-			t = getNullableType(t)
-		}
+func createObjectDefinition(obj Object) *ast.InputObjectDefinition {
+	return objectDefinitionFunc(obj, "CreateInput")
+}
 
-		fields = append(fields, &ast.InputValueDefinition{
-			Kind:        kinds.InputValueDefinition,
-			Name:        col.Def.Name,
-			Description: col.Def.Description,
-			Type:        t,
-		})
-	}
-	return &ast.InputObjectDefinition{
-		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + "UpdateReverseRelationship"),
-		Fields: fields,
-	}
+func updateObjectDefinition(obj Object) *ast.InputObjectDefinition {
+	return objectDefinitionFunc(obj, "UpdateInput")
+}
+
+func createObjectRelationship(obj Object) *ast.InputObjectDefinition {
+	return objectRelationshipFunc(obj, "CreateRelationship")
+}
+
+func updateObjectRelationship(obj Object) *ast.InputObjectDefinition {
+	return objectRelationshipFunc(obj, "UpdateRelationship")
 }

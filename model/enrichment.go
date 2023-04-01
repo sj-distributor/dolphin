@@ -81,7 +81,7 @@ func columnDefinitionWithType(fieldName string, t ast.Type) *ast.FieldDefinition
 		Kind: kinds.FieldDefinition,
 		Type: t,
 		Directives: []*ast.Directive{
-			&ast.Directive{
+			{
 				Kind: kinds.Directive,
 				Name: nameNode("column"),
 			},
@@ -93,7 +93,7 @@ func schemaDefinition(m *Model) *ast.SchemaDefinition {
 	return &ast.SchemaDefinition{
 		Kind: kinds.SchemaDefinition,
 		OperationTypes: []*ast.OperationTypeDefinition{
-			&ast.OperationTypeDefinition{
+			{
 				Operation: "query",
 				Kind:      kinds.OperationTypeDefinition,
 				Type: &ast.Named{
@@ -104,7 +104,7 @@ func schemaDefinition(m *Model) *ast.SchemaDefinition {
 					},
 				},
 			},
-			&ast.OperationTypeDefinition{
+			{
 				Operation: "mutation",
 				Kind:      kinds.OperationTypeDefinition,
 				Type: &ast.Named{

@@ -18,9 +18,11 @@
   ├── makefile  自动化操作make配置文件
 ```
 
+### 必做事项
 ```
-1. go get -d golang.org/x/tools/cmd/goimports
-2. go install golang.org/x/tools/cmd/goimports
+1. 设置 GOPATH 环境变量
+2. go get -d golang.org/x/tools/cmd/goimports
+3. go install golang.org/x/tools/cmd/goimports
 ```
 
 ### example 示例说明

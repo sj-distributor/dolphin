@@ -1,5 +1,5 @@
 # DATABASE = sqlite3://test.db
-DATABASE = mysql://'root:123456@db:3306/dolphin?charset=utf8mb4&parseTime=True&loc=Local'
+DATABASE = mysql://'root:123456@localhost:3306/dolphin?charset=utf8mb4&parseTime=True&loc=Local'
 
 PORT = 8080
 

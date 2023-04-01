@@ -68,13 +68,24 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
 	for _, col := range obj.Columns() {
-		if !col.IsCreatable() || col.IsReadonlyType() || col.Name() == "id" {
-			continue
-		}
 		t := col.Def.Type
-		if col.Name() == "id" {
-			t = getNamedType(t)
+
+		if strings.Contains(name, CREATE) {
+			if !col.IsCreatable() || col.IsReadonlyType() || col.Name() == "id" {
+				continue
+			}
+
+			if col.Name() == "id" {
+				t = getNamedType(t)
+			}
 		}
+
+		if strings.Contains(name, UPDATE) {
+			if !col.IsUpdatable() || col.IsReadonlyType() {
+				continue
+			}
+		}
+
 		if isListType(getNullableType(t)) {
 			t = getNullableType(t)
 		}

@@ -6,7 +6,14 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/99designs/gqlgen/graphql"
 )
+
+type FileField struct {
+	Hash string         `json:"hash"`
+	File graphql.Upload `json:"file"`
+}
 
 type TodoCreateRelationship struct {
 	Title  string  `json:"title"`
@@ -141,6 +148,7 @@ type TodoSortType struct {
 }
 
 type TodoUpdateRelationship struct {
+	ID     string  `json:"id"`
 	Title  string  `json:"title"`
 	Age    *int    `json:"age,omitempty"`
 	Money  int     `json:"money"`
@@ -248,6 +256,7 @@ type UserSortType struct {
 }
 
 type UserUpdateRelationship struct {
+	ID       string  `json:"id"`
 	Username string  `json:"username"`
 	TodoID   *string `json:"todoId,omitempty"`
 }

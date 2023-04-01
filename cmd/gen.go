@@ -56,8 +56,13 @@ func generate(fileDirPath, p string) error {
 	}
 
 	fmt.Println("Generating contents from", matches, "...")
-
-	modelSource := ""
+	modelSource := `
+		directive @format on FIELD_DEFINITION
+		input FileField {
+			hash: String!
+			file: Upload!
+		}
+	`
 	for _, file := range matches {
 		fmt.Println("Appending content from model file", file)
 		source, err := ioutil.ReadFile(file)

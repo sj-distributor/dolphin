@@ -16,23 +16,6 @@ autobind:
 - "github.com/sj-distributor/dolphin-example/gen"
 
 models:
-  UserResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.UserResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  UserCreateInput:
-    model: "map[string]interface{}"
-  UserUpdateInput:
-    model: "map[string]interface{}"
   TodoResultType:
     model: github.com/sj-distributor/dolphin-example/gen.TodoResultType
     fields:
@@ -49,6 +32,23 @@ models:
   TodoCreateInput:
     model: "map[string]interface{}"
   TodoUpdateInput:
+    model: "map[string]interface{}"
+  UserResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.UserResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  UserCreateInput:
+    model: "map[string]interface{}"
+  UserUpdateInput:
     model: "map[string]interface{}"
   
   _Any:

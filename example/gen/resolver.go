@@ -8,15 +8,6 @@ import (
 type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
 
-	CreateUser    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *User, err error)
-	UpdateUser    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *User, err error)
-	DeleteUsers   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryUsers func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryUser     func(ctx context.Context, r *GeneratedResolver, id string) (*User, error)
-	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error)
-
-	UserTodo func(ctx context.Context, r *GeneratedResolver, obj *User) (res *Todo, err error)
-
 	CreateTodo    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Todo, err error)
 	UpdateTodo    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Todo, err error)
 	DeleteTodos   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
@@ -25,20 +16,20 @@ type ResolutionHandlers struct {
 	QueryTodos    func(ctx context.Context, r *GeneratedResolver, opts QueryTodosHandlerOptions) (*TodoResultType, error)
 
 	TodoUser func(ctx context.Context, r *GeneratedResolver, obj *Todo) (res *User, err error)
+
+	CreateUser    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *User, err error)
+	UpdateUser    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *User, err error)
+	DeleteUsers   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryUsers func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryUser     func(ctx context.Context, r *GeneratedResolver, id string) (*User, error)
+	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error)
+
+	UserTodo func(ctx context.Context, r *GeneratedResolver, obj *User) (res *Todo, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {
 	handlers := ResolutionHandlers{
 		OnEvent: func(ctx context.Context, r *GeneratedResolver, e *Event) error { return nil },
-
-		CreateUser:    CreateUserHandler,
-		UpdateUser:    UpdateUserHandler,
-		DeleteUsers:   DeleteUsersHandler,
-		RecoveryUsers: RecoveryUsersHandler,
-		QueryUser:     QueryUserHandler,
-		QueryUsers:    QueryUsersHandler,
-
-		UserTodo: UserTodoHandler,
 
 		CreateTodo:    CreateTodoHandler,
 		UpdateTodo:    UpdateTodoHandler,
@@ -48,6 +39,15 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 		QueryTodos:    QueryTodosHandler,
 
 		TodoUser: TodoUserHandler,
+
+		CreateUser:    CreateUserHandler,
+		UpdateUser:    UpdateUserHandler,
+		DeleteUsers:   DeleteUsersHandler,
+		RecoveryUsers: RecoveryUsersHandler,
+		QueryUser:     QueryUserHandler,
+		QueryUsers:    QueryUsersHandler,
+
+		UserTodo: UserTodoHandler,
 	}
 	return handlers
 }

@@ -140,14 +140,18 @@ type MutationEvents struct {
 			return nil, err
 		}
 	
-		if *item.UpdatedBy != *principalID {
+		if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 			newItem.UpdatedBy = principalID
 		}
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
 				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-					event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
+					{{if $col.IsRelationshipIdentifier}}if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipName}}{}).Error; err != nil {
+						tx.Rollback()
+						return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+					}
+					{{end}}event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
 					event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 					item.{{$col.MethodName}} = changes.{{$col.MethodName}}
 					newItem.{{$col.MethodName}} = changes.{{$col.MethodName}}
@@ -162,10 +166,10 @@ type MutationEvents struct {
 		}
 	
 		if !isChange {
-			return nil, fmt.Errorf(enums.DataNotChange)
+			return item, nil
 		}
 
-	  if err := tx.Model(&item).Save(item).Error; err != nil {
+	  if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 	  	tx.Rollback()
 	    return item, err
 	  }

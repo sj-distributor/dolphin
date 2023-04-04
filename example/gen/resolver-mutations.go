@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"github.com/sj-distributor/dolphin-example/enums"
 	"github.com/sj-distributor/dolphin-example/validator"
 )
 
@@ -156,7 +155,7 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	if *item.UpdatedBy != *principalID {
+	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
 	}
 
@@ -201,6 +200,10 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) {
+		if err := tx.Select("id").Where("id", input["userId"]).First(&User{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("userId " + err.Error())
+		}
 		event.AddOldValue("userId", item.UserID)
 		event.AddNewValue("userId", changes.UserID)
 		item.UserID = changes.UserID
@@ -214,10 +217,10 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if !isChange {
-		return nil, fmt.Errorf(enums.DataNotChange)
+		return item, nil
 	}
 
-	if err := tx.Model(&item).Save(item).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}
@@ -454,7 +457,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	if *item.UpdatedBy != *principalID {
+	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
 	}
 
@@ -475,6 +478,10 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if _, ok := input["todoId"]; ok && (item.TodoID != changes.TodoID) && (item.TodoID == nil || changes.TodoID == nil || *item.TodoID != *changes.TodoID) {
+		if err := tx.Select("id").Where("id", input["todoId"]).First(&Todo{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("todoId " + err.Error())
+		}
 		event.AddOldValue("todoId", item.TodoID)
 		event.AddNewValue("todoId", changes.TodoID)
 		item.TodoID = changes.TodoID
@@ -488,10 +495,10 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if !isChange {
-		return nil, fmt.Errorf(enums.DataNotChange)
+		return item, nil
 	}
 
-	if err := tx.Model(&item).Save(item).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}

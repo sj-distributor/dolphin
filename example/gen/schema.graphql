@@ -6,8 +6,6 @@ scalar Upload
 
 scalar _Any
 
-scalar Any
-
 schema {
   query: Query
   mutation: Mutation
@@ -73,7 +71,6 @@ input TodoCreateInput {
   age: Int
   money: Int!
   remark: String
-  user: UserCreateRelationship
   userId: ID
 }
 
@@ -82,7 +79,6 @@ input TodoUpdateInput {
   age: Int
   money: Int!
   remark: String
-  user: UserUpdateRelationship
   userId: ID
 }
 
@@ -219,7 +215,6 @@ input TodoCreateRelationship {
 }
 
 input TodoUpdateRelationship {
-  id: ID!
   title: String!
   age: Int
   money: Int!
@@ -237,13 +232,11 @@ type TodoResultType {
 
 input UserCreateInput {
   username: String!
-  todo: TodoCreateRelationship
   todoId: ID
 }
 
 input UserUpdateInput {
   username: String!
-  todo: TodoUpdateRelationship
   todoId: ID
 }
 
@@ -347,7 +340,6 @@ input UserCreateRelationship {
 }
 
 input UserUpdateRelationship {
-  id: ID!
   username: String!
   todoId: ID
 }

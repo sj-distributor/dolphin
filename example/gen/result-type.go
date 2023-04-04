@@ -20,7 +20,7 @@ func GetItem(ctx context.Context, db *gorm.DB, table string, out interface{}, id
 	if IndexOf(selects, table+"."+"deleted_by") == -1 {
 		selects = append(selects, table+"."+"deleted_by")
 	}
-	return db.Select(selects).Where(table+".deleted_at IS NOT NULL").Find(out, table+".id = ?", id).Error
+	return db.Select(selects).Where(table+".deleted_at IS NULL").Find(out, table+".id = ?", id).Error
 }
 
 type EntityFilter interface {

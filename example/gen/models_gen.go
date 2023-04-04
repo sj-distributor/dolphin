@@ -148,7 +148,6 @@ type TodoSortType struct {
 }
 
 type TodoUpdateRelationship struct {
-	ID     string  `json:"id"`
 	Title  string  `json:"title"`
 	Age    *int    `json:"age,omitempty"`
 	Money  int     `json:"money"`
@@ -256,7 +255,6 @@ type UserSortType struct {
 }
 
 type UserUpdateRelationship struct {
-	ID       string  `json:"id"`
 	Username string  `json:"username"`
 	TodoID   *string `json:"todoId,omitempty"`
 }

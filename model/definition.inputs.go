@@ -11,11 +11,9 @@ import (
 // objectDefinitionFunc ...
 func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
-	for _, col := range obj.Fields() {
+	for _, col := range obj.Columns() {
 		t := col.Def.Type
-		tName := ""
 		if strings.Contains(name, CREATE) {
-			tName = CREATE
 			if !col.IsCreatable() {
 				continue
 			}
@@ -26,7 +24,6 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 		}
 
 		if strings.Contains(name, UPDATE) {
-			tName = UPDATE
 			if !col.IsUpdatable() || col.Name() == "id" {
 				continue
 			}
@@ -36,26 +33,12 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 			t = getNullableType(t)
 		}
 
-		if col.IsRelationship() {
-			if col.IsListType() {
-				t = namedType("[" + col.TargetObject().Name() + tName + "Relationship" + "]")
-			} else {
-				t = namedType(col.TargetObject().Name() + tName + "Relationship")
-			}
-
-			fields = append(fields, &ast.InputValueDefinition{
-				Kind: kinds.InputValueDefinition,
-				Name: nameNode(col.Name()),
-				Type: t,
-			})
-		} else {
-			fields = append(fields, &ast.InputValueDefinition{
-				Kind:        kinds.InputValueDefinition,
-				Name:        col.Def.Name,
-				Description: col.Def.Description,
-				Type:        t,
-			})
-		}
+		fields = append(fields, &ast.InputValueDefinition{
+			Kind:        kinds.InputValueDefinition,
+			Name:        col.Def.Name,
+			Description: col.Def.Description,
+			Type:        t,
+		})
 	}
 	return &ast.InputObjectDefinition{
 		Kind:   kinds.InputObjectDefinition,
@@ -81,7 +64,7 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 		}
 
 		if strings.Contains(name, UPDATE) {
-			if !col.IsUpdatable() || col.IsReadonlyType() {
+			if !col.IsUpdatable() || col.IsReadonlyType() || col.Name() == "id" {
 				continue
 			}
 		}

@@ -41,6 +41,10 @@ func (o *ObjectField) MethodName() string {
 	return templates.ToGo(name)
 }
 
+func (o *ObjectField) RelationshipName() string {
+	return strings.Replace(o.MethodName(), "ID", "", -1)
+}
+
 func (o *ObjectField) ArgumentsValue() []ObjectFieldInput {
 	arguments := []ObjectFieldInput{}
 	for _, f := range o.Def.Arguments {

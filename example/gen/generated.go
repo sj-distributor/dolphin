@@ -5948,21 +5948,13 @@ func (ec *executionContext) unmarshalInputTodoUpdateRelationship(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "title", "age", "money", "remark", "userId"}
+	fieldsInOrder := [...]string{"title", "age", "money", "remark", "userId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "title":
 			var err error
 
@@ -6796,21 +6788,13 @@ func (ec *executionContext) unmarshalInputUserUpdateRelationship(ctx context.Con
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "username", "todoId"}
+	fieldsInOrder := [...]string{"username", "todoId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
 		case "username":
 			var err error
 
@@ -8466,14 +8450,6 @@ func (ec *executionContext) marshalOTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdo
 	return ec._Todo(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOTodoCreateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoCreateRelationship(ctx context.Context, v interface{}) (*TodoCreateRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTodoCreateRelationship(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalOTodoFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterTypeᚄ(ctx context.Context, v interface{}) ([]*TodoFilterType, error) {
 	if v == nil {
 		return nil, nil
@@ -8537,27 +8513,11 @@ func (ec *executionContext) unmarshalOTodoSortType2ᚖgithubᚗcomᚋsjᚑdistri
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalOTodoUpdateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoUpdateRelationship(ctx context.Context, v interface{}) (*TodoUpdateRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputTodoUpdateRelationship(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOUserCreateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserCreateRelationship(ctx context.Context, v interface{}) (*UserCreateRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUserCreateRelationship(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOUserFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterTypeᚄ(ctx context.Context, v interface{}) ([]*UserFilterType, error) {
@@ -8620,14 +8580,6 @@ func (ec *executionContext) unmarshalOUserSortType2ᚖgithubᚗcomᚋsjᚑdistri
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputUserSortType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOUserUpdateRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserUpdateRelationship(ctx context.Context, v interface{}) (*UserUpdateRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputUserUpdateRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

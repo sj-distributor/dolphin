@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/sj-distributor/dolphin-example/validator"
+	"gorm.io/gorm/clause"
 )
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -63,37 +64,66 @@ func CreateTodoHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
+	if input["user"] != nil && input["userId"] != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("userId and user cannot coexist")
+	}
+
+	if _, ok := input["user"]; ok {
+		var user *User
+		userInput := input["user"].(map[string]interface{})
+
+		if userInput["id"] == nil {
+			user, err = r.Handlers.CreateUser(ctx, r, userInput)
+		} else {
+			user, err = r.Handlers.UpdateUser(ctx, r, userInput["id"].(string), userInput)
+		}
+
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf(fmt.Sprintf("user %s", err.Error()))
+		}
+
+		if err := tx.Model(&User{}).Where("id = ?", user.ID).Updates(User{TodoID: &item.ID}).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		event.AddNewValue("user", changes.User)
+		item.User = user
+		item.UserID = &user.ID
+	}
+
 	if _, ok := input["title"]; ok && (item.Title != changes.Title) {
 		item.Title = changes.Title
-
 		event.AddNewValue("title", changes.Title)
 	}
 
 	if _, ok := input["age"]; ok && (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) {
 		item.Age = changes.Age
-
 		event.AddNewValue("age", changes.Age)
 	}
 
 	if _, ok := input["money"]; ok && (item.Money != changes.Money) {
 		item.Money = changes.Money
-
 		event.AddNewValue("money", changes.Money)
 	}
 
 	if _, ok := input["remark"]; ok && (item.Remark != changes.Remark) && (item.Remark == nil || changes.Remark == nil || *item.Remark != *changes.Remark) {
 		item.Remark = changes.Remark
-
 		event.AddNewValue("remark", changes.Remark)
 	}
 
 	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) {
+		if err := tx.Select("id").Where("id", input["userId"]).First(&User{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("userId " + err.Error())
+		}
 		item.UserID = changes.UserID
-
 		event.AddNewValue("userId", changes.UserID)
 	}
 
-	if err := tx.Create(item).Error; err != nil {
+	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}
@@ -150,6 +180,11 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
+	if input["user"] != nil && input["userId"] != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("userId and user cannot coexist")
+	}
+
 	if err = GetItem(ctx, tx, TableName("todos"), item, &id); err != nil {
 		tx.Rollback()
 		return nil, err
@@ -157,6 +192,38 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
+	}
+
+	if _, ok := input["user"]; ok {
+		var user *User
+		userInput := input["user"].(map[string]interface{})
+
+		if userInput["id"] == nil {
+			user, err = r.Handlers.CreateUser(ctx, r, userInput)
+		} else {
+			user, err = r.Handlers.UpdateUser(ctx, r, userInput["id"].(string), userInput)
+		}
+
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf(fmt.Sprintf("user %s", err.Error()))
+		}
+
+		if err := tx.Model(&item).Association("User").Clear(); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		if err := tx.Model(&User{}).Where("id = ?", user.ID).Update("todo_id", item.ID).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		event.AddOldValue("user", item.User)
+		event.AddNewValue("user", changes.User)
+		item.User = user
+		newItem.UserID = &user.ID
+		isChange = true
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -220,7 +287,7 @@ func UpdateTodoHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return item, nil
 	}
 
-	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Omit(clause.Associations).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}
@@ -383,19 +450,51 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
+	if input["todo"] != nil && input["todoId"] != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("todoId and todo cannot coexist")
+	}
+
+	if _, ok := input["todo"]; ok {
+		var todo *Todo
+		todoInput := input["todo"].(map[string]interface{})
+
+		if todoInput["id"] == nil {
+			todo, err = r.Handlers.CreateTodo(ctx, r, todoInput)
+		} else {
+			todo, err = r.Handlers.UpdateTodo(ctx, r, todoInput["id"].(string), todoInput)
+		}
+
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf(fmt.Sprintf("todo %s", err.Error()))
+		}
+
+		if err := tx.Model(&Todo{}).Where("id = ?", todo.ID).Updates(Todo{UserID: &item.ID}).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		event.AddNewValue("todo", changes.Todo)
+		item.Todo = todo
+		item.TodoID = &todo.ID
+	}
+
 	if _, ok := input["username"]; ok && (item.Username != changes.Username) {
 		item.Username = changes.Username
-
 		event.AddNewValue("username", changes.Username)
 	}
 
 	if _, ok := input["todoId"]; ok && (item.TodoID != changes.TodoID) && (item.TodoID == nil || changes.TodoID == nil || *item.TodoID != *changes.TodoID) {
+		if err := tx.Select("id").Where("id", input["todoId"]).First(&Todo{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("todoId " + err.Error())
+		}
 		item.TodoID = changes.TodoID
-
 		event.AddNewValue("todoId", changes.TodoID)
 	}
 
-	if err := tx.Create(item).Error; err != nil {
+	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}
@@ -452,6 +551,11 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
+	if input["todo"] != nil && input["todoId"] != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("todoId and todo cannot coexist")
+	}
+
 	if err = GetItem(ctx, tx, TableName("users"), item, &id); err != nil {
 		tx.Rollback()
 		return nil, err
@@ -459,6 +563,38 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
+	}
+
+	if _, ok := input["todo"]; ok {
+		var todo *Todo
+		todoInput := input["todo"].(map[string]interface{})
+
+		if todoInput["id"] == nil {
+			todo, err = r.Handlers.CreateTodo(ctx, r, todoInput)
+		} else {
+			todo, err = r.Handlers.UpdateTodo(ctx, r, todoInput["id"].(string), todoInput)
+		}
+
+		if err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf(fmt.Sprintf("todo %s", err.Error()))
+		}
+
+		if err := tx.Model(&item).Association("Todo").Clear(); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		if err := tx.Model(&Todo{}).Where("id = ?", todo.ID).Update("user_id", item.ID).Error; err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+
+		event.AddOldValue("todo", item.Todo)
+		event.AddNewValue("todo", changes.Todo)
+		item.Todo = todo
+		newItem.TodoID = &todo.ID
+		isChange = true
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -498,7 +634,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return item, nil
 	}
 
-	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Omit(clause.Associations).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}

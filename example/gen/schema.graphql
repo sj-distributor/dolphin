@@ -71,6 +71,7 @@ input TodoCreateInput {
   age: Int
   money: Int!
   remark: String
+  user: UserRelationship
   userId: ID
 }
 
@@ -79,6 +80,7 @@ input TodoUpdateInput {
   age: Int
   money: Int!
   remark: String
+  user: UserRelationship
   userId: ID
 }
 
@@ -206,15 +208,8 @@ input TodoFilterType {
   user: UserFilterType
 }
 
-input TodoCreateRelationship {
-  title: String!
-  age: Int
-  money: Int!
-  remark: String
-  userId: ID
-}
-
-input TodoUpdateRelationship {
+input TodoRelationship {
+  id: ID
   title: String!
   age: Int
   money: Int!
@@ -232,11 +227,13 @@ type TodoResultType {
 
 input UserCreateInput {
   username: String!
+  todo: TodoRelationship
   todoId: ID
 }
 
 input UserUpdateInput {
   username: String!
+  todo: TodoRelationship
   todoId: ID
 }
 
@@ -334,12 +331,8 @@ input UserFilterType {
   todo: TodoFilterType
 }
 
-input UserCreateRelationship {
-  username: String!
-  todoId: ID
-}
-
-input UserUpdateRelationship {
+input UserRelationship {
+  id: ID
   username: String!
   todoId: ID
 }

@@ -9,18 +9,7 @@ import (
 )
 
 func GetItem(ctx context.Context, db *gorm.DB, table string, out interface{}, id *string) error {
-	selects := GetFieldsRequested(ctx, table)
-	if len(selects) <= 0 {
-		return db.Find(out, "id = ?", id).Error
-	}
-
-	if IndexOf(selects, table+"."+"updated_by") == -1 {
-		selects = append(selects, table+"."+"updated_by")
-	}
-	if IndexOf(selects, table+"."+"deleted_by") == -1 {
-		selects = append(selects, table+"."+"deleted_by")
-	}
-	return db.Select(selects).Where(table+".deleted_at IS NULL").Find(out, table+".id = ?", id).Error
+	return db.First(out, table+".id = ?", id).Error
 }
 
 type EntityFilter interface {

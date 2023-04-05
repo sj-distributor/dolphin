@@ -15,14 +15,6 @@ type FileField struct {
 	File graphql.Upload `json:"file"`
 }
 
-type TodoCreateRelationship struct {
-	Title  string  `json:"title"`
-	Age    *int    `json:"age,omitempty"`
-	Money  int     `json:"money"`
-	Remark *string `json:"remark,omitempty"`
-	UserID *string `json:"userId,omitempty"`
-}
-
 type TodoFilterType struct {
 	And           []*TodoFilterType `json:"AND,omitempty"`
 	Or            []*TodoFilterType `json:"OR,omitempty"`
@@ -131,6 +123,15 @@ type TodoFilterType struct {
 	User          *UserFilterType   `json:"user,omitempty"`
 }
 
+type TodoRelationship struct {
+	ID     *string `json:"id,omitempty"`
+	Title  string  `json:"title"`
+	Age    *int    `json:"age,omitempty"`
+	Money  int     `json:"money"`
+	Remark *string `json:"remark,omitempty"`
+	UserID *string `json:"userId,omitempty"`
+}
+
 type TodoSortType struct {
 	ID        *ObjectSortType `json:"id,omitempty"`
 	Title     *ObjectSortType `json:"title,omitempty"`
@@ -145,19 +146,6 @@ type TodoSortType struct {
 	UpdatedAt *ObjectSortType `json:"updatedAt,omitempty"`
 	CreatedAt *ObjectSortType `json:"createdAt,omitempty"`
 	User      *UserSortType   `json:"user,omitempty"`
-}
-
-type TodoUpdateRelationship struct {
-	Title  string  `json:"title"`
-	Age    *int    `json:"age,omitempty"`
-	Money  int     `json:"money"`
-	Remark *string `json:"remark,omitempty"`
-	UserID *string `json:"userId,omitempty"`
-}
-
-type UserCreateRelationship struct {
-	Username string  `json:"username"`
-	TodoID   *string `json:"todoId,omitempty"`
 }
 
 type UserFilterType struct {
@@ -241,6 +229,12 @@ type UserFilterType struct {
 	Todo           *TodoFilterType   `json:"todo,omitempty"`
 }
 
+type UserRelationship struct {
+	ID       *string `json:"id,omitempty"`
+	Username string  `json:"username"`
+	TodoID   *string `json:"todoId,omitempty"`
+}
+
 type UserSortType struct {
 	ID        *ObjectSortType `json:"id,omitempty"`
 	Username  *ObjectSortType `json:"username,omitempty"`
@@ -252,11 +246,6 @@ type UserSortType struct {
 	UpdatedAt *ObjectSortType `json:"updatedAt,omitempty"`
 	CreatedAt *ObjectSortType `json:"createdAt,omitempty"`
 	Todo      *TodoSortType   `json:"todo,omitempty"`
-}
-
-type UserUpdateRelationship struct {
-	Username string  `json:"username"`
-	TodoID   *string `json:"todoId,omitempty"`
 }
 
 type ObjectSortType string

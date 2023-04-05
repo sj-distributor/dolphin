@@ -38,7 +38,7 @@ func EnrichModel(m *Model) error {
 			}
 		}
 		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))
-		definitions = append(definitions, createObjectRelationship(o), updateObjectRelationship(o))
+		definitions = append(definitions, createObjectRelationship(o))
 		definitions = append(definitions, objectResultTypeDefinition(&o))
 	}
 

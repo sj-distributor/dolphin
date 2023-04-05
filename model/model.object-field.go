@@ -315,6 +315,14 @@ func (o *ObjectField) ModelTags() string {
 		_gorm += fmt.Sprintf("index:%s;", o.ToSnakeName())
 	}
 
+	if o.Name() == "createdAt" {
+		_gorm += " autoCreateTime:milli;"
+	}
+
+	if o.Name() == "updatedAt" {
+		_gorm += " autoUpdateTime:milli;"
+	}
+
 	if o.Name() == "id" {
 		_gorm = "type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"
 	}

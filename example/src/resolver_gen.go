@@ -44,3 +44,19 @@ type UserResultTypeResolver struct {
 func (r *Resolver) UserResultType() gen.UserResultTypeResolver {
 	return &UserResultTypeResolver{&gen.GeneratedUserResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
+
+type UserResolver struct {
+	*gen.GeneratedUserResolver
+}
+
+func (r *Resolver) User() gen.UserResolver {
+	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
+}
+
+type TodoResolver struct {
+	*gen.GeneratedTodoResolver
+}
+
+func (r *Resolver) Todo() gen.TodoResolver {
+	return &TodoResolver{&gen.GeneratedTodoResolver{GeneratedResolver: r.GeneratedResolver}}
+}

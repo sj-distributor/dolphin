@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -89,12 +88,14 @@ func AddMutationEvent(ctx context.Context, e Event) {
 	s.Events = append(s.Events, e)
 }
 
+// GetFieldsRequested ...
 func GetFieldsRequested(ctx context.Context, alias string) []string {
 	reqCtx := graphql.GetOperationContext(ctx)
 	fieldSelections := graphql.GetFieldContext(ctx).Field.Selections
 	return recurseSelectionSets(reqCtx, []string{}, fieldSelections, alias)
 }
 
+// recurseSelectionSets ...
 func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, selection ast.SelectionSet, alias string) []string {
 	goTypeMap := []string{"String", "Time", "ID", "Float", "Int", "Boolean"}
 
@@ -102,21 +103,20 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 		switch sel := sel.(type) {
 		case *ast.Field:
 			if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
-				if len(sel.SelectionSet) == 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) != -1 {
+				fieldName := SnakeString(sel.Name)
+				if alias != "" {
+					fieldName = alias + "." + SnakeString(sel.Name)
+				}
+
+				if len(sel.SelectionSet) != 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) == -1 {
+					fieldName = SnakeString(sel.Name) + "_id"
 					if alias != "" {
-						fields = append(fields, alias+"."+SnakeString(sel.Name))
-					} else {
-						fields = append(fields, SnakeString(sel.Name))
+						fieldName = alias + "." + SnakeString(sel.Name) + "_id"
 					}
-				} else {
-					reg, _ := regexp.Compile(`^\\[(.+?)\\]`)
-					if ok := reg.MatchString(sel.Definition.Type.String()); ok {
-						if alias != "" {
-							fields = append(fields, alias+"."+SnakeString(sel.Name)+"_id")
-						} else {
-							fields = append(fields, SnakeString(sel.Name)+"_id")
-						}
-					}
+				}
+
+				if IndexOf(fields, fieldName) == -1 {
+					fields = append(fields, fieldName)
 				}
 			}
 		}

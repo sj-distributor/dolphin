@@ -48,8 +48,8 @@ github.com/deadmanssnitch/snshttp v0.0.0-20181114214836-603c9303a19f/go.mod h1:q
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/trifles v0.0.0-20200323201526-dd97f9abfb48 h1:fRzb/w+pyskVMQ+UbP35JkH8yB7MYb4q/qhBarqZE6g=
 github.com/dgryski/trifles v0.0.0-20200323201526-dd97f9abfb48/go.mod h1:if7Fbed8SFyPtHLHbg49SI7NAdJiC5WIA09pe59rfAA=
-github.com/duke-git/lancet/v2 v2.1.13 h1:KOCCVrfh4pjuwl6td5MQ4OqvV73qFdoGxv20HWmyPaM=
-github.com/duke-git/lancet/v2 v2.1.13/go.mod h1:hNcc06mV7qr+crH/0nP+rlC3TB0Q9g5OrVnO8/TGD4c=
+github.com/duke-git/lancet/v2 v2.1.18 h1:S5dsxDRFhMNTlhuoJZnK3PiiGfE8psPejsEUjfuQwtQ=
+github.com/duke-git/lancet/v2 v2.1.18/go.mod h1:hNcc06mV7qr+crH/0nP+rlC3TB0Q9g5OrVnO8/TGD4c=
 github.com/eapache/go-resiliency v1.1.0/go.mod h1:kFI+JgMyC7bLPUVY133qvEBtVayf5mFgVsvEsIPBvNs=
 github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21/go.mod h1:+020luEh2TKB4/GOp8oxxtq0Daoen/Cii55CzbTV6DU=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=

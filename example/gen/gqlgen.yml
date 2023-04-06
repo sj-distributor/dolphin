@@ -13,9 +13,15 @@ resolver:
   type: Resolver
   package: gen
 autobind:
-- "github.com/sj-distributor/dolphin-example/gen"
+  - "github.com/sj-distributor/dolphin-example/gen"
 
 models:
+  
+  Todo:
+    model: github.com/sj-distributor/dolphin-example/gen.Todo
+    fields:
+      user:
+        resolver: true
   TodoResultType:
     model: github.com/sj-distributor/dolphin-example/gen.TodoResultType
     fields:
@@ -33,6 +39,12 @@ models:
     model: "map[string]interface{}"
   TodoUpdateInput:
     model: "map[string]interface{}"
+  
+  User:
+    model: github.com/sj-distributor/dolphin-example/gen.User
+    fields:
+      todo:
+        resolver: true
   UserResultType:
     model: github.com/sj-distributor/dolphin-example/gen.UserResultType
     fields:

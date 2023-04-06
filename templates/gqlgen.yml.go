@@ -15,10 +15,18 @@ resolver:
   type: Resolver
   package: gen
 autobind:
-- "{{.Config.Package}}/gen"
+  - "{{.Config.Package}}/gen"
 
 models:
-  {{range $obj := .Model.ObjectEntities}}{{$obj.Name}}ResultType:
+  {{range $obj := .Model.ObjectEntities}}
+  {{$obj.Name}}:
+    model: {{$config.Package}}/gen.{{$obj.Name}}
+    fields:{{range $col := $obj.Columns}}{{if $col.IsReadonlyType}}
+      {{$col.Name}}:
+        resolver: true{{end}}{{end}}{{range $rel := $obj.Relationships}}
+      {{$rel.Name}}:
+        resolver: true{{end}}
+  {{$obj.Name}}ResultType:
     model: {{$config.Package}}/gen.{{$obj.Name}}ResultType
     fields:
       data:

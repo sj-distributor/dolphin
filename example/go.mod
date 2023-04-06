@@ -39,7 +39,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.177 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/deadmanssnitch/snshttp v0.0.0-20181114214836-603c9303a19f // indirect
-	github.com/duke-git/lancet/v2 v2.1.13
+	github.com/duke-git/lancet/v2 v2.1.18
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect

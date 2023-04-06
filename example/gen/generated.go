@@ -38,7 +38,9 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Todo() TodoResolver
 	TodoResultType() TodoResultTypeResolver
+	User() UserResolver
 	UserResultType() UserResultTypeResolver
 }
 
@@ -119,12 +121,18 @@ type QueryResolver interface {
 	User(ctx context.Context, id string) (*User, error)
 	Users(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*UserSortType, filter *UserFilterType, rand *bool) (*UserResultType, error)
 }
+type TodoResolver interface {
+	User(ctx context.Context, obj *Todo) (*User, error)
+}
 type TodoResultTypeResolver interface {
 	Data(ctx context.Context, obj *TodoResultType) ([]*Todo, error)
 	Total(ctx context.Context, obj *TodoResultType) (int, error)
 	CurrentPage(ctx context.Context, obj *TodoResultType) (int, error)
 	PerPage(ctx context.Context, obj *TodoResultType) (int, error)
 	TotalPage(ctx context.Context, obj *TodoResultType) (int, error)
+}
+type UserResolver interface {
+	Todo(ctx context.Context, obj *User) (*Todo, error)
 }
 type UserResultTypeResolver interface {
 	Data(ctx context.Context, obj *UserResultType) ([]*User, error)
@@ -1810,7 +1818,7 @@ func (ec *executionContext) _Todo_user(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.User, nil
+		return ec.resolvers.Todo().User(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1828,8 +1836,8 @@ func (ec *executionContext) fieldContext_Todo_user(ctx context.Context, field gr
 	fc = &graphql.FieldContext{
 		Object:     "Todo",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -2499,7 +2507,7 @@ func (ec *executionContext) _User_todo(ctx context.Context, field graphql.Collec
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Todo, nil
+		return ec.resolvers.User().Todo(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2517,8 +2525,8 @@ func (ec *executionContext) fieldContext_User_todo(ctx context.Context, field gr
 	fc = &graphql.FieldContext{
 		Object:     "User",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -6946,14 +6954,14 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Todo_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "title":
 
 			out.Values[i] = ec._Todo_title(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "age":
 
@@ -6964,16 +6972,29 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Todo_money(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "remark":
 
 			out.Values[i] = ec._Todo_remark(ctx, field, obj)
 
 		case "user":
+			field := field
 
-			out.Values[i] = ec._Todo_user(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Todo_user(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "userId":
 
 			out.Values[i] = ec._Todo_userId(ctx, field, obj)
@@ -7003,7 +7024,7 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._Todo_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -7152,19 +7173,32 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "username":
 
 			out.Values[i] = ec._User_username(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		case "todo":
+			field := field
 
-			out.Values[i] = ec._User_todo(ctx, field, obj)
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_todo(ctx, field, obj)
+				return res
+			}
 
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		case "todoId":
 
 			out.Values[i] = ec._User_todoId(ctx, field, obj)
@@ -7194,7 +7228,7 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
-				invalids++
+				atomic.AddUint32(&invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

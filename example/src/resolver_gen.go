@@ -28,34 +28,34 @@ func (r *Resolver) Query() gen.QueryResolver {
 	return &QueryResolver{&gen.GeneratedQueryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type TodoResultTypeResolver struct {
-	*gen.GeneratedTodoResultTypeResolver
+type BookCategoryResultTypeResolver struct {
+	*gen.GeneratedBookCategoryResultTypeResolver
 }
 
-func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
-	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) BookCategoryResultType() gen.BookCategoryResultTypeResolver {
+	return &BookCategoryResultTypeResolver{&gen.GeneratedBookCategoryResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type TodoResolver struct {
-	*gen.GeneratedTodoResolver
+type BookCategoryResolver struct {
+	*gen.GeneratedBookCategoryResolver
 }
 
-func (r *Resolver) Todo() gen.TodoResolver {
-	return &TodoResolver{&gen.GeneratedTodoResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) BookCategory() gen.BookCategoryResolver {
+	return &BookCategoryResolver{&gen.GeneratedBookCategoryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type UserResultTypeResolver struct {
-	*gen.GeneratedUserResultTypeResolver
+type BookResultTypeResolver struct {
+	*gen.GeneratedBookResultTypeResolver
 }
 
-func (r *Resolver) UserResultType() gen.UserResultTypeResolver {
-	return &UserResultTypeResolver{&gen.GeneratedUserResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) BookResultType() gen.BookResultTypeResolver {
+	return &BookResultTypeResolver{&gen.GeneratedBookResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type UserResolver struct {
-	*gen.GeneratedUserResolver
+type BookResolver struct {
+	*gen.GeneratedBookResolver
 }
 
-func (r *Resolver) User() gen.UserResolver {
-	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) Book() gen.BookResolver {
+	return &BookResolver{&gen.GeneratedBookResolver{GeneratedResolver: r.GeneratedResolver}}
 }

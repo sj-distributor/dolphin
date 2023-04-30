@@ -3,7 +3,7 @@ module github.com/sj-distributor/dolphin-example
 go 1.19
 
 require (
-	github.com/99designs/gqlgen v0.17.29
+	github.com/99designs/gqlgen v0.17.30
 	github.com/cloudevents/sdk-go v1.2.0
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.3

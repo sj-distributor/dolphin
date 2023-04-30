@@ -12,17 +12,17 @@ schema {
 }
 
 type Query {
-  todo(id: ID!): Todo
-  todos(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TodoSortType!], filter: TodoFilterType, rand: Boolean = false): TodoResultType
-  user(id: ID!): User
-  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
+  bookCategory(id: ID!): BookCategory
+  bookCategories(current_page: Int = 1, per_page: Int = 10, q: String, sort: [BookCategorySortType!], filter: BookCategoryFilterType, rand: Boolean = false): BookCategoryResultType
+  book(id: ID!): Book
+  books(current_page: Int = 1, per_page: Int = 10, q: String, sort: [BookSortType!], filter: BookFilterType, rand: Boolean = false): BookResultType
 }
 
 type Mutation {
-  createTodo(input: TodoCreateInput!): Todo!
-  updateTodo(id: ID!, input: TodoUpdateInput!): Todo!
-  createUser(input: UserCreateInput!): User!
-  updateUser(id: ID!, input: UserUpdateInput!): User!
+  createBookCategory(input: BookCategoryCreateInput!): BookCategory!
+  updateBookCategory(id: ID!, input: BookCategoryUpdateInput!): BookCategory!
+  createBook(input: BookCreateInput!): Book!
+  updateBook(id: ID!, input: BookUpdateInput!): Book!
 }
 
 enum ObjectSortType {
@@ -37,14 +37,28 @@ input FileField {
   file: Upload!
 }
 
-type Todo {
+type BookCategory {
+  id: ID!
+  name: String!
+  description: String
+  books: [Book!]!
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+  booksIds: [ID!]!
+}
+
+type Book {
   id: ID!
   title: String!
-  age: Int
-  money: Int!
-  remark: String
-  user: User
-  userId: ID
+  author: String!
+  price: Int
+  publishDateAt: Int
+  category: BookCategory!
+  categoryId: ID
   deletedBy: ID
   updatedBy: ID
   createdBy: ID
@@ -53,56 +67,170 @@ type Todo {
   createdAt: Int!
 }
 
-type User {
-  id: ID!
-  username: String!
-  todo: Todo
-  todoId: ID
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
+input BookCategoryCreateInput {
+  name: String!
+  description: String
+  books: [BookRelationship]
+  booksIds: [ID!]
 }
 
-input TodoCreateInput {
-  title: String!
-  age: Int
-  money: Int!
-  remark: String
-  user: UserRelationship
-  userId: ID
+input BookCategoryUpdateInput {
+  name: String!
+  description: String
+  books: [BookRelationship]
+  booksIds: [ID!]
 }
 
-input TodoUpdateInput {
-  title: String!
-  age: Int
-  money: Int!
-  remark: String
-  user: UserRelationship
-  userId: ID
-}
-
-input TodoSortType {
+input BookCategorySortType {
   id: ObjectSortType
-  title: ObjectSortType
-  age: ObjectSortType
-  money: ObjectSortType
-  remark: ObjectSortType
-  userId: ObjectSortType
+  name: ObjectSortType
+  description: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  user: UserSortType
+  booksIds: ObjectSortType
+  books: BookSortType
 }
 
-input TodoFilterType {
-  AND: [TodoFilterType!]
-  OR: [TodoFilterType!]
+input BookCategoryFilterType {
+  AND: [BookCategoryFilterType!]
+  OR: [BookCategoryFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_null: Boolean
+  name: String
+  name_ne: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_like: String
+  name_prefix: String
+  name_suffix: String
+  name_null: Boolean
+  description: String
+  description_ne: String
+  description_gt: String
+  description_lt: String
+  description_gte: String
+  description_lte: String
+  description_in: [String!]
+  description_like: String
+  description_prefix: String
+  description_suffix: String
+  description_null: Boolean
+  deletedBy: ID
+  deletedBy_ne: ID
+  deletedBy_gt: ID
+  deletedBy_lt: ID
+  deletedBy_gte: ID
+  deletedBy_lte: ID
+  deletedBy_in: [ID!]
+  deletedBy_null: Boolean
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  updatedBy_null: Boolean
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
+  createdBy_null: Boolean
+  deletedAt: Int
+  deletedAt_ne: Int
+  deletedAt_gt: Int
+  deletedAt_lt: Int
+  deletedAt_gte: Int
+  deletedAt_lte: Int
+  deletedAt_in: [Int!]
+  deletedAt_null: Boolean
+  updatedAt: Int
+  updatedAt_ne: Int
+  updatedAt_gt: Int
+  updatedAt_lt: Int
+  updatedAt_gte: Int
+  updatedAt_lte: Int
+  updatedAt_in: [Int!]
+  updatedAt_null: Boolean
+  createdAt: Int
+  createdAt_ne: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_null: Boolean
+  books: BookFilterType
+}
+
+input BookCategoryRelationship {
+  id: ID
+  name: String!
+  description: String
+  booksIds: [ID!]!
+}
+
+type BookCategoryResultType {
+  data: [BookCategory!]!
+  total: Int!
+  current_page: Int!
+  per_page: Int!
+  total_page: Int!
+}
+
+input BookCreateInput {
+  title: String!
+  author: String!
+  price: Int
+  publishDateAt: Int
+  category: BookCategoryRelationship
+  categoryId: ID
+}
+
+input BookUpdateInput {
+  title: String!
+  author: String!
+  price: Int
+  publishDateAt: Int
+  category: BookCategoryRelationship
+  categoryId: ID
+}
+
+input BookSortType {
+  id: ObjectSortType
+  title: ObjectSortType
+  author: ObjectSortType
+  price: ObjectSortType
+  publishDateAt: ObjectSortType
+  categoryId: ObjectSortType
+  deletedBy: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  deletedAt: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  category: BookCategorySortType
+}
+
+input BookFilterType {
+  AND: [BookFilterType!]
+  OR: [BookFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -122,41 +250,41 @@ input TodoFilterType {
   title_prefix: String
   title_suffix: String
   title_null: Boolean
-  age: Int
-  age_ne: Int
-  age_gt: Int
-  age_lt: Int
-  age_gte: Int
-  age_lte: Int
-  age_in: [Int!]
-  age_null: Boolean
-  money: Int
-  money_ne: Int
-  money_gt: Int
-  money_lt: Int
-  money_gte: Int
-  money_lte: Int
-  money_in: [Int!]
-  money_null: Boolean
-  remark: String
-  remark_ne: String
-  remark_gt: String
-  remark_lt: String
-  remark_gte: String
-  remark_lte: String
-  remark_in: [String!]
-  remark_like: String
-  remark_prefix: String
-  remark_suffix: String
-  remark_null: Boolean
-  userId: ID
-  userId_ne: ID
-  userId_gt: ID
-  userId_lt: ID
-  userId_gte: ID
-  userId_lte: ID
-  userId_in: [ID!]
-  userId_null: Boolean
+  author: String
+  author_ne: String
+  author_gt: String
+  author_lt: String
+  author_gte: String
+  author_lte: String
+  author_in: [String!]
+  author_like: String
+  author_prefix: String
+  author_suffix: String
+  author_null: Boolean
+  price: Int
+  price_ne: Int
+  price_gt: Int
+  price_lt: Int
+  price_gte: Int
+  price_lte: Int
+  price_in: [Int!]
+  price_null: Boolean
+  publishDateAt: Int
+  publishDateAt_ne: Int
+  publishDateAt_gt: Int
+  publishDateAt_lt: Int
+  publishDateAt_gte: Int
+  publishDateAt_lte: Int
+  publishDateAt_in: [Int!]
+  publishDateAt_null: Boolean
+  categoryId: ID
+  categoryId_ne: ID
+  categoryId_gt: ID
+  categoryId_lt: ID
+  categoryId_gte: ID
+  categoryId_lte: ID
+  categoryId_in: [ID!]
+  categoryId_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -205,140 +333,20 @@ input TodoFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  user: UserFilterType
+  category: BookCategoryFilterType
 }
 
-input TodoRelationship {
+input BookRelationship {
   id: ID
   title: String!
-  age: Int
-  money: Int!
-  remark: String
-  userId: ID
+  author: String!
+  price: Int
+  publishDateAt: Int
+  categoryId: ID
 }
 
-type TodoResultType {
-  data: [Todo!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input UserCreateInput {
-  username: String!
-  todo: TodoRelationship
-  todoId: ID
-}
-
-input UserUpdateInput {
-  username: String!
-  todo: TodoRelationship
-  todoId: ID
-}
-
-input UserSortType {
-  id: ObjectSortType
-  username: ObjectSortType
-  todoId: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-  todo: TodoSortType
-}
-
-input UserFilterType {
-  AND: [UserFilterType!]
-  OR: [UserFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  username: String
-  username_ne: String
-  username_gt: String
-  username_lt: String
-  username_gte: String
-  username_lte: String
-  username_in: [String!]
-  username_like: String
-  username_prefix: String
-  username_suffix: String
-  username_null: Boolean
-  todoId: ID
-  todoId_ne: ID
-  todoId_gt: ID
-  todoId_lt: ID
-  todoId_gte: ID
-  todoId_lte: ID
-  todoId_in: [ID!]
-  todoId_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-  todo: TodoFilterType
-}
-
-input UserRelationship {
-  id: ID
-  username: String!
-  todoId: ID
-}
-
-type UserResultType {
-  data: [User!]!
+type BookResultType {
+  data: [Book!]!
   total: Int!
   current_page: Int!
   per_page: Int!

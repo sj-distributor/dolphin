@@ -17,13 +17,13 @@ autobind:
 
 models:
   
-  Todo:
-    model: github.com/sj-distributor/dolphin-example/gen.Todo
+  BookCategory:
+    model: github.com/sj-distributor/dolphin-example/gen.BookCategory
     fields:
-      user:
+      books:
         resolver: true
-  TodoResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.TodoResultType
+  BookCategoryResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.BookCategoryResultType
     fields:
       data:
         resolver: true
@@ -35,18 +35,18 @@ models:
         resolver: true
       total_page:
         resolver: true
-  TodoCreateInput:
+  BookCategoryCreateInput:
     model: "map[string]interface{}"
-  TodoUpdateInput:
+  BookCategoryUpdateInput:
     model: "map[string]interface{}"
   
-  User:
-    model: github.com/sj-distributor/dolphin-example/gen.User
+  Book:
+    model: github.com/sj-distributor/dolphin-example/gen.Book
     fields:
-      todo:
+      category:
         resolver: true
-  UserResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.UserResultType
+  BookResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.BookResultType
     fields:
       data:
         resolver: true
@@ -58,9 +58,9 @@ models:
         resolver: true
       total_page:
         resolver: true
-  UserCreateInput:
+  BookCreateInput:
     model: "map[string]interface{}"
-  UserUpdateInput:
+  BookUpdateInput:
     model: "map[string]interface{}"
   
   _Any:

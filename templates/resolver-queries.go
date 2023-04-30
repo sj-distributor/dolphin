@@ -187,7 +187,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 				{{end}}
 			}
 			{{if $rel.IsToMany}}
-				func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, input map[string]interface{}) (res {{$rel.ReturnType}}, err error) {
+				func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, input map[string]interface{}) (items {{$rel.ReturnType}}, err error) {
 			{{else}}
 				func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error) {
 			{{end}}
@@ -198,18 +198,13 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 				{{end}}
 					{{if $rel.IsToMany}}
 							selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}")))
-							items   := []*{{$rel.TargetType}}{}
+							items   = []*{{$rel.TargetType}}{}
 							wheres  := []string{}
 							values  := []interface{}{}
 
-							// if input["label"] != nil && input["value"] != nil {
-							// 	err = r.DB.Query().Where(input["label"], input["value"].([]interface{})...).Select(selects).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
-							// } else {
-							// 	err = r.DB.Query().Select(selects).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
-							// }
-
-							err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
-							res = items
+							if err := r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Association("{{$rel.MethodName}}").Find(&items); err != nil {
+								return items, err
+							}
 					{{else}}
 						loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 						if obj.{{$rel.MethodName}}ID != nil {
@@ -235,8 +230,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 
 					ids = []string{}
 					items := []*{{$rel.TargetType}}{}
-					err = r.DB.Query().Model(obj).Select(TableName("{{$rel.Target.TableName}}") + ".id").Where(strings.Join(wheres, " AND "), values...).Related(&items, "{{$rel.MethodName}}").Error
-
+					if err := r.DB.Query().Model(obj).Select(TableName("{{$rel.Target.TableName}}")+".id").Where(strings.Join(wheres, " AND "), values...).Association("{{$rel.MethodName}}").Find(&items); err != nil {
+						return ids, err
+					}
+				
 					for _, item := range items {
 						ids = append(ids, item.ID)
 					}

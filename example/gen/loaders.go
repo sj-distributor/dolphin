@@ -11,7 +11,7 @@ import (
 func GetLoaders(db *DB) map[string]*dataloader.Loader {
 	loaders := map[string]*dataloader.Loader{}
 
-	todosBatchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+	book_categoriesBatchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
 
 		ids := make([]string, len(keys))
@@ -19,10 +19,10 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			ids[i] = key.String()
 		}
 
-		items := &[]Todo{}
-		selects := GetFieldsRequested(ctx, "todos")
-		if len(selects) > 0 && IndexOf(selects, "todos"+".id") == -1 {
-			selects = append(selects, "todos"+".id")
+		items := &[]BookCategory{}
+		selects := GetFieldsRequested(ctx, "bookCategories")
+		if len(selects) > 0 && IndexOf(selects, "bookCategories"+".id") == -1 {
+			selects = append(selects, "bookCategories"+".id")
 		}
 
 		res := db.Query().Select(selects).Find(items, "id IN (?)", ids)
@@ -32,7 +32,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			}
 		}
 
-		itemMap := make(map[string]Todo, len(keys))
+		itemMap := make(map[string]BookCategory, len(keys))
 		for _, item := range *items {
 			itemMap[item.ID] = item
 		}
@@ -44,7 +44,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 				results = append(results, &dataloader.Result{
 					Data:  nil,
 					Error: nil,
-					// Error: fmt.Errorf("Todo with id '%s' not found", id),
+					// Error: fmt.Errorf("BookCategory with id '%s' not found", id),
 				})
 			} else {
 				results = append(results, &dataloader.Result{
@@ -56,9 +56,9 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 		return results
 	}
 
-	loaders["Todo"] = dataloader.NewBatchedLoader(todosBatchFn, dataloader.WithClearCacheOnBatch())
+	loaders["BookCategory"] = dataloader.NewBatchedLoader(book_categoriesBatchFn, dataloader.WithClearCacheOnBatch())
 
-	usersBatchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+	booksBatchFn := func(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
 		var results []*dataloader.Result
 
 		ids := make([]string, len(keys))
@@ -66,10 +66,10 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			ids[i] = key.String()
 		}
 
-		items := &[]User{}
-		selects := GetFieldsRequested(ctx, "users")
-		if len(selects) > 0 && IndexOf(selects, "users"+".id") == -1 {
-			selects = append(selects, "users"+".id")
+		items := &[]Book{}
+		selects := GetFieldsRequested(ctx, "books")
+		if len(selects) > 0 && IndexOf(selects, "books"+".id") == -1 {
+			selects = append(selects, "books"+".id")
 		}
 
 		res := db.Query().Select(selects).Find(items, "id IN (?)", ids)
@@ -79,7 +79,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			}
 		}
 
-		itemMap := make(map[string]User, len(keys))
+		itemMap := make(map[string]Book, len(keys))
 		for _, item := range *items {
 			itemMap[item.ID] = item
 		}
@@ -91,7 +91,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 				results = append(results, &dataloader.Result{
 					Data:  nil,
 					Error: nil,
-					// Error: fmt.Errorf("User with id '%s' not found", id),
+					// Error: fmt.Errorf("Book with id '%s' not found", id),
 				})
 			} else {
 				results = append(results, &dataloader.Result{
@@ -103,7 +103,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 		return results
 	}
 
-	loaders["User"] = dataloader.NewBatchedLoader(usersBatchFn, dataloader.WithClearCacheOnBatch())
+	loaders["Book"] = dataloader.NewBatchedLoader(booksBatchFn, dataloader.WithClearCacheOnBatch())
 
 	return loaders
 }

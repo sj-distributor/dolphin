@@ -3,6 +3,7 @@ package gen
 import (
 	"context"
 	"math"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/graph-gophers/dataloader"
@@ -11,53 +12,53 @@ import (
 
 type GeneratedQueryResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedQueryResolver) Todo(ctx context.Context, id string) (*Todo, error) {
-	return r.Handlers.QueryTodo(ctx, r.GeneratedResolver, id)
+func (r *GeneratedQueryResolver) BookCategory(ctx context.Context, id string) (*BookCategory, error) {
+	return r.Handlers.QueryBookCategory(ctx, r.GeneratedResolver, id)
 }
-func QueryTodoHandler(ctx context.Context, r *GeneratedResolver, id string) (*Todo, error) {
+func QueryBookCategoryHandler(ctx context.Context, r *GeneratedResolver, id string) (*BookCategory, error) {
 	selection := []ast.Selection{}
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 		selection = append(selection, f.Field)
 	}
 	selectionSet := ast.SelectionSet(selection)
 
-	query := TodoQueryFilter{}
-	rt := &TodoResultType{
+	query := BookCategoryQueryFilter{}
+	rt := &BookCategoryResultType{
 		EntityResultType: EntityResultType{
 			Query:        &query,
 			SelectionSet: &selectionSet,
 		},
 	}
 	qb := r.DB.Query()
-	qb = qb.Where(TableName("todos")+".id = ?", id)
+	qb = qb.Where(TableName("book_categories")+".id = ?", id)
 
-	var items []*Todo
+	var items []*BookCategory
 	giOpts := GetItemsOptions{
-		Alias:      TableName("todos"),
+		Alias:      TableName("book_categories"),
 		Preloaders: []string{},
-		Item:       &Todo{},
+		Item:       &BookCategory{},
 	}
 	err := rt.GetData(ctx, qb, giOpts, &items)
 	if err != nil {
 		return nil, err
 	}
 	if len(items) == 0 {
-		return nil, &NotFoundError{Entity: "Todo"}
+		return nil, &NotFoundError{Entity: "BookCategory"}
 	}
 	return items[0], err
 }
 
-type QueryTodosHandlerOptions struct {
+type QueryBookCategoriesHandlerOptions struct {
 	CurrentPage *int
 	PerPage     *int
 	Q           *string
-	Sort        []*TodoSortType
-	Filter      *TodoFilterType
+	Sort        []*BookCategorySortType
+	Filter      *BookCategoryFilterType
 	Rand        *bool
 }
 
-func (r *GeneratedQueryResolver) Todos(ctx context.Context, current_page *int, per_page *int, q *string, sort []*TodoSortType, filter *TodoFilterType, rand *bool) (*TodoResultType, error) {
-	opts := QueryTodosHandlerOptions{
+func (r *GeneratedQueryResolver) BookCategories(ctx context.Context, current_page *int, per_page *int, q *string, sort []*BookCategorySortType, filter *BookCategoryFilterType, rand *bool) (*BookCategoryResultType, error) {
+	opts := QueryBookCategoriesHandlerOptions{
 		CurrentPage: current_page,
 		PerPage:     per_page,
 		Q:           q,
@@ -65,10 +66,10 @@ func (r *GeneratedQueryResolver) Todos(ctx context.Context, current_page *int, p
 		Filter:      filter,
 		Rand:        rand,
 	}
-	return r.Handlers.QueryTodos(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryBookCategories(ctx, r.GeneratedResolver, opts)
 }
-func QueryTodosHandler(ctx context.Context, r *GeneratedResolver, opts QueryTodosHandlerOptions) (*TodoResultType, error) {
-	query := TodoQueryFilter{opts.Q}
+func QueryBookCategoriesHandler(ctx context.Context, r *GeneratedResolver, opts QueryBookCategoriesHandlerOptions) (*BookCategoryResultType, error) {
+	query := BookCategoryQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
@@ -82,7 +83,7 @@ func QueryTodosHandler(ctx context.Context, r *GeneratedResolver, opts QueryTodo
 		_sort = append(_sort, sort)
 	}
 
-	return &TodoResultType{
+	return &BookCategoryResultType{
 		EntityResultType: EntityResultType{
 			CurrentPage:  opts.CurrentPage,
 			PerPage:      opts.PerPage,
@@ -95,17 +96,17 @@ func QueryTodosHandler(ctx context.Context, r *GeneratedResolver, opts QueryTodo
 	}, nil
 }
 
-type GeneratedTodoResultTypeResolver struct{ *GeneratedResolver }
+type GeneratedBookCategoryResultTypeResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedTodoResultTypeResolver) Data(ctx context.Context, obj *TodoResultType) (items []*Todo, err error) {
+func (r *GeneratedBookCategoryResultTypeResolver) Data(ctx context.Context, obj *BookCategoryResultType) (items []*BookCategory, err error) {
 	giOpts := GetItemsOptions{
-		Alias:      TableName("todos"),
+		Alias:      TableName("book_categories"),
 		Preloaders: []string{},
-		Item:       &Todo{},
+		Item:       &BookCategory{},
 	}
 	err = obj.GetData(ctx, r.DB.db, giOpts, &items)
 
-	uniqueItems := []*Todo{}
+	uniqueItems := []*BookCategory{}
 	idMap := map[string]bool{}
 	for _, item := range items {
 		if _, ok := idMap[item.ID]; !ok {
@@ -118,11 +119,11 @@ func (r *GeneratedTodoResultTypeResolver) Data(ctx context.Context, obj *TodoRes
 	return
 }
 
-func (r *GeneratedTodoResultTypeResolver) Total(ctx context.Context, obj *TodoResultType) (count int, err error) {
-	return obj.GetTotal(ctx, r.DB.db, TableName("todos"), &Todo{})
+func (r *GeneratedBookCategoryResultTypeResolver) Total(ctx context.Context, obj *BookCategoryResultType) (count int, err error) {
+	return obj.GetTotal(ctx, r.DB.db, TableName("book_categories"), &BookCategory{})
 }
 
-func (r *GeneratedTodoResultTypeResolver) TotalPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
+func (r *GeneratedBookCategoryResultTypeResolver) TotalPage(ctx context.Context, obj *BookCategoryResultType) (count int, err error) {
 	total, _ := r.Total(ctx, obj)
 	perPage, _ := r.PerPage(ctx, obj)
 	totalPage := int(math.Ceil(float64(total) / float64(perPage)))
@@ -133,82 +134,101 @@ func (r *GeneratedTodoResultTypeResolver) TotalPage(ctx context.Context, obj *To
 	return totalPage, nil
 }
 
-func (r *GeneratedTodoResultTypeResolver) CurrentPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
+func (r *GeneratedBookCategoryResultTypeResolver) CurrentPage(ctx context.Context, obj *BookCategoryResultType) (count int, err error) {
 	return int(*obj.EntityResultType.CurrentPage), nil
 }
 
-func (r *GeneratedTodoResultTypeResolver) PerPage(ctx context.Context, obj *TodoResultType) (count int, err error) {
+func (r *GeneratedBookCategoryResultTypeResolver) PerPage(ctx context.Context, obj *BookCategoryResultType) (count int, err error) {
 	return int(*obj.EntityResultType.PerPage), nil
 }
 
-type GeneratedTodoResolver struct{ *GeneratedResolver }
+type GeneratedBookCategoryResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedTodoResolver) User(ctx context.Context, obj *Todo) (res *User, err error) {
+func (r *GeneratedBookCategoryResolver) Books(ctx context.Context, obj *BookCategory) (res []*Book, err error) {
 
-	return r.Handlers.TodoUser(ctx, r.GeneratedResolver, obj)
+	var input map[string]interface{}
+	return r.Handlers.BookCategoryBooks(ctx, r.GeneratedResolver, obj, input)
 
 }
 
-func TodoUserHandler(ctx context.Context, r *GeneratedResolver, obj *Todo) (res *User, err error) {
+func BookCategoryBooksHandler(ctx context.Context, r *GeneratedResolver, obj *BookCategory, input map[string]interface{}) (items []*Book, err error) {
 
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.UserID != nil {
-		item, _ := loaders["User"].Load(ctx, dataloader.StringKey(*obj.UserID))()
-		res, _ = item.(*User)
+	selects := GetFieldsRequested(ctx, strings.ToLower(TableName("books")))
+	items = []*Book{}
+	wheres := []string{}
+	values := []interface{}{}
 
-		// err = _err
+	if err := r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Association("Books").Find(&items); err != nil {
+		return items, err
 	}
 
 	return
 }
 
-func (r *GeneratedQueryResolver) User(ctx context.Context, id string) (*User, error) {
-	return r.Handlers.QueryUser(ctx, r.GeneratedResolver, id)
+func (r *GeneratedBookCategoryResolver) BooksIds(ctx context.Context, obj *BookCategory) (ids []string, err error) {
+	wheres := []string{}
+	values := []interface{}{}
+
+	ids = []string{}
+	items := []*Book{}
+	if err := r.DB.Query().Model(obj).Select(TableName("books")+".id").Where(strings.Join(wheres, " AND "), values...).Association("Books").Find(&items); err != nil {
+		return ids, err
+	}
+
+	for _, item := range items {
+		ids = append(ids, item.ID)
+	}
+
+	return
 }
-func QueryUserHandler(ctx context.Context, r *GeneratedResolver, id string) (*User, error) {
+
+func (r *GeneratedQueryResolver) Book(ctx context.Context, id string) (*Book, error) {
+	return r.Handlers.QueryBook(ctx, r.GeneratedResolver, id)
+}
+func QueryBookHandler(ctx context.Context, r *GeneratedResolver, id string) (*Book, error) {
 	selection := []ast.Selection{}
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 		selection = append(selection, f.Field)
 	}
 	selectionSet := ast.SelectionSet(selection)
 
-	query := UserQueryFilter{}
-	rt := &UserResultType{
+	query := BookQueryFilter{}
+	rt := &BookResultType{
 		EntityResultType: EntityResultType{
 			Query:        &query,
 			SelectionSet: &selectionSet,
 		},
 	}
 	qb := r.DB.Query()
-	qb = qb.Where(TableName("users")+".id = ?", id)
+	qb = qb.Where(TableName("books")+".id = ?", id)
 
-	var items []*User
+	var items []*Book
 	giOpts := GetItemsOptions{
-		Alias:      TableName("users"),
+		Alias:      TableName("books"),
 		Preloaders: []string{},
-		Item:       &User{},
+		Item:       &Book{},
 	}
 	err := rt.GetData(ctx, qb, giOpts, &items)
 	if err != nil {
 		return nil, err
 	}
 	if len(items) == 0 {
-		return nil, &NotFoundError{Entity: "User"}
+		return nil, &NotFoundError{Entity: "Book"}
 	}
 	return items[0], err
 }
 
-type QueryUsersHandlerOptions struct {
+type QueryBooksHandlerOptions struct {
 	CurrentPage *int
 	PerPage     *int
 	Q           *string
-	Sort        []*UserSortType
-	Filter      *UserFilterType
+	Sort        []*BookSortType
+	Filter      *BookFilterType
 	Rand        *bool
 }
 
-func (r *GeneratedQueryResolver) Users(ctx context.Context, current_page *int, per_page *int, q *string, sort []*UserSortType, filter *UserFilterType, rand *bool) (*UserResultType, error) {
-	opts := QueryUsersHandlerOptions{
+func (r *GeneratedQueryResolver) Books(ctx context.Context, current_page *int, per_page *int, q *string, sort []*BookSortType, filter *BookFilterType, rand *bool) (*BookResultType, error) {
+	opts := QueryBooksHandlerOptions{
 		CurrentPage: current_page,
 		PerPage:     per_page,
 		Q:           q,
@@ -216,10 +236,10 @@ func (r *GeneratedQueryResolver) Users(ctx context.Context, current_page *int, p
 		Filter:      filter,
 		Rand:        rand,
 	}
-	return r.Handlers.QueryUsers(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryBooks(ctx, r.GeneratedResolver, opts)
 }
-func QueryUsersHandler(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error) {
-	query := UserQueryFilter{opts.Q}
+func QueryBooksHandler(ctx context.Context, r *GeneratedResolver, opts QueryBooksHandlerOptions) (*BookResultType, error) {
+	query := BookQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
@@ -233,7 +253,7 @@ func QueryUsersHandler(ctx context.Context, r *GeneratedResolver, opts QueryUser
 		_sort = append(_sort, sort)
 	}
 
-	return &UserResultType{
+	return &BookResultType{
 		EntityResultType: EntityResultType{
 			CurrentPage:  opts.CurrentPage,
 			PerPage:      opts.PerPage,
@@ -246,17 +266,17 @@ func QueryUsersHandler(ctx context.Context, r *GeneratedResolver, opts QueryUser
 	}, nil
 }
 
-type GeneratedUserResultTypeResolver struct{ *GeneratedResolver }
+type GeneratedBookResultTypeResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedUserResultTypeResolver) Data(ctx context.Context, obj *UserResultType) (items []*User, err error) {
+func (r *GeneratedBookResultTypeResolver) Data(ctx context.Context, obj *BookResultType) (items []*Book, err error) {
 	giOpts := GetItemsOptions{
-		Alias:      TableName("users"),
+		Alias:      TableName("books"),
 		Preloaders: []string{},
-		Item:       &User{},
+		Item:       &Book{},
 	}
 	err = obj.GetData(ctx, r.DB.db, giOpts, &items)
 
-	uniqueItems := []*User{}
+	uniqueItems := []*Book{}
 	idMap := map[string]bool{}
 	for _, item := range items {
 		if _, ok := idMap[item.ID]; !ok {
@@ -269,11 +289,11 @@ func (r *GeneratedUserResultTypeResolver) Data(ctx context.Context, obj *UserRes
 	return
 }
 
-func (r *GeneratedUserResultTypeResolver) Total(ctx context.Context, obj *UserResultType) (count int, err error) {
-	return obj.GetTotal(ctx, r.DB.db, TableName("users"), &User{})
+func (r *GeneratedBookResultTypeResolver) Total(ctx context.Context, obj *BookResultType) (count int, err error) {
+	return obj.GetTotal(ctx, r.DB.db, TableName("books"), &Book{})
 }
 
-func (r *GeneratedUserResultTypeResolver) TotalPage(ctx context.Context, obj *UserResultType) (count int, err error) {
+func (r *GeneratedBookResultTypeResolver) TotalPage(ctx context.Context, obj *BookResultType) (count int, err error) {
 	total, _ := r.Total(ctx, obj)
 	perPage, _ := r.PerPage(ctx, obj)
 	totalPage := int(math.Ceil(float64(total) / float64(perPage)))
@@ -284,29 +304,33 @@ func (r *GeneratedUserResultTypeResolver) TotalPage(ctx context.Context, obj *Us
 	return totalPage, nil
 }
 
-func (r *GeneratedUserResultTypeResolver) CurrentPage(ctx context.Context, obj *UserResultType) (count int, err error) {
+func (r *GeneratedBookResultTypeResolver) CurrentPage(ctx context.Context, obj *BookResultType) (count int, err error) {
 	return int(*obj.EntityResultType.CurrentPage), nil
 }
 
-func (r *GeneratedUserResultTypeResolver) PerPage(ctx context.Context, obj *UserResultType) (count int, err error) {
+func (r *GeneratedBookResultTypeResolver) PerPage(ctx context.Context, obj *BookResultType) (count int, err error) {
 	return int(*obj.EntityResultType.PerPage), nil
 }
 
-type GeneratedUserResolver struct{ *GeneratedResolver }
+type GeneratedBookResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedUserResolver) Todo(ctx context.Context, obj *User) (res *Todo, err error) {
+func (r *GeneratedBookResolver) Category(ctx context.Context, obj *Book) (res *BookCategory, err error) {
 
-	return r.Handlers.UserTodo(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.BookCategory(ctx, r.GeneratedResolver, obj)
 
 }
 
-func UserTodoHandler(ctx context.Context, r *GeneratedResolver, obj *User) (res *Todo, err error) {
+func BookCategoryHandler(ctx context.Context, r *GeneratedResolver, obj *Book) (res *BookCategory, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.TodoID != nil {
-		item, _ := loaders["Todo"].Load(ctx, dataloader.StringKey(*obj.TodoID))()
-		res, _ = item.(*Todo)
+	if obj.CategoryID != nil {
+		item, _ := loaders["BookCategory"].Load(ctx, dataloader.StringKey(*obj.CategoryID))()
+		res, _ = item.(*BookCategory)
 
+		if res == nil {
+			res = &BookCategory{}
+			// 	_err = fmt.Errorf("BookCategory with id '%s' not found",*obj.CategoryID)
+		}
 		// err = _err
 	}
 

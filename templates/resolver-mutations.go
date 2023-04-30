@@ -68,32 +68,55 @@ type MutationEvents struct {
 		item.CreatedBy = principalID
 
 		{{range $rel := .Relationships}}
+			if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+			}
 			{{if $rel.IsToMany}}
-			{{else}}
-				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
-					tx.Rollback()
-					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
-				}
+				var {{$rel.Name}}Ids []string
 
 				if _, ok := input["{{$rel.Name}}"]; ok {
-					var {{$rel.Name}} *{{$rel.MethodName}}
+					var {{$rel.Name}}Maps []map[string]interface{}
+					for _, v := range input["{{$rel.Name}}"].([]interface{}) {
+						{{$rel.Name}}Maps = append({{$rel.Name}}Maps, v.(map[string]interface{}))
+					}
+
+					for _, v := range {{$rel.Name}}Maps {
+						var {{$rel.Name}} *{{$rel.TargetType}}
+						if v["id"] == nil {
+							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v)
+						} else {
+							{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, v["id"].(string), v)
+						}
+
+						changes.{{$rel.MethodName}} = append(changes.{{$rel.MethodName}}, {{$rel.Name}})
+						{{$rel.Name}}Ids = append({{$rel.Name}}Ids, {{$rel.Name}}.ID)
+					}
+					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
+					item.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
+				}
+			{{else}}
+				if _, ok := input["{{$rel.Name}}"]; ok {
+					var {{$rel.Name}} *{{$rel.TargetType}}
 					{{$rel.Name}}Input := input["{{$rel.Name}}"].(map[string]interface{})
 			
 					if {{$rel.Name}}Input["id"] == nil {
-						{{$rel.Name}}, err = r.Handlers.Create{{$rel.MethodName}}(ctx, r, {{$rel.Name}}Input)
+						{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input)
 					} else {
-						{{$rel.Name}}, err = r.Handlers.Update{{$rel.MethodName}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
+						{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
 					}
 
 					if err != nil {
 						tx.Rollback()
 						return nil, fmt.Errorf(fmt.Sprintf("{{$rel.Name}} %s", err.Error()))
 					}
-
+					
+					{{if $rel.InverseRelationship.IsToOne}}
 					if err := tx.Model(&{{$rel.MethodName}}{}).Where("id = ?", {{$rel.Name}}.ID).Updates({{$rel.MethodName}}{ {{$rel.UpperRelationshipName}}ID: &item.ID}).Error; err != nil {
 						tx.Rollback()
 						return nil, err
 					}
+					{{end}}
 
 					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
 					item.{{$rel.MethodName}} = {{$rel.Name}}
@@ -105,10 +128,11 @@ type MutationEvents struct {
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsCreatable}}
 				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-					{{if $col.IsRelationshipIdentifier}}if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipName}}{}).Error; err != nil {
-						tx.Rollback()
-						return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
-					}
+					{{if $col.IsRelationshipIdentifier}}
+						// if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipName}}{}).Error; err != nil {
+						// 	tx.Rollback()
+						// 	return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+						// }
 					{{end}}item.{{$col.MethodName}} = changes.{{$col.MethodName}}
 					{{if $col.IsIdentifier}}event.EntityID = item.{{$col.MethodName}}
 					{{end}}event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
@@ -120,6 +144,17 @@ type MutationEvents struct {
 	  	tx.Rollback()
 	    return item, err
 	  }
+
+		{{range $rel := .Relationships}}
+			{{if $rel.IsToMany}}
+				if len({{$rel.Name}}Ids) > 0 {
+					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id IN(?)", {{$rel.Name}}Ids).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
+						tx.Rollback()
+						return item, err
+					}
+				}
+			{{end}}
+		{{end}}
 
 		if len(event.Changes) > 0 {
 			AddMutationEvent(ctx, event)
@@ -175,13 +210,10 @@ type MutationEvents struct {
 		}
 
 		{{range $rel := .Relationships}}
-			{{if $rel.IsToMany}}
-			{{else}}
-				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
-					tx.Rollback()
-					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
-				}
-			{{end}}
+			if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
+				tx.Rollback()
+				return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+			}
 		{{end}}
 
 		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}"), item, &id); err != nil {
@@ -195,15 +227,43 @@ type MutationEvents struct {
 
 		{{range $rel := .Relationships}}
 			{{if $rel.IsToMany}}
+				if _, ok := input["{{$rel.Name}}"]; ok {
+					if err := tx.Unscoped().Model(&{{$rel.TargetType}}{}).Where("{{$rel.ToSnakeRelationshipName}}_id = ?", id).Update("{{$rel.ToSnakeRelationshipName}}_id", "").Error; err != nil {
+						tx.Rollback()
+						return item, err
+					}
+
+					var {{$rel.Name}}Maps []map[string]interface{}
+					for _, v := range input["{{$rel.Name}}"].([]interface{}) {
+						vMaps := v.(map[string]interface{})
+						{{$rel.Name}}Maps = append({{$rel.Name}}Maps, vMaps)
+					}
+
+					for _, v := range {{$rel.Name}}Maps {
+						{{$rel.Name}} := &{{$rel.TargetType}}{}
+						v["{{$rel.ToSnakeRelationshipName}}Id"] = id
+						if v["id"] == nil {
+							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v)
+						} else {
+							{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, v["id"].(string), v)
+						}
+
+						changes.{{$rel.MethodName}} = append(changes.{{$rel.MethodName}}, {{$rel.Name}})
+					}
+
+					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
+					item.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
+					newItem.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
+				}
 			{{else}}
 			if _, ok := input["{{$rel.Name}}"]; ok {
-				var {{$rel.Name}} *{{$rel.MethodName}}
+				var {{$rel.Name}} *{{$rel.TargetType}}
 				{{$rel.Name}}Input := input["{{$rel.Name}}"].(map[string]interface{})
 		
 				if {{$rel.Name}}Input["id"] == nil {
-					{{$rel.Name}}, err = r.Handlers.Create{{$rel.MethodName}}(ctx, r, {{$rel.Name}}Input)
+					{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input)
 				} else {
-					{{$rel.Name}}, err = r.Handlers.Update{{$rel.MethodName}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
+					{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
 				}
 
 				if err != nil {
@@ -216,7 +276,7 @@ type MutationEvents struct {
 					return nil, err
 				}
 
-				if err := tx.Model(&{{$rel.MethodName}}{}).Where("id = ?", {{$rel.Name}}.ID).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
+				if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
 					tx.Rollback()
 					return nil, err
 				}
@@ -233,10 +293,11 @@ type MutationEvents struct {
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
 				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-					{{if $col.IsRelationshipIdentifier}}if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipName}}{}).Error; err != nil {
-						tx.Rollback()
-						return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
-					}
+					{{if $col.IsRelationshipIdentifier}}
+						// if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipName}}{}).Error; err != nil {
+						// 	tx.Rollback()
+						// 	return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+						// }
 					{{end}}event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
 					event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 					item.{{$col.MethodName}} = changes.{{$col.MethodName}}
@@ -246,10 +307,10 @@ type MutationEvents struct {
 			{{end}}
 		{{end}}
 
-		if err := validator.Struct(item); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
+		// if err := validator.Struct(item); err != nil {
+		// 	tx.Rollback()
+		// 	return nil, err
+		// }
 	
 		if !isChange {
 			return item, nil

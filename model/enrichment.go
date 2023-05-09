@@ -34,7 +34,7 @@ func EnrichModel(m *Model) error {
 	for _, o := range m.ObjectEntities() {
 		for _, rel := range o.Relationships() {
 			if rel.IsToMany() {
-				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", nonNull(listType(nonNull(namedType("ID"))))))
+				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", listType(nonNull(namedType("ID")))))
 			}
 		}
 		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))

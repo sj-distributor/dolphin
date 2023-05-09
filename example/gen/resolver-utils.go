@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -102,26 +103,30 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 	for _, sel := range selection {
 		switch sel := sel.(type) {
 		case *ast.Field:
+			fieldName := ""
 			if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
-				fieldName := SnakeString(sel.Name)
-				if alias != "" {
-					fieldName = alias + "." + SnakeString(sel.Name)
-				}
-
-				if len(sel.SelectionSet) != 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) == -1 {
-					fieldName = SnakeString(sel.Name) + "_id"
+				if len(sel.SelectionSet) == 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) != -1 {
+					fieldName = SnakeString(sel.Name)
 					if alias != "" {
-						fieldName = alias + "." + SnakeString(sel.Name) + "_id"
+						fieldName = alias + "." + SnakeString(sel.Name)
+					}
+				} else {
+					reg, _ := regexp.Compile(`^\[(.+?)\]`)
+					IsToMany := reg.MatchString(sel.Definition.Type.String())
+					if !IsToMany && len(sel.SelectionSet) != 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) == -1 {
+						fieldName = SnakeString(sel.Name) + "_id"
+						if alias != "" {
+							fieldName = alias + "." + SnakeString(sel.Name) + "_id"
+						}
 					}
 				}
 
-				if IndexOf(fields, fieldName) == -1 {
+				if fieldName != "" && IndexOf(fields, fieldName) == -1 {
 					fields = append(fields, fieldName)
 				}
 			}
 		}
 	}
-
 	return fields
 }
 

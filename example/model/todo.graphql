@@ -1,27 +1,13 @@
-type User @entity(title: "用戶管理") {
-  username: String! @column(gorm: "type:varchar(32) comment '用戶名';NOT NULL;unique_index:username;") @validator(type: "username")
-  password: String! @column(gorm: "type:varchar(64) comment '登錄密碼';NOT NULL;") @validator(type: "password")
-  email: String @column(gorm: "type:varchar(64) comment '用戶郵箱地址';default:null;") @validator(type: "email")
-  nickname: String @column(gorm: "type:varchar(64) comment '暱稱';DEFAULT NULL;index:nickname;")
-  accounts:[Account!]! @relationship(inverse:"owner")
-  todo:[Todo!]! @relationship(inverse:"account")
+type User @entity(title: "用户管理") {
+  phone: String! @column(gorm: "type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;") @validator(type: "phone")
+  password: String! @column(gorm: "type:varchar(64) comment '登录密码';NOT NULL;") @validator(type: "password")
+	email: String @column(gorm: "type:varchar(64) comment '用户邮箱地址';default:null;") @validator(type: "email")
+	nickname: String @column(gorm: "type:varchar(64) comment '昵称';DEFAULT NULL;index:nickname;")
+	age: Int @column(gorm: "type:int(3) comment '年龄';default:1;") @validator(type: "int")
+	tasks: [Task!]! @relationship(inverse:"user")
 }
 
-type Account @entity(title:"賬戶管理"){
-  name:String!@column(gorm:"type varchar(32) comment '賬戶名稱';NOT NULL;")
-  balance:Int!@column(gorm:"type int(13) comment '賬戶餘額';default:0;")@validator(type:"int")
-  owner:User!@relationship(inverse:"accounts")
-  transactions:[Transaction!]!@relationship(inverse:"account")
-}
-
-type Transaction @entity(title:"交易管理"){
-  amount:Int!@column(gorm:"type int(13) comment '交易金額';NOT NULL;")@validator(type:"int")
-  date:Int!@column(gorm:"type int(13) comment '交易日期';NOT NULL;")@validator(type:"int")
-  note:String@column(gorm:"type varchar(255) comment '備注信息';default:null;")
-  account:Account!@relationship(inverse:"transactions")
-}
-
-type Todo @entity(title:"Todo"){
-  name:String!@column(gorm:"type varchar(32) comment 'todo名稱';NOT NULL;")
-  account:User!@relationship(inverse:"todo")
+type Task @entity(title: "任务管理") {
+	title: String @column(gorm: "type:varchar(64) comment '标题';NOT NULL;")
+	user: User @relationship(inverse:"tasks")
 }

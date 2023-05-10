@@ -118,8 +118,10 @@ func (db *DB) Query() *gorm.DB {
 // AutoMigrate ...
 func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate(
-		BookCategory{},
-		Book{},
+		User{},
+		Account{},
+		Transaction{},
+		Todo{},
 	)
 }
 

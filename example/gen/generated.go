@@ -36,12 +36,16 @@ type Config struct {
 }
 
 type ResolverRoot interface {
-	Book() BookResolver
-	BookCategory() BookCategoryResolver
-	BookCategoryResultType() BookCategoryResultTypeResolver
-	BookResultType() BookResultTypeResolver
+	Account() AccountResolver
+	AccountResultType() AccountResultTypeResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Todo() TodoResolver
+	TodoResultType() TodoResultTypeResolver
+	Transaction() TransactionResolver
+	TransactionResultType() TransactionResultTypeResolver
+	User() UserResolver
+	UserResultType() UserResultTypeResolver
 }
 
 type DirectiveRoot struct {
@@ -49,45 +53,23 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	Book struct {
-		Author        func(childComplexity int) int
-		Category      func(childComplexity int) int
-		CategoryID    func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
-		CreatedBy     func(childComplexity int) int
-		DeletedAt     func(childComplexity int) int
-		DeletedBy     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Price         func(childComplexity int) int
-		PublishDateAt func(childComplexity int) int
-		Title         func(childComplexity int) int
-		UpdatedAt     func(childComplexity int) int
-		UpdatedBy     func(childComplexity int) int
+	Account struct {
+		Balance         func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		CreatedBy       func(childComplexity int) int
+		DeletedAt       func(childComplexity int) int
+		DeletedBy       func(childComplexity int) int
+		ID              func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Owner           func(childComplexity int) int
+		OwnerID         func(childComplexity int) int
+		Transactions    func(childComplexity int) int
+		TransactionsIds func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
+		UpdatedBy       func(childComplexity int) int
 	}
 
-	BookCategory struct {
-		Books       func(childComplexity int) int
-		BooksIds    func(childComplexity int) int
-		CreatedAt   func(childComplexity int) int
-		CreatedBy   func(childComplexity int) int
-		DeletedAt   func(childComplexity int) int
-		DeletedBy   func(childComplexity int) int
-		Description func(childComplexity int) int
-		ID          func(childComplexity int) int
-		Name        func(childComplexity int) int
-		UpdatedAt   func(childComplexity int) int
-		UpdatedBy   func(childComplexity int) int
-	}
-
-	BookCategoryResultType struct {
-		CurrentPage func(childComplexity int) int
-		Data        func(childComplexity int) int
-		PerPage     func(childComplexity int) int
-		Total       func(childComplexity int) int
-		TotalPage   func(childComplexity int) int
-	}
-
-	BookResultType struct {
+	AccountResultType struct {
 		CurrentPage func(childComplexity int) int
 		Data        func(childComplexity int) int
 		PerPage     func(childComplexity int) int
@@ -96,53 +78,164 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateBook         func(childComplexity int, input map[string]interface{}) int
-		CreateBookCategory func(childComplexity int, input map[string]interface{}) int
-		UpdateBook         func(childComplexity int, id string, input map[string]interface{}) int
-		UpdateBookCategory func(childComplexity int, id string, input map[string]interface{}) int
+		CreateAccount     func(childComplexity int, input map[string]interface{}) int
+		CreateTodo        func(childComplexity int, input map[string]interface{}) int
+		CreateTransaction func(childComplexity int, input map[string]interface{}) int
+		CreateUser        func(childComplexity int, input map[string]interface{}) int
+		UpdateAccount     func(childComplexity int, id string, input map[string]interface{}) int
+		UpdateTodo        func(childComplexity int, id string, input map[string]interface{}) int
+		UpdateTransaction func(childComplexity int, id string, input map[string]interface{}) int
+		UpdateUser        func(childComplexity int, id string, input map[string]interface{}) int
 	}
 
 	Query struct {
-		Book           func(childComplexity int, id string) int
-		BookCategories func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*BookCategorySortType, filter *BookCategoryFilterType, rand *bool) int
-		BookCategory   func(childComplexity int, id string) int
-		Books          func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*BookSortType, filter *BookFilterType, rand *bool) int
+		Account      func(childComplexity int, id string) int
+		Accounts     func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*AccountSortType, filter *AccountFilterType, rand *bool) int
+		Todo         func(childComplexity int, id string) int
+		Todos        func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*TodoSortType, filter *TodoFilterType, rand *bool) int
+		Transaction  func(childComplexity int, id string) int
+		Transactions func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*TransactionSortType, filter *TransactionFilterType, rand *bool) int
+		User         func(childComplexity int, id string) int
+		Users        func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*UserSortType, filter *UserFilterType, rand *bool) int
+	}
+
+	Todo struct {
+		Account   func(childComplexity int) int
+		AccountID func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
+		DeletedAt func(childComplexity int) int
+		DeletedBy func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
+	}
+
+	TodoResultType struct {
+		CurrentPage func(childComplexity int) int
+		Data        func(childComplexity int) int
+		PerPage     func(childComplexity int) int
+		Total       func(childComplexity int) int
+		TotalPage   func(childComplexity int) int
+	}
+
+	Transaction struct {
+		Account   func(childComplexity int) int
+		AccountID func(childComplexity int) int
+		Amount    func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		CreatedBy func(childComplexity int) int
+		Date      func(childComplexity int) int
+		DeletedAt func(childComplexity int) int
+		DeletedBy func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Note      func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+		UpdatedBy func(childComplexity int) int
+	}
+
+	TransactionResultType struct {
+		CurrentPage func(childComplexity int) int
+		Data        func(childComplexity int) int
+		PerPage     func(childComplexity int) int
+		Total       func(childComplexity int) int
+		TotalPage   func(childComplexity int) int
+	}
+
+	User struct {
+		Accounts    func(childComplexity int) int
+		AccountsIds func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		CreatedBy   func(childComplexity int) int
+		DeletedAt   func(childComplexity int) int
+		DeletedBy   func(childComplexity int) int
+		Email       func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Nickname    func(childComplexity int) int
+		Password    func(childComplexity int) int
+		Todo        func(childComplexity int) int
+		TodoIds     func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
+		UpdatedBy   func(childComplexity int) int
+		Username    func(childComplexity int) int
+	}
+
+	UserResultType struct {
+		CurrentPage func(childComplexity int) int
+		Data        func(childComplexity int) int
+		PerPage     func(childComplexity int) int
+		Total       func(childComplexity int) int
+		TotalPage   func(childComplexity int) int
 	}
 }
 
-type BookResolver interface {
-	Category(ctx context.Context, obj *Book) (*BookCategory, error)
-}
-type BookCategoryResolver interface {
-	Books(ctx context.Context, obj *BookCategory) ([]*Book, error)
+type AccountResolver interface {
+	Owner(ctx context.Context, obj *Account) (*User, error)
+	Transactions(ctx context.Context, obj *Account) ([]*Transaction, error)
 
-	BooksIds(ctx context.Context, obj *BookCategory) ([]string, error)
+	TransactionsIds(ctx context.Context, obj *Account) ([]string, error)
 }
-type BookCategoryResultTypeResolver interface {
-	Data(ctx context.Context, obj *BookCategoryResultType) ([]*BookCategory, error)
-	Total(ctx context.Context, obj *BookCategoryResultType) (int, error)
-	CurrentPage(ctx context.Context, obj *BookCategoryResultType) (int, error)
-	PerPage(ctx context.Context, obj *BookCategoryResultType) (int, error)
-	TotalPage(ctx context.Context, obj *BookCategoryResultType) (int, error)
-}
-type BookResultTypeResolver interface {
-	Data(ctx context.Context, obj *BookResultType) ([]*Book, error)
-	Total(ctx context.Context, obj *BookResultType) (int, error)
-	CurrentPage(ctx context.Context, obj *BookResultType) (int, error)
-	PerPage(ctx context.Context, obj *BookResultType) (int, error)
-	TotalPage(ctx context.Context, obj *BookResultType) (int, error)
+type AccountResultTypeResolver interface {
+	Data(ctx context.Context, obj *AccountResultType) ([]*Account, error)
+	Total(ctx context.Context, obj *AccountResultType) (int, error)
+	CurrentPage(ctx context.Context, obj *AccountResultType) (int, error)
+	PerPage(ctx context.Context, obj *AccountResultType) (int, error)
+	TotalPage(ctx context.Context, obj *AccountResultType) (int, error)
 }
 type MutationResolver interface {
-	CreateBookCategory(ctx context.Context, input map[string]interface{}) (*BookCategory, error)
-	UpdateBookCategory(ctx context.Context, id string, input map[string]interface{}) (*BookCategory, error)
-	CreateBook(ctx context.Context, input map[string]interface{}) (*Book, error)
-	UpdateBook(ctx context.Context, id string, input map[string]interface{}) (*Book, error)
+	CreateUser(ctx context.Context, input map[string]interface{}) (*User, error)
+	UpdateUser(ctx context.Context, id string, input map[string]interface{}) (*User, error)
+	CreateAccount(ctx context.Context, input map[string]interface{}) (*Account, error)
+	UpdateAccount(ctx context.Context, id string, input map[string]interface{}) (*Account, error)
+	CreateTransaction(ctx context.Context, input map[string]interface{}) (*Transaction, error)
+	UpdateTransaction(ctx context.Context, id string, input map[string]interface{}) (*Transaction, error)
+	CreateTodo(ctx context.Context, input map[string]interface{}) (*Todo, error)
+	UpdateTodo(ctx context.Context, id string, input map[string]interface{}) (*Todo, error)
 }
 type QueryResolver interface {
-	BookCategory(ctx context.Context, id string) (*BookCategory, error)
-	BookCategories(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*BookCategorySortType, filter *BookCategoryFilterType, rand *bool) (*BookCategoryResultType, error)
-	Book(ctx context.Context, id string) (*Book, error)
-	Books(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*BookSortType, filter *BookFilterType, rand *bool) (*BookResultType, error)
+	User(ctx context.Context, id string) (*User, error)
+	Users(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*UserSortType, filter *UserFilterType, rand *bool) (*UserResultType, error)
+	Account(ctx context.Context, id string) (*Account, error)
+	Accounts(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*AccountSortType, filter *AccountFilterType, rand *bool) (*AccountResultType, error)
+	Transaction(ctx context.Context, id string) (*Transaction, error)
+	Transactions(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*TransactionSortType, filter *TransactionFilterType, rand *bool) (*TransactionResultType, error)
+	Todo(ctx context.Context, id string) (*Todo, error)
+	Todos(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*TodoSortType, filter *TodoFilterType, rand *bool) (*TodoResultType, error)
+}
+type TodoResolver interface {
+	Account(ctx context.Context, obj *Todo) (*User, error)
+}
+type TodoResultTypeResolver interface {
+	Data(ctx context.Context, obj *TodoResultType) ([]*Todo, error)
+	Total(ctx context.Context, obj *TodoResultType) (int, error)
+	CurrentPage(ctx context.Context, obj *TodoResultType) (int, error)
+	PerPage(ctx context.Context, obj *TodoResultType) (int, error)
+	TotalPage(ctx context.Context, obj *TodoResultType) (int, error)
+}
+type TransactionResolver interface {
+	Account(ctx context.Context, obj *Transaction) (*Account, error)
+}
+type TransactionResultTypeResolver interface {
+	Data(ctx context.Context, obj *TransactionResultType) ([]*Transaction, error)
+	Total(ctx context.Context, obj *TransactionResultType) (int, error)
+	CurrentPage(ctx context.Context, obj *TransactionResultType) (int, error)
+	PerPage(ctx context.Context, obj *TransactionResultType) (int, error)
+	TotalPage(ctx context.Context, obj *TransactionResultType) (int, error)
+}
+type UserResolver interface {
+	Accounts(ctx context.Context, obj *User) ([]*Account, error)
+	Todo(ctx context.Context, obj *User) ([]*Todo, error)
+
+	AccountsIds(ctx context.Context, obj *User) ([]string, error)
+	TodoIds(ctx context.Context, obj *User) ([]string, error)
+}
+type UserResultTypeResolver interface {
+	Data(ctx context.Context, obj *UserResultType) ([]*User, error)
+	Total(ctx context.Context, obj *UserResultType) (int, error)
+	CurrentPage(ctx context.Context, obj *UserResultType) (int, error)
+	PerPage(ctx context.Context, obj *UserResultType) (int, error)
+	TotalPage(ctx context.Context, obj *UserResultType) (int, error)
 }
 
 type executableSchema struct {
@@ -160,339 +253,687 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Book.author":
-		if e.complexity.Book.Author == nil {
+	case "Account.balance":
+		if e.complexity.Account.Balance == nil {
 			break
 		}
 
-		return e.complexity.Book.Author(childComplexity), true
+		return e.complexity.Account.Balance(childComplexity), true
 
-	case "Book.category":
-		if e.complexity.Book.Category == nil {
+	case "Account.createdAt":
+		if e.complexity.Account.CreatedAt == nil {
 			break
 		}
 
-		return e.complexity.Book.Category(childComplexity), true
+		return e.complexity.Account.CreatedAt(childComplexity), true
 
-	case "Book.categoryId":
-		if e.complexity.Book.CategoryID == nil {
+	case "Account.createdBy":
+		if e.complexity.Account.CreatedBy == nil {
 			break
 		}
 
-		return e.complexity.Book.CategoryID(childComplexity), true
+		return e.complexity.Account.CreatedBy(childComplexity), true
 
-	case "Book.createdAt":
-		if e.complexity.Book.CreatedAt == nil {
+	case "Account.deletedAt":
+		if e.complexity.Account.DeletedAt == nil {
 			break
 		}
 
-		return e.complexity.Book.CreatedAt(childComplexity), true
+		return e.complexity.Account.DeletedAt(childComplexity), true
 
-	case "Book.createdBy":
-		if e.complexity.Book.CreatedBy == nil {
+	case "Account.deletedBy":
+		if e.complexity.Account.DeletedBy == nil {
 			break
 		}
 
-		return e.complexity.Book.CreatedBy(childComplexity), true
+		return e.complexity.Account.DeletedBy(childComplexity), true
 
-	case "Book.deletedAt":
-		if e.complexity.Book.DeletedAt == nil {
+	case "Account.id":
+		if e.complexity.Account.ID == nil {
 			break
 		}
 
-		return e.complexity.Book.DeletedAt(childComplexity), true
+		return e.complexity.Account.ID(childComplexity), true
 
-	case "Book.deletedBy":
-		if e.complexity.Book.DeletedBy == nil {
+	case "Account.name":
+		if e.complexity.Account.Name == nil {
 			break
 		}
 
-		return e.complexity.Book.DeletedBy(childComplexity), true
+		return e.complexity.Account.Name(childComplexity), true
 
-	case "Book.id":
-		if e.complexity.Book.ID == nil {
+	case "Account.owner":
+		if e.complexity.Account.Owner == nil {
 			break
 		}
 
-		return e.complexity.Book.ID(childComplexity), true
+		return e.complexity.Account.Owner(childComplexity), true
 
-	case "Book.price":
-		if e.complexity.Book.Price == nil {
+	case "Account.ownerId":
+		if e.complexity.Account.OwnerID == nil {
 			break
 		}
 
-		return e.complexity.Book.Price(childComplexity), true
+		return e.complexity.Account.OwnerID(childComplexity), true
 
-	case "Book.publishDateAt":
-		if e.complexity.Book.PublishDateAt == nil {
+	case "Account.transactions":
+		if e.complexity.Account.Transactions == nil {
 			break
 		}
 
-		return e.complexity.Book.PublishDateAt(childComplexity), true
+		return e.complexity.Account.Transactions(childComplexity), true
 
-	case "Book.title":
-		if e.complexity.Book.Title == nil {
+	case "Account.transactionsIds":
+		if e.complexity.Account.TransactionsIds == nil {
 			break
 		}
 
-		return e.complexity.Book.Title(childComplexity), true
+		return e.complexity.Account.TransactionsIds(childComplexity), true
 
-	case "Book.updatedAt":
-		if e.complexity.Book.UpdatedAt == nil {
+	case "Account.updatedAt":
+		if e.complexity.Account.UpdatedAt == nil {
 			break
 		}
 
-		return e.complexity.Book.UpdatedAt(childComplexity), true
+		return e.complexity.Account.UpdatedAt(childComplexity), true
 
-	case "Book.updatedBy":
-		if e.complexity.Book.UpdatedBy == nil {
+	case "Account.updatedBy":
+		if e.complexity.Account.UpdatedBy == nil {
 			break
 		}
 
-		return e.complexity.Book.UpdatedBy(childComplexity), true
+		return e.complexity.Account.UpdatedBy(childComplexity), true
 
-	case "BookCategory.books":
-		if e.complexity.BookCategory.Books == nil {
+	case "AccountResultType.current_page":
+		if e.complexity.AccountResultType.CurrentPage == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.Books(childComplexity), true
+		return e.complexity.AccountResultType.CurrentPage(childComplexity), true
 
-	case "BookCategory.booksIds":
-		if e.complexity.BookCategory.BooksIds == nil {
+	case "AccountResultType.data":
+		if e.complexity.AccountResultType.Data == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.BooksIds(childComplexity), true
+		return e.complexity.AccountResultType.Data(childComplexity), true
 
-	case "BookCategory.createdAt":
-		if e.complexity.BookCategory.CreatedAt == nil {
+	case "AccountResultType.per_page":
+		if e.complexity.AccountResultType.PerPage == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.CreatedAt(childComplexity), true
+		return e.complexity.AccountResultType.PerPage(childComplexity), true
 
-	case "BookCategory.createdBy":
-		if e.complexity.BookCategory.CreatedBy == nil {
+	case "AccountResultType.total":
+		if e.complexity.AccountResultType.Total == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.CreatedBy(childComplexity), true
+		return e.complexity.AccountResultType.Total(childComplexity), true
 
-	case "BookCategory.deletedAt":
-		if e.complexity.BookCategory.DeletedAt == nil {
+	case "AccountResultType.total_page":
+		if e.complexity.AccountResultType.TotalPage == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.DeletedAt(childComplexity), true
+		return e.complexity.AccountResultType.TotalPage(childComplexity), true
 
-	case "BookCategory.deletedBy":
-		if e.complexity.BookCategory.DeletedBy == nil {
+	case "Mutation.createAccount":
+		if e.complexity.Mutation.CreateAccount == nil {
 			break
 		}
 
-		return e.complexity.BookCategory.DeletedBy(childComplexity), true
-
-	case "BookCategory.description":
-		if e.complexity.BookCategory.Description == nil {
-			break
-		}
-
-		return e.complexity.BookCategory.Description(childComplexity), true
-
-	case "BookCategory.id":
-		if e.complexity.BookCategory.ID == nil {
-			break
-		}
-
-		return e.complexity.BookCategory.ID(childComplexity), true
-
-	case "BookCategory.name":
-		if e.complexity.BookCategory.Name == nil {
-			break
-		}
-
-		return e.complexity.BookCategory.Name(childComplexity), true
-
-	case "BookCategory.updatedAt":
-		if e.complexity.BookCategory.UpdatedAt == nil {
-			break
-		}
-
-		return e.complexity.BookCategory.UpdatedAt(childComplexity), true
-
-	case "BookCategory.updatedBy":
-		if e.complexity.BookCategory.UpdatedBy == nil {
-			break
-		}
-
-		return e.complexity.BookCategory.UpdatedBy(childComplexity), true
-
-	case "BookCategoryResultType.current_page":
-		if e.complexity.BookCategoryResultType.CurrentPage == nil {
-			break
-		}
-
-		return e.complexity.BookCategoryResultType.CurrentPage(childComplexity), true
-
-	case "BookCategoryResultType.data":
-		if e.complexity.BookCategoryResultType.Data == nil {
-			break
-		}
-
-		return e.complexity.BookCategoryResultType.Data(childComplexity), true
-
-	case "BookCategoryResultType.per_page":
-		if e.complexity.BookCategoryResultType.PerPage == nil {
-			break
-		}
-
-		return e.complexity.BookCategoryResultType.PerPage(childComplexity), true
-
-	case "BookCategoryResultType.total":
-		if e.complexity.BookCategoryResultType.Total == nil {
-			break
-		}
-
-		return e.complexity.BookCategoryResultType.Total(childComplexity), true
-
-	case "BookCategoryResultType.total_page":
-		if e.complexity.BookCategoryResultType.TotalPage == nil {
-			break
-		}
-
-		return e.complexity.BookCategoryResultType.TotalPage(childComplexity), true
-
-	case "BookResultType.current_page":
-		if e.complexity.BookResultType.CurrentPage == nil {
-			break
-		}
-
-		return e.complexity.BookResultType.CurrentPage(childComplexity), true
-
-	case "BookResultType.data":
-		if e.complexity.BookResultType.Data == nil {
-			break
-		}
-
-		return e.complexity.BookResultType.Data(childComplexity), true
-
-	case "BookResultType.per_page":
-		if e.complexity.BookResultType.PerPage == nil {
-			break
-		}
-
-		return e.complexity.BookResultType.PerPage(childComplexity), true
-
-	case "BookResultType.total":
-		if e.complexity.BookResultType.Total == nil {
-			break
-		}
-
-		return e.complexity.BookResultType.Total(childComplexity), true
-
-	case "BookResultType.total_page":
-		if e.complexity.BookResultType.TotalPage == nil {
-			break
-		}
-
-		return e.complexity.BookResultType.TotalPage(childComplexity), true
-
-	case "Mutation.createBook":
-		if e.complexity.Mutation.CreateBook == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_createBook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createAccount_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateBook(childComplexity, args["input"].(map[string]interface{})), true
+		return e.complexity.Mutation.CreateAccount(childComplexity, args["input"].(map[string]interface{})), true
 
-	case "Mutation.createBookCategory":
-		if e.complexity.Mutation.CreateBookCategory == nil {
+	case "Mutation.createTodo":
+		if e.complexity.Mutation.CreateTodo == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createBookCategory_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createTodo_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateBookCategory(childComplexity, args["input"].(map[string]interface{})), true
+		return e.complexity.Mutation.CreateTodo(childComplexity, args["input"].(map[string]interface{})), true
 
-	case "Mutation.updateBook":
-		if e.complexity.Mutation.UpdateBook == nil {
+	case "Mutation.createTransaction":
+		if e.complexity.Mutation.CreateTransaction == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateBook_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createTransaction_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateBook(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
+		return e.complexity.Mutation.CreateTransaction(childComplexity, args["input"].(map[string]interface{})), true
 
-	case "Mutation.updateBookCategory":
-		if e.complexity.Mutation.UpdateBookCategory == nil {
+	case "Mutation.createUser":
+		if e.complexity.Mutation.CreateUser == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateBookCategory_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createUser_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateBookCategory(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
+		return e.complexity.Mutation.CreateUser(childComplexity, args["input"].(map[string]interface{})), true
 
-	case "Query.book":
-		if e.complexity.Query.Book == nil {
+	case "Mutation.updateAccount":
+		if e.complexity.Mutation.UpdateAccount == nil {
 			break
 		}
 
-		args, err := ec.field_Query_book_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateAccount_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Book(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.UpdateAccount(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
 
-	case "Query.bookCategories":
-		if e.complexity.Query.BookCategories == nil {
+	case "Mutation.updateTodo":
+		if e.complexity.Mutation.UpdateTodo == nil {
 			break
 		}
 
-		args, err := ec.field_Query_bookCategories_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateTodo_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.BookCategories(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*BookCategorySortType), args["filter"].(*BookCategoryFilterType), args["rand"].(*bool)), true
+		return e.complexity.Mutation.UpdateTodo(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
 
-	case "Query.bookCategory":
-		if e.complexity.Query.BookCategory == nil {
+	case "Mutation.updateTransaction":
+		if e.complexity.Mutation.UpdateTransaction == nil {
 			break
 		}
 
-		args, err := ec.field_Query_bookCategory_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateTransaction_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.BookCategory(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.UpdateTransaction(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
 
-	case "Query.books":
-		if e.complexity.Query.Books == nil {
+	case "Mutation.updateUser":
+		if e.complexity.Mutation.UpdateUser == nil {
 			break
 		}
 
-		args, err := ec.field_Query_books_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Books(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*BookSortType), args["filter"].(*BookFilterType), args["rand"].(*bool)), true
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(map[string]interface{})), true
+
+	case "Query.account":
+		if e.complexity.Query.Account == nil {
+			break
+		}
+
+		args, err := ec.field_Query_account_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Account(childComplexity, args["id"].(string)), true
+
+	case "Query.accounts":
+		if e.complexity.Query.Accounts == nil {
+			break
+		}
+
+		args, err := ec.field_Query_accounts_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Accounts(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*AccountSortType), args["filter"].(*AccountFilterType), args["rand"].(*bool)), true
+
+	case "Query.todo":
+		if e.complexity.Query.Todo == nil {
+			break
+		}
+
+		args, err := ec.field_Query_todo_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Todo(childComplexity, args["id"].(string)), true
+
+	case "Query.todos":
+		if e.complexity.Query.Todos == nil {
+			break
+		}
+
+		args, err := ec.field_Query_todos_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Todos(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*TodoSortType), args["filter"].(*TodoFilterType), args["rand"].(*bool)), true
+
+	case "Query.transaction":
+		if e.complexity.Query.Transaction == nil {
+			break
+		}
+
+		args, err := ec.field_Query_transaction_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Transaction(childComplexity, args["id"].(string)), true
+
+	case "Query.transactions":
+		if e.complexity.Query.Transactions == nil {
+			break
+		}
+
+		args, err := ec.field_Query_transactions_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Transactions(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*TransactionSortType), args["filter"].(*TransactionFilterType), args["rand"].(*bool)), true
+
+	case "Query.user":
+		if e.complexity.Query.User == nil {
+			break
+		}
+
+		args, err := ec.field_Query_user_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.User(childComplexity, args["id"].(string)), true
+
+	case "Query.users":
+		if e.complexity.Query.Users == nil {
+			break
+		}
+
+		args, err := ec.field_Query_users_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Users(childComplexity, args["current_page"].(*int), args["per_page"].(*int), args["q"].(*string), args["sort"].([]*UserSortType), args["filter"].(*UserFilterType), args["rand"].(*bool)), true
+
+	case "Todo.account":
+		if e.complexity.Todo.Account == nil {
+			break
+		}
+
+		return e.complexity.Todo.Account(childComplexity), true
+
+	case "Todo.accountId":
+		if e.complexity.Todo.AccountID == nil {
+			break
+		}
+
+		return e.complexity.Todo.AccountID(childComplexity), true
+
+	case "Todo.createdAt":
+		if e.complexity.Todo.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Todo.CreatedAt(childComplexity), true
+
+	case "Todo.createdBy":
+		if e.complexity.Todo.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Todo.CreatedBy(childComplexity), true
+
+	case "Todo.deletedAt":
+		if e.complexity.Todo.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.Todo.DeletedAt(childComplexity), true
+
+	case "Todo.deletedBy":
+		if e.complexity.Todo.DeletedBy == nil {
+			break
+		}
+
+		return e.complexity.Todo.DeletedBy(childComplexity), true
+
+	case "Todo.id":
+		if e.complexity.Todo.ID == nil {
+			break
+		}
+
+		return e.complexity.Todo.ID(childComplexity), true
+
+	case "Todo.name":
+		if e.complexity.Todo.Name == nil {
+			break
+		}
+
+		return e.complexity.Todo.Name(childComplexity), true
+
+	case "Todo.updatedAt":
+		if e.complexity.Todo.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Todo.UpdatedAt(childComplexity), true
+
+	case "Todo.updatedBy":
+		if e.complexity.Todo.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Todo.UpdatedBy(childComplexity), true
+
+	case "TodoResultType.current_page":
+		if e.complexity.TodoResultType.CurrentPage == nil {
+			break
+		}
+
+		return e.complexity.TodoResultType.CurrentPage(childComplexity), true
+
+	case "TodoResultType.data":
+		if e.complexity.TodoResultType.Data == nil {
+			break
+		}
+
+		return e.complexity.TodoResultType.Data(childComplexity), true
+
+	case "TodoResultType.per_page":
+		if e.complexity.TodoResultType.PerPage == nil {
+			break
+		}
+
+		return e.complexity.TodoResultType.PerPage(childComplexity), true
+
+	case "TodoResultType.total":
+		if e.complexity.TodoResultType.Total == nil {
+			break
+		}
+
+		return e.complexity.TodoResultType.Total(childComplexity), true
+
+	case "TodoResultType.total_page":
+		if e.complexity.TodoResultType.TotalPage == nil {
+			break
+		}
+
+		return e.complexity.TodoResultType.TotalPage(childComplexity), true
+
+	case "Transaction.account":
+		if e.complexity.Transaction.Account == nil {
+			break
+		}
+
+		return e.complexity.Transaction.Account(childComplexity), true
+
+	case "Transaction.accountId":
+		if e.complexity.Transaction.AccountID == nil {
+			break
+		}
+
+		return e.complexity.Transaction.AccountID(childComplexity), true
+
+	case "Transaction.amount":
+		if e.complexity.Transaction.Amount == nil {
+			break
+		}
+
+		return e.complexity.Transaction.Amount(childComplexity), true
+
+	case "Transaction.createdAt":
+		if e.complexity.Transaction.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Transaction.CreatedAt(childComplexity), true
+
+	case "Transaction.createdBy":
+		if e.complexity.Transaction.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.Transaction.CreatedBy(childComplexity), true
+
+	case "Transaction.date":
+		if e.complexity.Transaction.Date == nil {
+			break
+		}
+
+		return e.complexity.Transaction.Date(childComplexity), true
+
+	case "Transaction.deletedAt":
+		if e.complexity.Transaction.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.Transaction.DeletedAt(childComplexity), true
+
+	case "Transaction.deletedBy":
+		if e.complexity.Transaction.DeletedBy == nil {
+			break
+		}
+
+		return e.complexity.Transaction.DeletedBy(childComplexity), true
+
+	case "Transaction.id":
+		if e.complexity.Transaction.ID == nil {
+			break
+		}
+
+		return e.complexity.Transaction.ID(childComplexity), true
+
+	case "Transaction.note":
+		if e.complexity.Transaction.Note == nil {
+			break
+		}
+
+		return e.complexity.Transaction.Note(childComplexity), true
+
+	case "Transaction.updatedAt":
+		if e.complexity.Transaction.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.Transaction.UpdatedAt(childComplexity), true
+
+	case "Transaction.updatedBy":
+		if e.complexity.Transaction.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.Transaction.UpdatedBy(childComplexity), true
+
+	case "TransactionResultType.current_page":
+		if e.complexity.TransactionResultType.CurrentPage == nil {
+			break
+		}
+
+		return e.complexity.TransactionResultType.CurrentPage(childComplexity), true
+
+	case "TransactionResultType.data":
+		if e.complexity.TransactionResultType.Data == nil {
+			break
+		}
+
+		return e.complexity.TransactionResultType.Data(childComplexity), true
+
+	case "TransactionResultType.per_page":
+		if e.complexity.TransactionResultType.PerPage == nil {
+			break
+		}
+
+		return e.complexity.TransactionResultType.PerPage(childComplexity), true
+
+	case "TransactionResultType.total":
+		if e.complexity.TransactionResultType.Total == nil {
+			break
+		}
+
+		return e.complexity.TransactionResultType.Total(childComplexity), true
+
+	case "TransactionResultType.total_page":
+		if e.complexity.TransactionResultType.TotalPage == nil {
+			break
+		}
+
+		return e.complexity.TransactionResultType.TotalPage(childComplexity), true
+
+	case "User.accounts":
+		if e.complexity.User.Accounts == nil {
+			break
+		}
+
+		return e.complexity.User.Accounts(childComplexity), true
+
+	case "User.accountsIds":
+		if e.complexity.User.AccountsIds == nil {
+			break
+		}
+
+		return e.complexity.User.AccountsIds(childComplexity), true
+
+	case "User.createdAt":
+		if e.complexity.User.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.User.CreatedAt(childComplexity), true
+
+	case "User.createdBy":
+		if e.complexity.User.CreatedBy == nil {
+			break
+		}
+
+		return e.complexity.User.CreatedBy(childComplexity), true
+
+	case "User.deletedAt":
+		if e.complexity.User.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.User.DeletedAt(childComplexity), true
+
+	case "User.deletedBy":
+		if e.complexity.User.DeletedBy == nil {
+			break
+		}
+
+		return e.complexity.User.DeletedBy(childComplexity), true
+
+	case "User.email":
+		if e.complexity.User.Email == nil {
+			break
+		}
+
+		return e.complexity.User.Email(childComplexity), true
+
+	case "User.id":
+		if e.complexity.User.ID == nil {
+			break
+		}
+
+		return e.complexity.User.ID(childComplexity), true
+
+	case "User.nickname":
+		if e.complexity.User.Nickname == nil {
+			break
+		}
+
+		return e.complexity.User.Nickname(childComplexity), true
+
+	case "User.password":
+		if e.complexity.User.Password == nil {
+			break
+		}
+
+		return e.complexity.User.Password(childComplexity), true
+
+	case "User.todo":
+		if e.complexity.User.Todo == nil {
+			break
+		}
+
+		return e.complexity.User.Todo(childComplexity), true
+
+	case "User.todoIds":
+		if e.complexity.User.TodoIds == nil {
+			break
+		}
+
+		return e.complexity.User.TodoIds(childComplexity), true
+
+	case "User.updatedAt":
+		if e.complexity.User.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.User.UpdatedAt(childComplexity), true
+
+	case "User.updatedBy":
+		if e.complexity.User.UpdatedBy == nil {
+			break
+		}
+
+		return e.complexity.User.UpdatedBy(childComplexity), true
+
+	case "User.username":
+		if e.complexity.User.Username == nil {
+			break
+		}
+
+		return e.complexity.User.Username(childComplexity), true
+
+	case "UserResultType.current_page":
+		if e.complexity.UserResultType.CurrentPage == nil {
+			break
+		}
+
+		return e.complexity.UserResultType.CurrentPage(childComplexity), true
+
+	case "UserResultType.data":
+		if e.complexity.UserResultType.Data == nil {
+			break
+		}
+
+		return e.complexity.UserResultType.Data(childComplexity), true
+
+	case "UserResultType.per_page":
+		if e.complexity.UserResultType.PerPage == nil {
+			break
+		}
+
+		return e.complexity.UserResultType.PerPage(childComplexity), true
+
+	case "UserResultType.total":
+		if e.complexity.UserResultType.Total == nil {
+			break
+		}
+
+		return e.complexity.UserResultType.Total(childComplexity), true
+
+	case "UserResultType.total_page":
+		if e.complexity.UserResultType.TotalPage == nil {
+			break
+		}
+
+		return e.complexity.UserResultType.TotalPage(childComplexity), true
 
 	}
 	return 0, false
@@ -502,13 +943,19 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputBookCategoryFilterType,
-		ec.unmarshalInputBookCategoryRelationship,
-		ec.unmarshalInputBookCategorySortType,
-		ec.unmarshalInputBookFilterType,
-		ec.unmarshalInputBookRelationship,
-		ec.unmarshalInputBookSortType,
+		ec.unmarshalInputAccountFilterType,
+		ec.unmarshalInputAccountRelationship,
+		ec.unmarshalInputAccountSortType,
 		ec.unmarshalInputFileField,
+		ec.unmarshalInputTodoFilterType,
+		ec.unmarshalInputTodoRelationship,
+		ec.unmarshalInputTodoSortType,
+		ec.unmarshalInputTransactionFilterType,
+		ec.unmarshalInputTransactionRelationship,
+		ec.unmarshalInputTransactionSortType,
+		ec.unmarshalInputUserFilterType,
+		ec.unmarshalInputUserRelationship,
+		ec.unmarshalInputUserSortType,
 	)
 	first := true
 
@@ -588,13 +1035,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createBookCategory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNBookCategoryCreateInput2map(ctx, tmp)
+		arg0, err = ec.unmarshalNAccountCreateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -603,13 +1050,13 @@ func (ec *executionContext) field_Mutation_createBookCategory_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNBookCreateInput2map(ctx, tmp)
+		arg0, err = ec.unmarshalNTodoCreateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -618,7 +1065,37 @@ func (ec *executionContext) field_Mutation_createBook_args(ctx context.Context, 
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateBookCategory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createTransaction_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 map[string]interface{}
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNTransactionCreateInput2map(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 map[string]interface{}
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNUserCreateInput2map(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateAccount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -633,7 +1110,7 @@ func (ec *executionContext) field_Mutation_updateBookCategory_args(ctx context.C
 	var arg1 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNBookCategoryUpdateInput2map(ctx, tmp)
+		arg1, err = ec.unmarshalNAccountUpdateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -642,7 +1119,7 @@ func (ec *executionContext) field_Mutation_updateBookCategory_args(ctx context.C
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateBook_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -657,7 +1134,55 @@ func (ec *executionContext) field_Mutation_updateBook_args(ctx context.Context, 
 	var arg1 map[string]interface{}
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg1, err = ec.unmarshalNBookUpdateInput2map(ctx, tmp)
+		arg1, err = ec.unmarshalNTodoUpdateInput2map(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTransaction_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 map[string]interface{}
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNTransactionUpdateInput2map(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 map[string]interface{}
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg1, err = ec.unmarshalNUserUpdateInput2map(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -681,7 +1206,22 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_bookCategories_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_account_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_accounts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -711,19 +1251,19 @@ func (ec *executionContext) field_Query_bookCategories_args(ctx context.Context,
 		}
 	}
 	args["q"] = arg2
-	var arg3 []*BookCategorySortType
+	var arg3 []*AccountSortType
 	if tmp, ok := rawArgs["sort"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg3, err = ec.unmarshalOBookCategorySortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortTypeᚄ(ctx, tmp)
+		arg3, err = ec.unmarshalOAccountSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortTypeᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["sort"] = arg3
-	var arg4 *BookCategoryFilterType
+	var arg4 *AccountFilterType
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg4, err = ec.unmarshalOBookCategoryFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterType(ctx, tmp)
+		arg4, err = ec.unmarshalOAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -741,7 +1281,7 @@ func (ec *executionContext) field_Query_bookCategories_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_bookCategory_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_todo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -756,22 +1296,7 @@ func (ec *executionContext) field_Query_bookCategory_args(ctx context.Context, r
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_book_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_books_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_todos_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *int
@@ -801,19 +1326,169 @@ func (ec *executionContext) field_Query_books_args(ctx context.Context, rawArgs 
 		}
 	}
 	args["q"] = arg2
-	var arg3 []*BookSortType
+	var arg3 []*TodoSortType
 	if tmp, ok := rawArgs["sort"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
-		arg3, err = ec.unmarshalOBookSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortTypeᚄ(ctx, tmp)
+		arg3, err = ec.unmarshalOTodoSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortTypeᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["sort"] = arg3
-	var arg4 *BookFilterType
+	var arg4 *TodoFilterType
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
-		arg4, err = ec.unmarshalOBookFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterType(ctx, tmp)
+		arg4, err = ec.unmarshalOTodoFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg4
+	var arg5 *bool
+	if tmp, ok := rawArgs["rand"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rand"))
+		arg5, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rand"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_transaction_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_transactions_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["current_page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("current_page"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["current_page"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["per_page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("per_page"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["per_page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["q"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["q"] = arg2
+	var arg3 []*TransactionSortType
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg3, err = ec.unmarshalOTransactionSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortTypeᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg3
+	var arg4 *TransactionFilterType
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg4, err = ec.unmarshalOTransactionFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterType(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg4
+	var arg5 *bool
+	if tmp, ok := rawArgs["rand"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rand"))
+		arg5, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["rand"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_user_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_users_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *int
+	if tmp, ok := rawArgs["current_page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("current_page"))
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["current_page"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["per_page"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("per_page"))
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["per_page"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["q"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("q"))
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["q"] = arg2
+	var arg3 []*UserSortType
+	if tmp, ok := rawArgs["sort"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("sort"))
+		arg3, err = ec.unmarshalOUserSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortTypeᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["sort"] = arg3
+	var arg4 *UserFilterType
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("filter"))
+		arg4, err = ec.unmarshalOUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -869,8 +1544,8 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Book_id(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_id(ctx, field)
+func (ec *executionContext) _Account_id(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_id(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -900,9 +1575,9 @@ func (ec *executionContext) _Book_id(ctx context.Context, field graphql.Collecte
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Book_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Book",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -913,580 +1588,8 @@ func (ec *executionContext) fieldContext_Book_id(ctx context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Book_title(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_title(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Title, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_author(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_author(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Author, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_author(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_price(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_price(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Price, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int64)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_publishDateAt(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_publishDateAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.PublishDateAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int64)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_publishDateAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_category(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_category(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Book().Category(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*BookCategory)
-	fc.Result = res
-	return ec.marshalNBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_BookCategory_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BookCategory_name(ctx, field)
-			case "description":
-				return ec.fieldContext_BookCategory_description(ctx, field)
-			case "books":
-				return ec.fieldContext_BookCategory_books(ctx, field)
-			case "deletedBy":
-				return ec.fieldContext_BookCategory_deletedBy(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_BookCategory_updatedBy(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_BookCategory_createdBy(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_BookCategory_deletedAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_BookCategory_updatedAt(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_BookCategory_createdAt(ctx, field)
-			case "booksIds":
-				return ec.fieldContext_BookCategory_booksIds(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategory", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_categoryId(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_categoryId(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CategoryID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_categoryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_deletedBy(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_deletedBy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_updatedBy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_createdBy(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_createdBy(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedBy, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_deletedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.DeletedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int64)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_updatedAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*int64)
-	fc.Result = res
-	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Book_createdAt(ctx context.Context, field graphql.CollectedField, obj *Book) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Book_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int64)
-	fc.Result = res
-	return ec.marshalNInt2int64(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Book_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Book",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookCategory_id(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookCategory_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookCategory_name(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_name(ctx, field)
+func (ec *executionContext) _Account_name(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_name(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1516,9 +1619,9 @@ func (ec *executionContext) _BookCategory_name(ctx context.Context, field graphq
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1529,8 +1632,8 @@ func (ec *executionContext) fieldContext_BookCategory_name(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_description(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_description(ctx, field)
+func (ec *executionContext) _Account_balance(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_balance(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1543,48 +1646,7 @@ func (ec *executionContext) _BookCategory_description(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Description, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookCategory_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookCategory_books(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_books(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategory().Books(rctx, obj)
+		return obj.Balance, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1596,54 +1658,213 @@ func (ec *executionContext) _BookCategory_books(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Book)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookᚄ(ctx, field.Selections, res)
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_books(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_balance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Account_owner(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_owner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Account().Owner(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Account_owner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Book_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Book_title(ctx, field)
-			case "author":
-				return ec.fieldContext_Book_author(ctx, field)
-			case "price":
-				return ec.fieldContext_Book_price(ctx, field)
-			case "publishDateAt":
-				return ec.fieldContext_Book_publishDateAt(ctx, field)
-			case "category":
-				return ec.fieldContext_Book_category(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Book_categoryId(ctx, field)
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_Book_deletedBy(ctx, field)
+				return ec.fieldContext_User_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_Book_updatedBy(ctx, field)
+				return ec.fieldContext_User_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_Book_createdBy(ctx, field)
+				return ec.fieldContext_User_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_Book_deletedAt(ctx, field)
+				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Book_updatedAt(ctx, field)
+				return ec.fieldContext_User_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Book_createdAt(ctx, field)
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Book", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_deletedBy(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_deletedBy(ctx, field)
+func (ec *executionContext) _Account_transactions(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_transactions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Account().Transactions(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Transaction)
+	fc.Result = res
+	return ec.marshalNTransaction2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Account_transactions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Account",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Transaction_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Transaction_amount(ctx, field)
+			case "date":
+				return ec.fieldContext_Transaction_date(ctx, field)
+			case "note":
+				return ec.fieldContext_Transaction_note(ctx, field)
+			case "account":
+				return ec.fieldContext_Transaction_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Transaction_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Transaction_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Transaction_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Transaction_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Transaction_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Transaction_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Transaction_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Account_ownerId(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_ownerId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OwnerID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Account_ownerId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Account",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Account_deletedBy(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_deletedBy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1670,9 +1891,9 @@ func (ec *executionContext) _BookCategory_deletedBy(ctx context.Context, field g
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1683,8 +1904,8 @@ func (ec *executionContext) fieldContext_BookCategory_deletedBy(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_updatedBy(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_updatedBy(ctx, field)
+func (ec *executionContext) _Account_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_updatedBy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1711,9 +1932,9 @@ func (ec *executionContext) _BookCategory_updatedBy(ctx context.Context, field g
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1724,8 +1945,8 @@ func (ec *executionContext) fieldContext_BookCategory_updatedBy(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_createdBy(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_createdBy(ctx, field)
+func (ec *executionContext) _Account_createdBy(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_createdBy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1752,9 +1973,9 @@ func (ec *executionContext) _BookCategory_createdBy(ctx context.Context, field g
 	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1765,8 +1986,8 @@ func (ec *executionContext) fieldContext_BookCategory_createdBy(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_deletedAt(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_deletedAt(ctx, field)
+func (ec *executionContext) _Account_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_deletedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1793,9 +2014,9 @@ func (ec *executionContext) _BookCategory_deletedAt(ctx context.Context, field g
 	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1806,8 +2027,8 @@ func (ec *executionContext) fieldContext_BookCategory_deletedAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_updatedAt(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_updatedAt(ctx, field)
+func (ec *executionContext) _Account_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1834,9 +2055,9 @@ func (ec *executionContext) _BookCategory_updatedAt(ctx context.Context, field g
 	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1847,8 +2068,8 @@ func (ec *executionContext) fieldContext_BookCategory_updatedAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_createdAt(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_createdAt(ctx, field)
+func (ec *executionContext) _Account_createdAt(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1878,9 +2099,9 @@ func (ec *executionContext) _BookCategory_createdAt(ctx context.Context, field g
 	return ec.marshalNInt2int64(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -1891,8 +2112,8 @@ func (ec *executionContext) fieldContext_BookCategory_createdAt(ctx context.Cont
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategory_booksIds(ctx context.Context, field graphql.CollectedField, obj *BookCategory) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategory_booksIds(ctx, field)
+func (ec *executionContext) _Account_transactionsIds(ctx context.Context, field graphql.CollectedField, obj *Account) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Account_transactionsIds(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1905,26 +2126,23 @@ func (ec *executionContext) _BookCategory_booksIds(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategory().BooksIds(rctx, obj)
+		return ec.resolvers.Account().TransactionsIds(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNID2ᚕstringᚄ(ctx, field.Selections, res)
+	return ec.marshalOID2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategory_booksIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Account_transactionsIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategory",
+		Object:     "Account",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -1935,8 +2153,8 @@ func (ec *executionContext) fieldContext_BookCategory_booksIds(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategoryResultType_data(ctx context.Context, field graphql.CollectedField, obj *BookCategoryResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategoryResultType_data(ctx, field)
+func (ec *executionContext) _AccountResultType_data(ctx context.Context, field graphql.CollectedField, obj *AccountResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AccountResultType_data(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1949,7 +2167,7 @@ func (ec *executionContext) _BookCategoryResultType_data(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategoryResultType().Data(rctx, obj)
+		return ec.resolvers.AccountResultType().Data(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1961,50 +2179,54 @@ func (ec *executionContext) _BookCategoryResultType_data(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*BookCategory)
+	res := resTmp.([]*Account)
 	fc.Result = res
-	return ec.marshalNBookCategory2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryᚄ(ctx, field.Selections, res)
+	return ec.marshalNAccount2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategoryResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AccountResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategoryResultType",
+		Object:     "AccountResultType",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_BookCategory_id(ctx, field)
+				return ec.fieldContext_Account_id(ctx, field)
 			case "name":
-				return ec.fieldContext_BookCategory_name(ctx, field)
-			case "description":
-				return ec.fieldContext_BookCategory_description(ctx, field)
-			case "books":
-				return ec.fieldContext_BookCategory_books(ctx, field)
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_BookCategory_deletedBy(ctx, field)
+				return ec.fieldContext_Account_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_BookCategory_updatedBy(ctx, field)
+				return ec.fieldContext_Account_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_BookCategory_createdBy(ctx, field)
+				return ec.fieldContext_Account_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_BookCategory_deletedAt(ctx, field)
+				return ec.fieldContext_Account_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_BookCategory_updatedAt(ctx, field)
+				return ec.fieldContext_Account_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_BookCategory_createdAt(ctx, field)
-			case "booksIds":
-				return ec.fieldContext_BookCategory_booksIds(ctx, field)
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategory", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
 		},
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategoryResultType_total(ctx context.Context, field graphql.CollectedField, obj *BookCategoryResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategoryResultType_total(ctx, field)
+func (ec *executionContext) _AccountResultType_total(ctx context.Context, field graphql.CollectedField, obj *AccountResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AccountResultType_total(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2017,7 +2239,7 @@ func (ec *executionContext) _BookCategoryResultType_total(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategoryResultType().Total(rctx, obj)
+		return ec.resolvers.AccountResultType().Total(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2034,9 +2256,9 @@ func (ec *executionContext) _BookCategoryResultType_total(ctx context.Context, f
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategoryResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AccountResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategoryResultType",
+		Object:     "AccountResultType",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -2047,8 +2269,8 @@ func (ec *executionContext) fieldContext_BookCategoryResultType_total(ctx contex
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategoryResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *BookCategoryResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategoryResultType_current_page(ctx, field)
+func (ec *executionContext) _AccountResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *AccountResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AccountResultType_current_page(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2061,7 +2283,7 @@ func (ec *executionContext) _BookCategoryResultType_current_page(ctx context.Con
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategoryResultType().CurrentPage(rctx, obj)
+		return ec.resolvers.AccountResultType().CurrentPage(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2078,9 +2300,9 @@ func (ec *executionContext) _BookCategoryResultType_current_page(ctx context.Con
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategoryResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AccountResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategoryResultType",
+		Object:     "AccountResultType",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -2091,8 +2313,8 @@ func (ec *executionContext) fieldContext_BookCategoryResultType_current_page(ctx
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategoryResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *BookCategoryResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategoryResultType_per_page(ctx, field)
+func (ec *executionContext) _AccountResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *AccountResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AccountResultType_per_page(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2105,7 +2327,7 @@ func (ec *executionContext) _BookCategoryResultType_per_page(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategoryResultType().PerPage(rctx, obj)
+		return ec.resolvers.AccountResultType().PerPage(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2122,9 +2344,9 @@ func (ec *executionContext) _BookCategoryResultType_per_page(ctx context.Context
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategoryResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AccountResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategoryResultType",
+		Object:     "AccountResultType",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -2135,8 +2357,8 @@ func (ec *executionContext) fieldContext_BookCategoryResultType_per_page(ctx con
 	return fc, nil
 }
 
-func (ec *executionContext) _BookCategoryResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *BookCategoryResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookCategoryResultType_total_page(ctx, field)
+func (ec *executionContext) _AccountResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *AccountResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AccountResultType_total_page(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2149,7 +2371,7 @@ func (ec *executionContext) _BookCategoryResultType_total_page(ctx context.Conte
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookCategoryResultType().TotalPage(rctx, obj)
+		return ec.resolvers.AccountResultType().TotalPage(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2166,9 +2388,9 @@ func (ec *executionContext) _BookCategoryResultType_total_page(ctx context.Conte
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookCategoryResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_AccountResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "BookCategoryResultType",
+		Object:     "AccountResultType",
 		Field:      field,
 		IsMethod:   true,
 		IsResolver: true,
@@ -2179,8 +2401,8 @@ func (ec *executionContext) fieldContext_BookCategoryResultType_total_page(ctx c
 	return fc, nil
 }
 
-func (ec *executionContext) _BookResultType_data(ctx context.Context, field graphql.CollectedField, obj *BookResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookResultType_data(ctx, field)
+func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createUser(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2193,7 +2415,7 @@ func (ec *executionContext) _BookResultType_data(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookResultType().Data(rctx, obj)
+		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2205,260 +2427,12 @@ func (ec *executionContext) _BookResultType_data(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*Book)
+	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalNBook2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookᚄ(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_BookResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookResultType",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Book_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Book_title(ctx, field)
-			case "author":
-				return ec.fieldContext_Book_author(ctx, field)
-			case "price":
-				return ec.fieldContext_Book_price(ctx, field)
-			case "publishDateAt":
-				return ec.fieldContext_Book_publishDateAt(ctx, field)
-			case "category":
-				return ec.fieldContext_Book_category(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Book_categoryId(ctx, field)
-			case "deletedBy":
-				return ec.fieldContext_Book_deletedBy(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_Book_updatedBy(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Book_createdBy(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Book_deletedAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Book_updatedAt(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Book_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Book", field.Name)
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookResultType_total(ctx context.Context, field graphql.CollectedField, obj *BookResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookResultType_total(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookResultType().Total(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookResultType",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *BookResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookResultType_current_page(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookResultType().CurrentPage(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookResultType",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *BookResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookResultType_per_page(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookResultType().PerPage(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookResultType",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _BookResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *BookResultType) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_BookResultType_total_page(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.BookResultType().TotalPage(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_BookResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "BookResultType",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_createBookCategory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createBookCategory(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateBookCategory(rctx, fc.Args["input"].(map[string]interface{}))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(*BookCategory)
-	fc.Result = res
-	return ec.marshalNBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_createBookCategory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2467,29 +2441,207 @@ func (ec *executionContext) fieldContext_Mutation_createBookCategory(ctx context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_BookCategory_id(ctx, field)
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_User_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_User_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateUser(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateUser(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_User_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_User_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createAccount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateAccount(rctx, fc.Args["input"].(map[string]interface{}))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Account)
+	fc.Result = res
+	return ec.marshalNAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Account_id(ctx, field)
 			case "name":
-				return ec.fieldContext_BookCategory_name(ctx, field)
-			case "description":
-				return ec.fieldContext_BookCategory_description(ctx, field)
-			case "books":
-				return ec.fieldContext_BookCategory_books(ctx, field)
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_BookCategory_deletedBy(ctx, field)
+				return ec.fieldContext_Account_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_BookCategory_updatedBy(ctx, field)
+				return ec.fieldContext_Account_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_BookCategory_createdBy(ctx, field)
+				return ec.fieldContext_Account_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_BookCategory_deletedAt(ctx, field)
+				return ec.fieldContext_Account_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_BookCategory_updatedAt(ctx, field)
+				return ec.fieldContext_Account_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_BookCategory_createdAt(ctx, field)
-			case "booksIds":
-				return ec.fieldContext_BookCategory_booksIds(ctx, field)
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategory", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
 		},
 	}
 	defer func() {
@@ -2499,15 +2651,15 @@ func (ec *executionContext) fieldContext_Mutation_createBookCategory(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createBookCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateBookCategory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateBookCategory(ctx, field)
+func (ec *executionContext) _Mutation_updateAccount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateAccount(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2520,7 +2672,7 @@ func (ec *executionContext) _Mutation_updateBookCategory(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateBookCategory(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
+		return ec.resolvers.Mutation().UpdateAccount(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2532,12 +2684,12 @@ func (ec *executionContext) _Mutation_updateBookCategory(ctx context.Context, fi
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*BookCategory)
+	res := resTmp.(*Account)
 	fc.Result = res
-	return ec.marshalNBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx, field.Selections, res)
+	return ec.marshalNAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateBookCategory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateAccount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2546,29 +2698,33 @@ func (ec *executionContext) fieldContext_Mutation_updateBookCategory(ctx context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_BookCategory_id(ctx, field)
+				return ec.fieldContext_Account_id(ctx, field)
 			case "name":
-				return ec.fieldContext_BookCategory_name(ctx, field)
-			case "description":
-				return ec.fieldContext_BookCategory_description(ctx, field)
-			case "books":
-				return ec.fieldContext_BookCategory_books(ctx, field)
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_BookCategory_deletedBy(ctx, field)
+				return ec.fieldContext_Account_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_BookCategory_updatedBy(ctx, field)
+				return ec.fieldContext_Account_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_BookCategory_createdBy(ctx, field)
+				return ec.fieldContext_Account_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_BookCategory_deletedAt(ctx, field)
+				return ec.fieldContext_Account_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_BookCategory_updatedAt(ctx, field)
+				return ec.fieldContext_Account_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_BookCategory_createdAt(ctx, field)
-			case "booksIds":
-				return ec.fieldContext_BookCategory_booksIds(ctx, field)
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategory", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
 		},
 	}
 	defer func() {
@@ -2578,15 +2734,15 @@ func (ec *executionContext) fieldContext_Mutation_updateBookCategory(ctx context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateBookCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateAccount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createBook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createBook(ctx, field)
+func (ec *executionContext) _Mutation_createTransaction(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTransaction(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2599,7 +2755,7 @@ func (ec *executionContext) _Mutation_createBook(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateBook(rctx, fc.Args["input"].(map[string]interface{}))
+		return ec.resolvers.Mutation().CreateTransaction(rctx, fc.Args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2611,12 +2767,12 @@ func (ec *executionContext) _Mutation_createBook(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Book)
+	res := resTmp.(*Transaction)
 	fc.Result = res
-	return ec.marshalNBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx, field.Selections, res)
+	return ec.marshalNTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createBook(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createTransaction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2625,33 +2781,31 @@ func (ec *executionContext) fieldContext_Mutation_createBook(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Book_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Book_title(ctx, field)
-			case "author":
-				return ec.fieldContext_Book_author(ctx, field)
-			case "price":
-				return ec.fieldContext_Book_price(ctx, field)
-			case "publishDateAt":
-				return ec.fieldContext_Book_publishDateAt(ctx, field)
-			case "category":
-				return ec.fieldContext_Book_category(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Book_categoryId(ctx, field)
+				return ec.fieldContext_Transaction_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Transaction_amount(ctx, field)
+			case "date":
+				return ec.fieldContext_Transaction_date(ctx, field)
+			case "note":
+				return ec.fieldContext_Transaction_note(ctx, field)
+			case "account":
+				return ec.fieldContext_Transaction_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Transaction_accountId(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_Book_deletedBy(ctx, field)
+				return ec.fieldContext_Transaction_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_Book_updatedBy(ctx, field)
+				return ec.fieldContext_Transaction_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_Book_createdBy(ctx, field)
+				return ec.fieldContext_Transaction_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_Book_deletedAt(ctx, field)
+				return ec.fieldContext_Transaction_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Book_updatedAt(ctx, field)
+				return ec.fieldContext_Transaction_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Book_createdAt(ctx, field)
+				return ec.fieldContext_Transaction_createdAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Book", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
 		},
 	}
 	defer func() {
@@ -2661,15 +2815,15 @@ func (ec *executionContext) fieldContext_Mutation_createBook(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createBook_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createTransaction_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateBook(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateBook(ctx, field)
+func (ec *executionContext) _Mutation_updateTransaction(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTransaction(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2682,7 +2836,7 @@ func (ec *executionContext) _Mutation_updateBook(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateBook(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
+		return ec.resolvers.Mutation().UpdateTransaction(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2694,12 +2848,12 @@ func (ec *executionContext) _Mutation_updateBook(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*Book)
+	res := resTmp.(*Transaction)
 	fc.Result = res
-	return ec.marshalNBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx, field.Selections, res)
+	return ec.marshalNTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateBook(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateTransaction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2708,33 +2862,31 @@ func (ec *executionContext) fieldContext_Mutation_updateBook(ctx context.Context
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_Book_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Book_title(ctx, field)
-			case "author":
-				return ec.fieldContext_Book_author(ctx, field)
-			case "price":
-				return ec.fieldContext_Book_price(ctx, field)
-			case "publishDateAt":
-				return ec.fieldContext_Book_publishDateAt(ctx, field)
-			case "category":
-				return ec.fieldContext_Book_category(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Book_categoryId(ctx, field)
+				return ec.fieldContext_Transaction_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Transaction_amount(ctx, field)
+			case "date":
+				return ec.fieldContext_Transaction_date(ctx, field)
+			case "note":
+				return ec.fieldContext_Transaction_note(ctx, field)
+			case "account":
+				return ec.fieldContext_Transaction_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Transaction_accountId(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_Book_deletedBy(ctx, field)
+				return ec.fieldContext_Transaction_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_Book_updatedBy(ctx, field)
+				return ec.fieldContext_Transaction_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_Book_createdBy(ctx, field)
+				return ec.fieldContext_Transaction_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_Book_deletedAt(ctx, field)
+				return ec.fieldContext_Transaction_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Book_updatedAt(ctx, field)
+				return ec.fieldContext_Transaction_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Book_createdAt(ctx, field)
+				return ec.fieldContext_Transaction_createdAt(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Book", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
 		},
 	}
 	defer func() {
@@ -2744,15 +2896,15 @@ func (ec *executionContext) fieldContext_Mutation_updateBook(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateBook_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateTransaction_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_bookCategory(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_bookCategory(ctx, field)
+func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createTodo(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2765,7 +2917,161 @@ func (ec *executionContext) _Query_bookCategory(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().BookCategory(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().CreateTodo(rctx, fc.Args["input"].(map[string]interface{}))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Todo)
+	fc.Result = res
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Todo_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Todo_name(ctx, field)
+			case "account":
+				return ec.fieldContext_Todo_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Todo_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Todo_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Todo_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Todo_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Todo_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Todo_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Todo_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateTodo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateTodo(rctx, fc.Args["id"].(string), fc.Args["input"].(map[string]interface{}))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Todo)
+	fc.Result = res
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_updateTodo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Todo_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Todo_name(ctx, field)
+			case "account":
+				return ec.fieldContext_Todo_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Todo_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Todo_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Todo_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Todo_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Todo_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Todo_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Todo_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_updateTodo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_user(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().User(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2774,12 +3080,12 @@ func (ec *executionContext) _Query_bookCategory(ctx context.Context, field graph
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*BookCategory)
+	res := resTmp.(*User)
 	fc.Result = res
-	return ec.marshalOBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx, field.Selections, res)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_bookCategory(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -2788,29 +3094,37 @@ func (ec *executionContext) fieldContext_Query_bookCategory(ctx context.Context,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_BookCategory_id(ctx, field)
-			case "name":
-				return ec.fieldContext_BookCategory_name(ctx, field)
-			case "description":
-				return ec.fieldContext_BookCategory_description(ctx, field)
-			case "books":
-				return ec.fieldContext_BookCategory_books(ctx, field)
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
 			case "deletedBy":
-				return ec.fieldContext_BookCategory_deletedBy(ctx, field)
+				return ec.fieldContext_User_deletedBy(ctx, field)
 			case "updatedBy":
-				return ec.fieldContext_BookCategory_updatedBy(ctx, field)
+				return ec.fieldContext_User_updatedBy(ctx, field)
 			case "createdBy":
-				return ec.fieldContext_BookCategory_createdBy(ctx, field)
+				return ec.fieldContext_User_createdBy(ctx, field)
 			case "deletedAt":
-				return ec.fieldContext_BookCategory_deletedAt(ctx, field)
+				return ec.fieldContext_User_deletedAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_BookCategory_updatedAt(ctx, field)
+				return ec.fieldContext_User_updatedAt(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_BookCategory_createdAt(ctx, field)
-			case "booksIds":
-				return ec.fieldContext_BookCategory_booksIds(ctx, field)
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategory", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
 	}
 	defer func() {
@@ -2820,15 +3134,15 @@ func (ec *executionContext) fieldContext_Query_bookCategory(ctx context.Context,
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_bookCategory_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_user_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_bookCategories(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_bookCategories(ctx, field)
+func (ec *executionContext) _Query_users(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_users(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2841,7 +3155,7 @@ func (ec *executionContext) _Query_bookCategories(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().BookCategories(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*BookCategorySortType), fc.Args["filter"].(*BookCategoryFilterType), fc.Args["rand"].(*bool))
+		return ec.resolvers.Query().Users(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*UserSortType), fc.Args["filter"].(*UserFilterType), fc.Args["rand"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2850,156 +3164,12 @@ func (ec *executionContext) _Query_bookCategories(ctx context.Context, field gra
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*BookCategoryResultType)
+	res := resTmp.(*UserResultType)
 	fc.Result = res
-	return ec.marshalOBookCategoryResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryResultType(ctx, field.Selections, res)
+	return ec.marshalOUserResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserResultType(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_bookCategories(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "data":
-				return ec.fieldContext_BookCategoryResultType_data(ctx, field)
-			case "total":
-				return ec.fieldContext_BookCategoryResultType_total(ctx, field)
-			case "current_page":
-				return ec.fieldContext_BookCategoryResultType_current_page(ctx, field)
-			case "per_page":
-				return ec.fieldContext_BookCategoryResultType_per_page(ctx, field)
-			case "total_page":
-				return ec.fieldContext_BookCategoryResultType_total_page(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type BookCategoryResultType", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_bookCategories_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_book(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_book(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Book(rctx, fc.Args["id"].(string))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*Book)
-	fc.Result = res
-	return ec.marshalOBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_book(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id":
-				return ec.fieldContext_Book_id(ctx, field)
-			case "title":
-				return ec.fieldContext_Book_title(ctx, field)
-			case "author":
-				return ec.fieldContext_Book_author(ctx, field)
-			case "price":
-				return ec.fieldContext_Book_price(ctx, field)
-			case "publishDateAt":
-				return ec.fieldContext_Book_publishDateAt(ctx, field)
-			case "category":
-				return ec.fieldContext_Book_category(ctx, field)
-			case "categoryId":
-				return ec.fieldContext_Book_categoryId(ctx, field)
-			case "deletedBy":
-				return ec.fieldContext_Book_deletedBy(ctx, field)
-			case "updatedBy":
-				return ec.fieldContext_Book_updatedBy(ctx, field)
-			case "createdBy":
-				return ec.fieldContext_Book_createdBy(ctx, field)
-			case "deletedAt":
-				return ec.fieldContext_Book_deletedAt(ctx, field)
-			case "updatedAt":
-				return ec.fieldContext_Book_updatedAt(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_Book_createdAt(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Book", field.Name)
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_book_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_books(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_books(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Books(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*BookSortType), fc.Args["filter"].(*BookFilterType), fc.Args["rand"].(*bool))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*BookResultType)
-	fc.Result = res
-	return ec.marshalOBookResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookResultType(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_books(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -3008,17 +3178,17 @@ func (ec *executionContext) fieldContext_Query_books(ctx context.Context, field 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "data":
-				return ec.fieldContext_BookResultType_data(ctx, field)
+				return ec.fieldContext_UserResultType_data(ctx, field)
 			case "total":
-				return ec.fieldContext_BookResultType_total(ctx, field)
+				return ec.fieldContext_UserResultType_total(ctx, field)
 			case "current_page":
-				return ec.fieldContext_BookResultType_current_page(ctx, field)
+				return ec.fieldContext_UserResultType_current_page(ctx, field)
 			case "per_page":
-				return ec.fieldContext_BookResultType_per_page(ctx, field)
+				return ec.fieldContext_UserResultType_per_page(ctx, field)
 			case "total_page":
-				return ec.fieldContext_BookResultType_total_page(ctx, field)
+				return ec.fieldContext_UserResultType_total_page(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type BookResultType", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type UserResultType", field.Name)
 		},
 	}
 	defer func() {
@@ -3028,7 +3198,431 @@ func (ec *executionContext) fieldContext_Query_books(ctx context.Context, field 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_books_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_users_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_account(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_account(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Account(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Account)
+	fc.Result = res
+	return ec.marshalOAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_account(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Account_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Account_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Account_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Account_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Account_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Account_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_account_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_accounts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_accounts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Accounts(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*AccountSortType), fc.Args["filter"].(*AccountFilterType), fc.Args["rand"].(*bool))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*AccountResultType)
+	fc.Result = res
+	return ec.marshalOAccountResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountResultType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_accounts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_AccountResultType_data(ctx, field)
+			case "total":
+				return ec.fieldContext_AccountResultType_total(ctx, field)
+			case "current_page":
+				return ec.fieldContext_AccountResultType_current_page(ctx, field)
+			case "per_page":
+				return ec.fieldContext_AccountResultType_per_page(ctx, field)
+			case "total_page":
+				return ec.fieldContext_AccountResultType_total_page(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AccountResultType", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_accounts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_transaction(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_transaction(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Transaction(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Transaction)
+	fc.Result = res
+	return ec.marshalOTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_transaction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Transaction_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Transaction_amount(ctx, field)
+			case "date":
+				return ec.fieldContext_Transaction_date(ctx, field)
+			case "note":
+				return ec.fieldContext_Transaction_note(ctx, field)
+			case "account":
+				return ec.fieldContext_Transaction_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Transaction_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Transaction_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Transaction_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Transaction_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Transaction_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Transaction_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Transaction_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_transaction_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_transactions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_transactions(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Transactions(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*TransactionSortType), fc.Args["filter"].(*TransactionFilterType), fc.Args["rand"].(*bool))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*TransactionResultType)
+	fc.Result = res
+	return ec.marshalOTransactionResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionResultType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_transactions(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_TransactionResultType_data(ctx, field)
+			case "total":
+				return ec.fieldContext_TransactionResultType_total(ctx, field)
+			case "current_page":
+				return ec.fieldContext_TransactionResultType_current_page(ctx, field)
+			case "per_page":
+				return ec.fieldContext_TransactionResultType_per_page(ctx, field)
+			case "total_page":
+				return ec.fieldContext_TransactionResultType_total_page(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TransactionResultType", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_transactions_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_todo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_todo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Todo(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Todo)
+	fc.Result = res
+	return ec.marshalOTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_todo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Todo_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Todo_name(ctx, field)
+			case "account":
+				return ec.fieldContext_Todo_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Todo_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Todo_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Todo_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Todo_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Todo_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Todo_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Todo_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_todo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_todos(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_todos(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Todos(rctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*TodoSortType), fc.Args["filter"].(*TodoFilterType), fc.Args["rand"].(*bool))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*TodoResultType)
+	fc.Result = res
+	return ec.marshalOTodoResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoResultType(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_todos(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "data":
+				return ec.fieldContext_TodoResultType_data(ctx, field)
+			case "total":
+				return ec.fieldContext_TodoResultType_total(ctx, field)
+			case "current_page":
+				return ec.fieldContext_TodoResultType_current_page(ctx, field)
+			case "per_page":
+				return ec.fieldContext_TodoResultType_per_page(ctx, field)
+			case "total_page":
+				return ec.fieldContext_TodoResultType_total_page(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TodoResultType", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_todos_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3159,6 +3753,2418 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_id(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_name(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_account(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_account(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Todo().Account(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_account(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_User_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_User_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_accountId(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_accountId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccountID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_accountId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_deletedBy(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_deletedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_updatedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_createdBy(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Todo_createdAt(ctx context.Context, field graphql.CollectedField, obj *Todo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Todo_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Todo_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Todo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoResultType_data(ctx context.Context, field graphql.CollectedField, obj *TodoResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TodoResultType_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TodoResultType().Data(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Todo)
+	fc.Result = res
+	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TodoResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Todo_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Todo_name(ctx, field)
+			case "account":
+				return ec.fieldContext_Todo_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Todo_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Todo_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Todo_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Todo_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Todo_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Todo_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Todo_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoResultType_total(ctx context.Context, field graphql.CollectedField, obj *TodoResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TodoResultType_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TodoResultType().Total(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TodoResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *TodoResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TodoResultType_current_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TodoResultType().CurrentPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TodoResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *TodoResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TodoResultType_per_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TodoResultType().PerPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TodoResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TodoResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *TodoResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TodoResultType_total_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TodoResultType().TotalPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TodoResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TodoResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_id(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_amount(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_amount(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Amount, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_amount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_date(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_date(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Date, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_date(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_note(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_note(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Note, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_note(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_account(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_account(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Transaction().Account(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Account)
+	fc.Result = res
+	return ec.marshalNAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_account(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Account_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Account_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Account_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Account_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Account_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Account_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_accountId(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_accountId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AccountID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_accountId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_deletedBy(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_deletedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_updatedBy(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_updatedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_createdBy(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_deletedAt(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_updatedAt(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Transaction_createdAt(ctx context.Context, field graphql.CollectedField, obj *Transaction) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Transaction_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Transaction_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Transaction",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TransactionResultType_data(ctx context.Context, field graphql.CollectedField, obj *TransactionResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TransactionResultType_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TransactionResultType().Data(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Transaction)
+	fc.Result = res
+	return ec.marshalNTransaction2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TransactionResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TransactionResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Transaction_id(ctx, field)
+			case "amount":
+				return ec.fieldContext_Transaction_amount(ctx, field)
+			case "date":
+				return ec.fieldContext_Transaction_date(ctx, field)
+			case "note":
+				return ec.fieldContext_Transaction_note(ctx, field)
+			case "account":
+				return ec.fieldContext_Transaction_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Transaction_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Transaction_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Transaction_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Transaction_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Transaction_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Transaction_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Transaction_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TransactionResultType_total(ctx context.Context, field graphql.CollectedField, obj *TransactionResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TransactionResultType_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TransactionResultType().Total(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TransactionResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TransactionResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TransactionResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *TransactionResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TransactionResultType_current_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TransactionResultType().CurrentPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TransactionResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TransactionResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TransactionResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *TransactionResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TransactionResultType_per_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TransactionResultType().PerPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TransactionResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TransactionResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TransactionResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *TransactionResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TransactionResultType_total_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.TransactionResultType().TotalPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TransactionResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TransactionResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_username(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_password(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_password(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Password, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_password(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_email(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Email, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_email(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_nickname(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_nickname(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Nickname, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_nickname(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_accounts(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_accounts(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().Accounts(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Account)
+	fc.Result = res
+	return ec.marshalNAccount2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_accounts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Account_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Account_name(ctx, field)
+			case "balance":
+				return ec.fieldContext_Account_balance(ctx, field)
+			case "owner":
+				return ec.fieldContext_Account_owner(ctx, field)
+			case "transactions":
+				return ec.fieldContext_Account_transactions(ctx, field)
+			case "ownerId":
+				return ec.fieldContext_Account_ownerId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Account_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Account_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Account_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Account_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Account_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Account_createdAt(ctx, field)
+			case "transactionsIds":
+				return ec.fieldContext_Account_transactionsIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Account", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_todo(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_todo(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().Todo(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*Todo)
+	fc.Result = res
+	return ec.marshalNTodo2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_todo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Todo_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Todo_name(ctx, field)
+			case "account":
+				return ec.fieldContext_Todo_account(ctx, field)
+			case "accountId":
+				return ec.fieldContext_Todo_accountId(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_Todo_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_Todo_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_Todo_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_Todo_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Todo_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Todo_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Todo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_deletedBy(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_deletedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_deletedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_updatedBy(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_updatedBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_updatedBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_createdBy(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_createdBy(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedBy, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_createdBy(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_deletedAt(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_deletedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_deletedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int64)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNInt2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_accountsIds(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_accountsIds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().AccountsIds(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOID2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_accountsIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _User_todoIds(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_User_todoIds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.User().TodoIds(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOID2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_User_todoIds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserResultType_data(ctx context.Context, field graphql.CollectedField, obj *UserResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserResultType_data(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserResultType().Data(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*User)
+	fc.Result = res
+	return ec.marshalNUser2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserResultType_data(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "username":
+				return ec.fieldContext_User_username(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "nickname":
+				return ec.fieldContext_User_nickname(ctx, field)
+			case "accounts":
+				return ec.fieldContext_User_accounts(ctx, field)
+			case "todo":
+				return ec.fieldContext_User_todo(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_User_updatedBy(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_User_createdBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "accountsIds":
+				return ec.fieldContext_User_accountsIds(ctx, field)
+			case "todoIds":
+				return ec.fieldContext_User_todoIds(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserResultType_total(ctx context.Context, field graphql.CollectedField, obj *UserResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserResultType_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserResultType().Total(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserResultType_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserResultType_current_page(ctx context.Context, field graphql.CollectedField, obj *UserResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserResultType_current_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserResultType().CurrentPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserResultType_current_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserResultType_per_page(ctx context.Context, field graphql.CollectedField, obj *UserResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserResultType_per_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserResultType().PerPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserResultType_per_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserResultType_total_page(ctx context.Context, field graphql.CollectedField, obj *UserResultType) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserResultType_total_page(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.UserResultType().TotalPage(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserResultType_total_page(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserResultType",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4937,14 +7943,14 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputBookCategoryFilterType(ctx context.Context, obj interface{}) (BookCategoryFilterType, error) {
-	var it BookCategoryFilterType
+func (ec *executionContext) unmarshalInputAccountFilterType(ctx context.Context, obj interface{}) (AccountFilterType, error) {
+	var it AccountFilterType
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "name", "name_ne", "name_gt", "name_lt", "name_gte", "name_lte", "name_in", "name_like", "name_prefix", "name_suffix", "name_null", "description", "description_ne", "description_gt", "description_lt", "description_gte", "description_lte", "description_in", "description_like", "description_prefix", "description_suffix", "description_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "books"}
+	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "name", "name_ne", "name_gt", "name_lt", "name_gte", "name_lte", "name_in", "name_like", "name_prefix", "name_suffix", "name_null", "balance", "balance_ne", "balance_gt", "balance_lt", "balance_gte", "balance_lte", "balance_in", "balance_null", "ownerId", "ownerId_ne", "ownerId_gt", "ownerId_lt", "ownerId_gte", "ownerId_lte", "ownerId_in", "ownerId_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "owner", "transactions"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -4955,664 +7961,799 @@ func (ec *executionContext) unmarshalInputBookCategoryFilterType(ctx context.Con
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
-			it.And, err = ec.unmarshalOBookCategoryFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterTypeᚄ(ctx, v)
+			data, err := ec.unmarshalOAccountFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterTypeᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.And = data
 		case "OR":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
-			it.Or, err = ec.unmarshalOBookCategoryFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterTypeᚄ(ctx, v)
+			data, err := ec.unmarshalOAccountFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterTypeᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Or = data
 		case "id":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ID = data
 		case "id_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_ne"))
-			it.IDNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDNe = data
 		case "id_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gt"))
-			it.IDGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDGt = data
 		case "id_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lt"))
-			it.IDLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDLt = data
 		case "id_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gte"))
-			it.IDGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDGte = data
 		case "id_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lte"))
-			it.IDLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDLte = data
 		case "id_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
-			it.IDIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDIn = data
 		case "id_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_null"))
-			it.IDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.IDNull = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Name = data
 		case "name_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_ne"))
-			it.NameNe, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameNe = data
 		case "name_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_gt"))
-			it.NameGt, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameGt = data
 		case "name_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_lt"))
-			it.NameLt, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameLt = data
 		case "name_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_gte"))
-			it.NameGte, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameGte = data
 		case "name_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_lte"))
-			it.NameLte, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameLte = data
 		case "name_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_in"))
-			it.NameIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameIn = data
 		case "name_like":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_like"))
-			it.NameLike, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameLike = data
 		case "name_prefix":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_prefix"))
-			it.NamePrefix, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NamePrefix = data
 		case "name_suffix":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_suffix"))
-			it.NameSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.NameSuffix = data
 		case "name_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_null"))
-			it.NameNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description":
+			it.NameNull = data
+		case "balance":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_ne":
+			it.Balance = data
+		case "balance_ne":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_ne"))
-			it.DescriptionNe, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_gt":
+			it.BalanceNe = data
+		case "balance_gt":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_gt"))
-			it.DescriptionGt, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_lt":
+			it.BalanceGt = data
+		case "balance_lt":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_lt"))
-			it.DescriptionLt, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_gte":
+			it.BalanceLt = data
+		case "balance_gte":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_gte"))
-			it.DescriptionGte, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_lte":
+			it.BalanceGte = data
+		case "balance_lte":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_lte"))
-			it.DescriptionLte, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_in":
+			it.BalanceLte = data
+		case "balance_in":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_in"))
-			it.DescriptionIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_like":
+			it.BalanceIn = data
+		case "balance_null":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_like"))
-			it.DescriptionLike, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_prefix":
+			it.BalanceNull = data
+		case "ownerId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_prefix"))
-			it.DescriptionPrefix, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_suffix":
+			it.OwnerID = data
+		case "ownerId_ne":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_suffix"))
-			it.DescriptionSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description_null":
+			it.OwnerIDNe = data
+		case "ownerId_gt":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description_null"))
-			it.DescriptionNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OwnerIDGt = data
+		case "ownerId_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerIDLt = data
+		case "ownerId_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerIDGte = data
+		case "ownerId_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerIDLte = data
+		case "ownerId_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerIDIn = data
+		case "ownerId_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerIDNull = data
 		case "deletedBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
-			it.DeletedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedBy = data
 		case "deletedBy_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_ne"))
-			it.DeletedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByNe = data
 		case "deletedBy_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gt"))
-			it.DeletedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByGt = data
 		case "deletedBy_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lt"))
-			it.DeletedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByLt = data
 		case "deletedBy_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gte"))
-			it.DeletedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByGte = data
 		case "deletedBy_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lte"))
-			it.DeletedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByLte = data
 		case "deletedBy_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_in"))
-			it.DeletedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByIn = data
 		case "deletedBy_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_null"))
-			it.DeletedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedByNull = data
 		case "updatedBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
-			it.UpdatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedBy = data
 		case "updatedBy_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_ne"))
-			it.UpdatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByNe = data
 		case "updatedBy_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gt"))
-			it.UpdatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByGt = data
 		case "updatedBy_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lt"))
-			it.UpdatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByLt = data
 		case "updatedBy_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gte"))
-			it.UpdatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByGte = data
 		case "updatedBy_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lte"))
-			it.UpdatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByLte = data
 		case "updatedBy_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_in"))
-			it.UpdatedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByIn = data
 		case "updatedBy_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_null"))
-			it.UpdatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedByNull = data
 		case "createdBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
-			it.CreatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedBy = data
 		case "createdBy_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_ne"))
-			it.CreatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByNe = data
 		case "createdBy_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gt"))
-			it.CreatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByGt = data
 		case "createdBy_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lt"))
-			it.CreatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByLt = data
 		case "createdBy_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gte"))
-			it.CreatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByGte = data
 		case "createdBy_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lte"))
-			it.CreatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByLte = data
 		case "createdBy_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_in"))
-			it.CreatedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByIn = data
 		case "createdBy_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_null"))
-			it.CreatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedByNull = data
 		case "deletedAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAt = data
 		case "deletedAt_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_ne"))
-			it.DeletedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtNe = data
 		case "deletedAt_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gt"))
-			it.DeletedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtGt = data
 		case "deletedAt_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lt"))
-			it.DeletedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtLt = data
 		case "deletedAt_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gte"))
-			it.DeletedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtGte = data
 		case "deletedAt_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lte"))
-			it.DeletedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtLte = data
 		case "deletedAt_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_in"))
-			it.DeletedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtIn = data
 		case "deletedAt_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_null"))
-			it.DeletedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAtNull = data
 		case "updatedAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAt = data
 		case "updatedAt_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_ne"))
-			it.UpdatedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtNe = data
 		case "updatedAt_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gt"))
-			it.UpdatedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtGt = data
 		case "updatedAt_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lt"))
-			it.UpdatedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtLt = data
 		case "updatedAt_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gte"))
-			it.UpdatedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtGte = data
 		case "updatedAt_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lte"))
-			it.UpdatedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtLte = data
 		case "updatedAt_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_in"))
-			it.UpdatedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtIn = data
 		case "updatedAt_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_null"))
-			it.UpdatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAtNull = data
 		case "createdAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAt = data
 		case "createdAt_ne":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_ne"))
-			it.CreatedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtNe = data
 		case "createdAt_gt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gt"))
-			it.CreatedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtGt = data
 		case "createdAt_lt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lt"))
-			it.CreatedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtLt = data
 		case "createdAt_gte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gte"))
-			it.CreatedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtGte = data
 		case "createdAt_lte":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lte"))
-			it.CreatedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtLte = data
 		case "createdAt_in":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_in"))
-			it.CreatedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedAtIn = data
 		case "createdAt_null":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_null"))
-			it.CreatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "books":
+			it.CreatedAtNull = data
+		case "owner":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("books"))
-			it.Books, err = ec.unmarshalOBookFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterType(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
+			data, err := ec.unmarshalOUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Owner = data
+		case "transactions":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("transactions"))
+			data, err := ec.unmarshalOTransactionFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Transactions = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBookCategoryRelationship(ctx context.Context, obj interface{}) (BookCategoryRelationship, error) {
-	var it BookCategoryRelationship
+func (ec *executionContext) unmarshalInputAccountRelationship(ctx context.Context, obj interface{}) (AccountRelationship, error) {
+	var it AccountRelationship
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "description", "booksIds"}
+	fieldsInOrder := [...]string{"id", "name", "balance", "ownerId", "transactionsIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5623,48 +8764,61 @@ func (ec *executionContext) unmarshalInputBookCategoryRelationship(ctx context.C
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description":
+			it.Name = data
+		case "balance":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "booksIds":
+			it.Balance = data
+		case "ownerId":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("booksIds"))
-			it.BooksIds, err = ec.unmarshalNID2ᚕstringᚄ(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.OwnerID = data
+		case "transactionsIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("transactionsIds"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TransactionsIds = data
 		}
 	}
 
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputBookCategorySortType(ctx context.Context, obj interface{}) (BookCategorySortType, error) {
-	var it BookCategorySortType
+func (ec *executionContext) unmarshalInputAccountSortType(ctx context.Context, obj interface{}) (AccountSortType, error) {
+	var it AccountSortType
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "description", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "booksIds", "books"}
+	fieldsInOrder := [...]string{"id", "name", "balance", "ownerId", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "transactionsIds", "owner", "transactions"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5675,1142 +8829,119 @@ func (ec *executionContext) unmarshalInputBookCategorySortType(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ID = data
 		case "name":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-			it.Name, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "description":
+			it.Name = data
+		case "balance":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("description"))
-			it.Description, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("balance"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Balance = data
+		case "ownerId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ownerId"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OwnerID = data
 		case "deletedBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
-			it.DeletedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedBy = data
 		case "updatedBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
-			it.UpdatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedBy = data
 		case "createdBy":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
-			it.CreatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.CreatedBy = data
 		case "deletedAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.DeletedAt = data
 		case "updatedAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.UpdatedAt = data
 		case "createdAt":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "booksIds":
+			it.CreatedAt = data
+		case "transactionsIds":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("booksIds"))
-			it.BooksIds, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("transactionsIds"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "books":
+			it.TransactionsIds = data
+		case "owner":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("books"))
-			it.Books, err = ec.unmarshalOBookSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortType(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("owner"))
+			data, err := ec.unmarshalOUserSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputBookFilterType(ctx context.Context, obj interface{}) (BookFilterType, error) {
-	var it BookFilterType
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "title", "title_ne", "title_gt", "title_lt", "title_gte", "title_lte", "title_in", "title_like", "title_prefix", "title_suffix", "title_null", "author", "author_ne", "author_gt", "author_lt", "author_gte", "author_lte", "author_in", "author_like", "author_prefix", "author_suffix", "author_null", "price", "price_ne", "price_gt", "price_lt", "price_gte", "price_lte", "price_in", "price_null", "publishDateAt", "publishDateAt_ne", "publishDateAt_gt", "publishDateAt_lt", "publishDateAt_gte", "publishDateAt_lte", "publishDateAt_in", "publishDateAt_null", "categoryId", "categoryId_ne", "categoryId_gt", "categoryId_lt", "categoryId_gte", "categoryId_lte", "categoryId_in", "categoryId_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "category"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "AND":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
-			it.And, err = ec.unmarshalOBookFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterTypeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "OR":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
-			it.Or, err = ec.unmarshalOBookFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterTypeᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_ne"))
-			it.IDNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gt"))
-			it.IDGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lt"))
-			it.IDLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gte"))
-			it.IDGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lte"))
-			it.IDLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
-			it.IDIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "id_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_null"))
-			it.IDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_ne"))
-			it.TitleNe, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_gt"))
-			it.TitleGt, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_lt"))
-			it.TitleLt, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_gte"))
-			it.TitleGte, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_lte"))
-			it.TitleLte, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_in"))
-			it.TitleIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_like":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_like"))
-			it.TitleLike, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_prefix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_prefix"))
-			it.TitlePrefix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_suffix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_suffix"))
-			it.TitleSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title_null"))
-			it.TitleNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author"))
-			it.Author, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_ne"))
-			it.AuthorNe, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_gt"))
-			it.AuthorGt, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_lt"))
-			it.AuthorLt, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_gte"))
-			it.AuthorGte, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_lte"))
-			it.AuthorLte, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_in"))
-			it.AuthorIn, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_like":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_like"))
-			it.AuthorLike, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_prefix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_prefix"))
-			it.AuthorPrefix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_suffix":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_suffix"))
-			it.AuthorSuffix, err = ec.unmarshalOString2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author_null"))
-			it.AuthorNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
-			it.Price, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_ne"))
-			it.PriceNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_gt"))
-			it.PriceGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_lt"))
-			it.PriceLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_gte"))
-			it.PriceGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_lte"))
-			it.PriceLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_in"))
-			it.PriceIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price_null"))
-			it.PriceNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt"))
-			it.PublishDateAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_ne"))
-			it.PublishDateAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_gt"))
-			it.PublishDateAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_lt"))
-			it.PublishDateAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_gte"))
-			it.PublishDateAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_lte"))
-			it.PublishDateAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_in"))
-			it.PublishDateAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt_null"))
-			it.PublishDateAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
-			it.CategoryID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_ne"))
-			it.CategoryIDNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_gt"))
-			it.CategoryIDGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_lt"))
-			it.CategoryIDLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_gte"))
-			it.CategoryIDGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_lte"))
-			it.CategoryIDLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_in"))
-			it.CategoryIDIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId_null"))
-			it.CategoryIDNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
-			it.DeletedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_ne"))
-			it.DeletedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gt"))
-			it.DeletedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lt"))
-			it.DeletedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gte"))
-			it.DeletedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lte"))
-			it.DeletedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_in"))
-			it.DeletedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_null"))
-			it.DeletedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
-			it.UpdatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_ne"))
-			it.UpdatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gt"))
-			it.UpdatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lt"))
-			it.UpdatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gte"))
-			it.UpdatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lte"))
-			it.UpdatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_in"))
-			it.UpdatedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_null"))
-			it.UpdatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
-			it.CreatedBy, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_ne"))
-			it.CreatedByNe, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gt"))
-			it.CreatedByGt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lt"))
-			it.CreatedByLt, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gte"))
-			it.CreatedByGte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lte"))
-			it.CreatedByLte, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_in"))
-			it.CreatedByIn, err = ec.unmarshalOID2ᚕstringᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_null"))
-			it.CreatedByNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_ne"))
-			it.DeletedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gt"))
-			it.DeletedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lt"))
-			it.DeletedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gte"))
-			it.DeletedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lte"))
-			it.DeletedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_in"))
-			it.DeletedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_null"))
-			it.DeletedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_ne"))
-			it.UpdatedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gt"))
-			it.UpdatedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lt"))
-			it.UpdatedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gte"))
-			it.UpdatedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lte"))
-			it.UpdatedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_in"))
-			it.UpdatedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_null"))
-			it.UpdatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_ne":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_ne"))
-			it.CreatedAtNe, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_gt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gt"))
-			it.CreatedAtGt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_lt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lt"))
-			it.CreatedAtLt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_gte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gte"))
-			it.CreatedAtGte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_lte":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lte"))
-			it.CreatedAtLte, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_in":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_in"))
-			it.CreatedAtIn, err = ec.unmarshalOInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt_null":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_null"))
-			it.CreatedAtNull, err = ec.unmarshalOBoolean2ᚖbool(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "category":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
-			it.Category, err = ec.unmarshalOBookCategoryFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputBookRelationship(ctx context.Context, obj interface{}) (BookRelationship, error) {
-	var it BookRelationship
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "title", "author", "price", "publishDateAt", "categoryId"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author"))
-			it.Author, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
-			it.Price, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt"))
-			it.PublishDateAt, err = ec.unmarshalOInt2ᚖint(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
-			it.CategoryID, err = ec.unmarshalOID2ᚖstring(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
-func (ec *executionContext) unmarshalInputBookSortType(ctx context.Context, obj interface{}) (BookSortType, error) {
-	var it BookSortType
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"id", "title", "author", "price", "publishDateAt", "categoryId", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "category"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "id":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			it.ID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "title":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("title"))
-			it.Title, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "author":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("author"))
-			it.Author, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "price":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
-			it.Price, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "publishDateAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("publishDateAt"))
-			it.PublishDateAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "categoryId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("categoryId"))
-			it.CategoryID, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
-			it.DeletedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
-			it.UpdatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdBy":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
-			it.CreatedBy, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "deletedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
-			it.DeletedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "updatedAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
-			it.UpdatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "createdAt":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
-			it.CreatedAt, err = ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "category":
+			it.Owner = data
+		case "transactions":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("category"))
-			it.Category, err = ec.unmarshalOBookCategorySortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortType(ctx, v)
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("transactions"))
+			data, err := ec.unmarshalOTransactionSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortType(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Transactions = data
 		}
 	}
 
@@ -6835,18 +8966,3152 @@ func (ec *executionContext) unmarshalInputFileField(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("hash"))
-			it.Hash, err = ec.unmarshalNString2string(ctx, v)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.Hash = data
 		case "file":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
-			it.File, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			data, err := ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.File = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTodoFilterType(ctx context.Context, obj interface{}) (TodoFilterType, error) {
+	var it TodoFilterType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "name", "name_ne", "name_gt", "name_lt", "name_gte", "name_lte", "name_in", "name_like", "name_prefix", "name_suffix", "name_null", "accountId", "accountId_ne", "accountId_gt", "accountId_lt", "accountId_gte", "accountId_lte", "accountId_in", "accountId_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "account"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			data, err := ec.unmarshalOTodoFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			data, err := ec.unmarshalOTodoFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "id_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNe = data
+		case "id_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGt = data
+		case "id_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLt = data
+		case "id_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGte = data
+		case "id_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLte = data
+		case "id_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDIn = data
+		case "id_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNull = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "name_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNe = data
+		case "name_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGt = data
+		case "name_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLt = data
+		case "name_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameGte = data
+		case "name_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLte = data
+		case "name_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameIn = data
+		case "name_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameLike = data
+		case "name_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NamePrefix = data
+		case "name_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameSuffix = data
+		case "name_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NameNull = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "accountId_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDNe = data
+		case "accountId_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDGt = data
+		case "accountId_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDLt = data
+		case "accountId_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDGte = data
+		case "accountId_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDLte = data
+		case "accountId_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDIn = data
+		case "accountId_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDNull = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "deletedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNe = data
+		case "deletedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGt = data
+		case "deletedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLt = data
+		case "deletedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGte = data
+		case "deletedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLte = data
+		case "deletedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByIn = data
+		case "deletedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNull = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "updatedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNe = data
+		case "updatedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGt = data
+		case "updatedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLt = data
+		case "updatedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGte = data
+		case "updatedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLte = data
+		case "updatedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByIn = data
+		case "updatedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNull = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "createdBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNe = data
+		case "createdBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGt = data
+		case "createdBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLt = data
+		case "createdBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGte = data
+		case "createdBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLte = data
+		case "createdBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByIn = data
+		case "createdBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNull = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "deletedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNe = data
+		case "deletedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGt = data
+		case "deletedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLt = data
+		case "deletedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGte = data
+		case "deletedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLte = data
+		case "deletedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtIn = data
+		case "deletedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNull = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "updatedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNe = data
+		case "updatedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGt = data
+		case "updatedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLt = data
+		case "updatedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGte = data
+		case "updatedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLte = data
+		case "updatedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtIn = data
+		case "updatedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNull = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "createdAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNe = data
+		case "createdAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGt = data
+		case "createdAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLt = data
+		case "createdAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGte = data
+		case "createdAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLte = data
+		case "createdAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtIn = data
+		case "createdAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNull = data
+		case "account":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("account"))
+			data, err := ec.unmarshalOUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Account = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTodoRelationship(ctx context.Context, obj interface{}) (TodoRelationship, error) {
+	var it TodoRelationship
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "accountId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTodoSortType(ctx context.Context, obj interface{}) (TodoSortType, error) {
+	var it TodoSortType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "name", "accountId", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "account"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "account":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("account"))
+			data, err := ec.unmarshalOUserSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Account = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTransactionFilterType(ctx context.Context, obj interface{}) (TransactionFilterType, error) {
+	var it TransactionFilterType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "amount", "amount_ne", "amount_gt", "amount_lt", "amount_gte", "amount_lte", "amount_in", "amount_null", "date", "date_ne", "date_gt", "date_lt", "date_gte", "date_lte", "date_in", "date_null", "note", "note_ne", "note_gt", "note_lt", "note_gte", "note_lte", "note_in", "note_like", "note_prefix", "note_suffix", "note_null", "accountId", "accountId_ne", "accountId_gt", "accountId_lt", "accountId_gte", "accountId_lte", "accountId_in", "accountId_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "account"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			data, err := ec.unmarshalOTransactionFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			data, err := ec.unmarshalOTransactionFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "id_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNe = data
+		case "id_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGt = data
+		case "id_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLt = data
+		case "id_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGte = data
+		case "id_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLte = data
+		case "id_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDIn = data
+		case "id_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNull = data
+		case "amount":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Amount = data
+		case "amount_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountNe = data
+		case "amount_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountGt = data
+		case "amount_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountLt = data
+		case "amount_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountGte = data
+		case "amount_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountLte = data
+		case "amount_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountIn = data
+		case "amount_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AmountNull = data
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Date = data
+		case "date_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateNe = data
+		case "date_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateGt = data
+		case "date_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateLt = data
+		case "date_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateGte = data
+		case "date_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateLte = data
+		case "date_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateIn = data
+		case "date_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DateNull = data
+		case "note":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Note = data
+		case "note_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteNe = data
+		case "note_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteGt = data
+		case "note_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteLt = data
+		case "note_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteGte = data
+		case "note_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteLte = data
+		case "note_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteIn = data
+		case "note_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteLike = data
+		case "note_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NotePrefix = data
+		case "note_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteSuffix = data
+		case "note_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NoteNull = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "accountId_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDNe = data
+		case "accountId_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDGt = data
+		case "accountId_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDLt = data
+		case "accountId_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDGte = data
+		case "accountId_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDLte = data
+		case "accountId_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDIn = data
+		case "accountId_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountIDNull = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "deletedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNe = data
+		case "deletedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGt = data
+		case "deletedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLt = data
+		case "deletedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGte = data
+		case "deletedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLte = data
+		case "deletedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByIn = data
+		case "deletedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNull = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "updatedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNe = data
+		case "updatedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGt = data
+		case "updatedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLt = data
+		case "updatedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGte = data
+		case "updatedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLte = data
+		case "updatedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByIn = data
+		case "updatedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNull = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "createdBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNe = data
+		case "createdBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGt = data
+		case "createdBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLt = data
+		case "createdBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGte = data
+		case "createdBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLte = data
+		case "createdBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByIn = data
+		case "createdBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNull = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "deletedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNe = data
+		case "deletedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGt = data
+		case "deletedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLt = data
+		case "deletedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGte = data
+		case "deletedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLte = data
+		case "deletedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtIn = data
+		case "deletedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNull = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "updatedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNe = data
+		case "updatedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGt = data
+		case "updatedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLt = data
+		case "updatedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGte = data
+		case "updatedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLte = data
+		case "updatedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtIn = data
+		case "updatedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNull = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "createdAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNe = data
+		case "createdAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGt = data
+		case "createdAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLt = data
+		case "createdAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGte = data
+		case "createdAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLte = data
+		case "createdAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtIn = data
+		case "createdAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNull = data
+		case "account":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("account"))
+			data, err := ec.unmarshalOAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Account = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTransactionRelationship(ctx context.Context, obj interface{}) (TransactionRelationship, error) {
+	var it TransactionRelationship
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "amount", "date", "note", "accountId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "amount":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Amount = data
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Date = data
+		case "note":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Note = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTransactionSortType(ctx context.Context, obj interface{}) (TransactionSortType, error) {
+	var it TransactionSortType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "amount", "date", "note", "accountId", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "account"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "amount":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("amount"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Amount = data
+		case "date":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("date"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Date = data
+		case "note":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("note"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Note = data
+		case "accountId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountId"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountID = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "account":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("account"))
+			data, err := ec.unmarshalOAccountSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Account = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserFilterType(ctx context.Context, obj interface{}) (UserFilterType, error) {
+	var it UserFilterType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"AND", "OR", "id", "id_ne", "id_gt", "id_lt", "id_gte", "id_lte", "id_in", "id_null", "username", "username_ne", "username_gt", "username_lt", "username_gte", "username_lte", "username_in", "username_like", "username_prefix", "username_suffix", "username_null", "password", "password_ne", "password_gt", "password_lt", "password_gte", "password_lte", "password_in", "password_like", "password_prefix", "password_suffix", "password_null", "email", "email_ne", "email_gt", "email_lt", "email_gte", "email_lte", "email_in", "email_like", "email_prefix", "email_suffix", "email_null", "nickname", "nickname_ne", "nickname_gt", "nickname_lt", "nickname_gte", "nickname_lte", "nickname_in", "nickname_like", "nickname_prefix", "nickname_suffix", "nickname_null", "deletedBy", "deletedBy_ne", "deletedBy_gt", "deletedBy_lt", "deletedBy_gte", "deletedBy_lte", "deletedBy_in", "deletedBy_null", "updatedBy", "updatedBy_ne", "updatedBy_gt", "updatedBy_lt", "updatedBy_gte", "updatedBy_lte", "updatedBy_in", "updatedBy_null", "createdBy", "createdBy_ne", "createdBy_gt", "createdBy_lt", "createdBy_gte", "createdBy_lte", "createdBy_in", "createdBy_null", "deletedAt", "deletedAt_ne", "deletedAt_gt", "deletedAt_lt", "deletedAt_gte", "deletedAt_lte", "deletedAt_in", "deletedAt_null", "updatedAt", "updatedAt_ne", "updatedAt_gt", "updatedAt_lt", "updatedAt_gte", "updatedAt_lte", "updatedAt_in", "updatedAt_null", "createdAt", "createdAt_ne", "createdAt_gt", "createdAt_lt", "createdAt_gte", "createdAt_lte", "createdAt_in", "createdAt_null", "accounts", "todo"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "AND":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("AND"))
+			data, err := ec.unmarshalOUserFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.And = data
+		case "OR":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("OR"))
+			data, err := ec.unmarshalOUserFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterTypeᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Or = data
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "id_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNe = data
+		case "id_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGt = data
+		case "id_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLt = data
+		case "id_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDGte = data
+		case "id_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDLte = data
+		case "id_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDIn = data
+		case "id_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IDNull = data
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "username_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameNe = data
+		case "username_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameGt = data
+		case "username_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameLt = data
+		case "username_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameGte = data
+		case "username_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameLte = data
+		case "username_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameIn = data
+		case "username_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameLike = data
+		case "username_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernamePrefix = data
+		case "username_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameSuffix = data
+		case "username_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsernameNull = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "password_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordNe = data
+		case "password_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordGt = data
+		case "password_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordLt = data
+		case "password_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordGte = data
+		case "password_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordLte = data
+		case "password_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordIn = data
+		case "password_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordLike = data
+		case "password_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordPrefix = data
+		case "password_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordSuffix = data
+		case "password_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PasswordNull = data
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "email_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailNe = data
+		case "email_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailGt = data
+		case "email_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailLt = data
+		case "email_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailGte = data
+		case "email_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailLte = data
+		case "email_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailIn = data
+		case "email_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailLike = data
+		case "email_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailPrefix = data
+		case "email_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailSuffix = data
+		case "email_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EmailNull = data
+		case "nickname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Nickname = data
+		case "nickname_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_ne"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameNe = data
+		case "nickname_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_gt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameGt = data
+		case "nickname_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_lt"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameLt = data
+		case "nickname_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_gte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameGte = data
+		case "nickname_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_lte"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameLte = data
+		case "nickname_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_in"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameIn = data
+		case "nickname_like":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_like"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameLike = data
+		case "nickname_prefix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_prefix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknamePrefix = data
+		case "nickname_suffix":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_suffix"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameSuffix = data
+		case "nickname_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.NicknameNull = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "deletedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNe = data
+		case "deletedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGt = data
+		case "deletedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLt = data
+		case "deletedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByGte = data
+		case "deletedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByLte = data
+		case "deletedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByIn = data
+		case "deletedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedByNull = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "updatedBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNe = data
+		case "updatedBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGt = data
+		case "updatedBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLt = data
+		case "updatedBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByGte = data
+		case "updatedBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByLte = data
+		case "updatedBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByIn = data
+		case "updatedBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedByNull = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "createdBy_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_ne"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNe = data
+		case "createdBy_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGt = data
+		case "createdBy_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lt"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLt = data
+		case "createdBy_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_gte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByGte = data
+		case "createdBy_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_lte"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByLte = data
+		case "createdBy_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_in"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByIn = data
+		case "createdBy_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedByNull = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "deletedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNe = data
+		case "deletedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGt = data
+		case "deletedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLt = data
+		case "deletedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtGte = data
+		case "deletedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtLte = data
+		case "deletedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtIn = data
+		case "deletedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAtNull = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "updatedAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNe = data
+		case "updatedAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGt = data
+		case "updatedAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLt = data
+		case "updatedAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtGte = data
+		case "updatedAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtLte = data
+		case "updatedAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtIn = data
+		case "updatedAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAtNull = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "createdAt_ne":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_ne"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNe = data
+		case "createdAt_gt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGt = data
+		case "createdAt_lt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lt"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLt = data
+		case "createdAt_gte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_gte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtGte = data
+		case "createdAt_lte":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_lte"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtLte = data
+		case "createdAt_in":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_in"))
+			data, err := ec.unmarshalOInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtIn = data
+		case "createdAt_null":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt_null"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAtNull = data
+		case "accounts":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accounts"))
+			data, err := ec.unmarshalOAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Accounts = data
+		case "todo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todo"))
+			data, err := ec.unmarshalOTodoFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Todo = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserRelationship(ctx context.Context, obj interface{}) (UserRelationship, error) {
+	var it UserRelationship
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "username", "password", "email", "nickname", "accountsIds", "todoIds"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "nickname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Nickname = data
+		case "accountsIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountsIds"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountsIds = data
+		case "todoIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoIds"))
+			data, err := ec.unmarshalOID2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TodoIds = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputUserSortType(ctx context.Context, obj interface{}) (UserSortType, error) {
+	var it UserSortType
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"id", "username", "password", "email", "nickname", "deletedBy", "updatedBy", "createdBy", "deletedAt", "updatedAt", "createdAt", "accountsIds", "todoIds", "accounts", "todo"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "id":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ID = data
+		case "username":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("username"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Username = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "nickname":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Nickname = data
+		case "deletedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedBy = data
+		case "updatedBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedBy = data
+		case "createdBy":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdBy"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedBy = data
+		case "deletedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deletedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeletedAt = data
+		case "updatedAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("updatedAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UpdatedAt = data
+		case "createdAt":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("createdAt"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CreatedAt = data
+		case "accountsIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accountsIds"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AccountsIds = data
+		case "todoIds":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todoIds"))
+			data, err := ec.unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TodoIds = data
+		case "accounts":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("accounts"))
+			data, err := ec.unmarshalOAccountSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Accounts = data
+		case "todo":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("todo"))
+			data, err := ec.unmarshalOTodoSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Todo = data
 		}
 	}
 
@@ -6861,136 +12126,38 @@ func (ec *executionContext) unmarshalInputFileField(ctx context.Context, obj int
 
 // region    **************************** object.gotpl ****************************
 
-var bookImplementors = []string{"Book"}
+var accountImplementors = []string{"Account"}
 
-func (ec *executionContext) _Book(ctx context.Context, sel ast.SelectionSet, obj *Book) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bookImplementors)
+func (ec *executionContext) _Account(ctx context.Context, sel ast.SelectionSet, obj *Account) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, accountImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("Book")
+			out.Values[i] = graphql.MarshalString("Account")
 		case "id":
 
-			out.Values[i] = ec._Book_id(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "title":
-
-			out.Values[i] = ec._Book_title(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "author":
-
-			out.Values[i] = ec._Book_author(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		case "price":
-
-			out.Values[i] = ec._Book_price(ctx, field, obj)
-
-		case "publishDateAt":
-
-			out.Values[i] = ec._Book_publishDateAt(ctx, field, obj)
-
-		case "category":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Book_category(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "categoryId":
-
-			out.Values[i] = ec._Book_categoryId(ctx, field, obj)
-
-		case "deletedBy":
-
-			out.Values[i] = ec._Book_deletedBy(ctx, field, obj)
-
-		case "updatedBy":
-
-			out.Values[i] = ec._Book_updatedBy(ctx, field, obj)
-
-		case "createdBy":
-
-			out.Values[i] = ec._Book_createdBy(ctx, field, obj)
-
-		case "deletedAt":
-
-			out.Values[i] = ec._Book_deletedAt(ctx, field, obj)
-
-		case "updatedAt":
-
-			out.Values[i] = ec._Book_updatedAt(ctx, field, obj)
-
-		case "createdAt":
-
-			out.Values[i] = ec._Book_createdAt(ctx, field, obj)
-
-			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&invalids, 1)
-			}
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var bookCategoryImplementors = []string{"BookCategory"}
-
-func (ec *executionContext) _BookCategory(ctx context.Context, sel ast.SelectionSet, obj *BookCategory) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bookCategoryImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("BookCategory")
-		case "id":
-
-			out.Values[i] = ec._BookCategory_id(ctx, field, obj)
+			out.Values[i] = ec._Account_id(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
 		case "name":
 
-			out.Values[i] = ec._BookCategory_name(ctx, field, obj)
+			out.Values[i] = ec._Account_name(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "description":
+		case "balance":
 
-			out.Values[i] = ec._BookCategory_description(ctx, field, obj)
+			out.Values[i] = ec._Account_balance(ctx, field, obj)
 
-		case "books":
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "owner":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -6999,7 +12166,7 @@ func (ec *executionContext) _BookCategory(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategory_books(ctx, field, obj)
+				res = ec._Account_owner(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7010,34 +12177,58 @@ func (ec *executionContext) _BookCategory(ctx context.Context, sel ast.Selection
 				return innerFunc(ctx)
 
 			})
+		case "transactions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Account_transactions(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "ownerId":
+
+			out.Values[i] = ec._Account_ownerId(ctx, field, obj)
+
 		case "deletedBy":
 
-			out.Values[i] = ec._BookCategory_deletedBy(ctx, field, obj)
+			out.Values[i] = ec._Account_deletedBy(ctx, field, obj)
 
 		case "updatedBy":
 
-			out.Values[i] = ec._BookCategory_updatedBy(ctx, field, obj)
+			out.Values[i] = ec._Account_updatedBy(ctx, field, obj)
 
 		case "createdBy":
 
-			out.Values[i] = ec._BookCategory_createdBy(ctx, field, obj)
+			out.Values[i] = ec._Account_createdBy(ctx, field, obj)
 
 		case "deletedAt":
 
-			out.Values[i] = ec._BookCategory_deletedAt(ctx, field, obj)
+			out.Values[i] = ec._Account_deletedAt(ctx, field, obj)
 
 		case "updatedAt":
 
-			out.Values[i] = ec._BookCategory_updatedAt(ctx, field, obj)
+			out.Values[i] = ec._Account_updatedAt(ctx, field, obj)
 
 		case "createdAt":
 
-			out.Values[i] = ec._BookCategory_createdAt(ctx, field, obj)
+			out.Values[i] = ec._Account_createdAt(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				atomic.AddUint32(&invalids, 1)
 			}
-		case "booksIds":
+		case "transactionsIds":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7046,10 +12237,7 @@ func (ec *executionContext) _BookCategory(ctx context.Context, sel ast.Selection
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategory_booksIds(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
+				res = ec._Account_transactionsIds(ctx, field, obj)
 				return res
 			}
 
@@ -7068,16 +12256,16 @@ func (ec *executionContext) _BookCategory(ctx context.Context, sel ast.Selection
 	return out
 }
 
-var bookCategoryResultTypeImplementors = []string{"BookCategoryResultType"}
+var accountResultTypeImplementors = []string{"AccountResultType"}
 
-func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast.SelectionSet, obj *BookCategoryResultType) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bookCategoryResultTypeImplementors)
+func (ec *executionContext) _AccountResultType(ctx context.Context, sel ast.SelectionSet, obj *AccountResultType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, accountResultTypeImplementors)
 	out := graphql.NewFieldSet(fields)
 	var invalids uint32
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("BookCategoryResultType")
+			out.Values[i] = graphql.MarshalString("AccountResultType")
 		case "data":
 			field := field
 
@@ -7087,7 +12275,7 @@ func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategoryResultType_data(ctx, field, obj)
+				res = ec._AccountResultType_data(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7107,7 +12295,7 @@ func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategoryResultType_total(ctx, field, obj)
+				res = ec._AccountResultType_total(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7127,7 +12315,7 @@ func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategoryResultType_current_page(ctx, field, obj)
+				res = ec._AccountResultType_current_page(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7147,7 +12335,7 @@ func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategoryResultType_per_page(ctx, field, obj)
+				res = ec._AccountResultType_per_page(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7167,128 +12355,7 @@ func (ec *executionContext) _BookCategoryResultType(ctx context.Context, sel ast
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._BookCategoryResultType_total_page(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch()
-	if invalids > 0 {
-		return graphql.Null
-	}
-	return out
-}
-
-var bookResultTypeImplementors = []string{"BookResultType"}
-
-func (ec *executionContext) _BookResultType(ctx context.Context, sel ast.SelectionSet, obj *BookResultType) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, bookResultTypeImplementors)
-	out := graphql.NewFieldSet(fields)
-	var invalids uint32
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("BookResultType")
-		case "data":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BookResultType_data(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "total":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BookResultType_total(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "current_page":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BookResultType_current_page(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "per_page":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BookResultType_per_page(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
-				return res
-			}
-
-			out.Concurrently(i, func() graphql.Marshaler {
-				return innerFunc(ctx)
-
-			})
-		case "total_page":
-			field := field
-
-			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._BookResultType_total_page(ctx, field, obj)
+				res = ec._AccountResultType_total_page(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7329,37 +12396,73 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "createBookCategory":
+		case "createUser":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createBookCategory(ctx, field)
+				return ec._Mutation_createUser(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateBookCategory":
+		case "updateUser":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateBookCategory(ctx, field)
+				return ec._Mutation_updateUser(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "createBook":
+		case "createAccount":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createBook(ctx, field)
+				return ec._Mutation_createAccount(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "updateBook":
+		case "updateAccount":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateBook(ctx, field)
+				return ec._Mutation_updateAccount(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createTransaction":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTransaction(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateTransaction":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTransaction(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "createTodo":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createTodo(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateTodo":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_updateTodo(ctx, field)
 			})
 
 			if out.Values[i] == graphql.Null {
@@ -7395,7 +12498,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "bookCategory":
+		case "user":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7404,7 +12507,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_bookCategory(ctx, field)
+				res = ec._Query_user(ctx, field)
 				return res
 			}
 
@@ -7415,7 +12518,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "bookCategories":
+		case "users":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7424,7 +12527,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_bookCategories(ctx, field)
+				res = ec._Query_users(ctx, field)
 				return res
 			}
 
@@ -7435,7 +12538,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "book":
+		case "account":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7444,7 +12547,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_book(ctx, field)
+				res = ec._Query_account(ctx, field)
 				return res
 			}
 
@@ -7455,7 +12558,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
-		case "books":
+		case "accounts":
 			field := field
 
 			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
@@ -7464,7 +12567,87 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_books(ctx, field)
+				res = ec._Query_accounts(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "transaction":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_transaction(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "transactions":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_transactions(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "todo":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_todo(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "todos":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_todos(ctx, field)
 				return res
 			}
 
@@ -7487,6 +12670,703 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var todoImplementors = []string{"Todo"}
+
+func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj *Todo) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, todoImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Todo")
+		case "id":
+
+			out.Values[i] = ec._Todo_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "name":
+
+			out.Values[i] = ec._Todo_name(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "account":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Todo_account(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "accountId":
+
+			out.Values[i] = ec._Todo_accountId(ctx, field, obj)
+
+		case "deletedBy":
+
+			out.Values[i] = ec._Todo_deletedBy(ctx, field, obj)
+
+		case "updatedBy":
+
+			out.Values[i] = ec._Todo_updatedBy(ctx, field, obj)
+
+		case "createdBy":
+
+			out.Values[i] = ec._Todo_createdBy(ctx, field, obj)
+
+		case "deletedAt":
+
+			out.Values[i] = ec._Todo_deletedAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._Todo_updatedAt(ctx, field, obj)
+
+		case "createdAt":
+
+			out.Values[i] = ec._Todo_createdAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var todoResultTypeImplementors = []string{"TodoResultType"}
+
+func (ec *executionContext) _TodoResultType(ctx context.Context, sel ast.SelectionSet, obj *TodoResultType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, todoResultTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TodoResultType")
+		case "data":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TodoResultType_data(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TodoResultType_total(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "current_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TodoResultType_current_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "per_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TodoResultType_per_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TodoResultType_total_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var transactionImplementors = []string{"Transaction"}
+
+func (ec *executionContext) _Transaction(ctx context.Context, sel ast.SelectionSet, obj *Transaction) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, transactionImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Transaction")
+		case "id":
+
+			out.Values[i] = ec._Transaction_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "amount":
+
+			out.Values[i] = ec._Transaction_amount(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "date":
+
+			out.Values[i] = ec._Transaction_date(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "note":
+
+			out.Values[i] = ec._Transaction_note(ctx, field, obj)
+
+		case "account":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Transaction_account(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "accountId":
+
+			out.Values[i] = ec._Transaction_accountId(ctx, field, obj)
+
+		case "deletedBy":
+
+			out.Values[i] = ec._Transaction_deletedBy(ctx, field, obj)
+
+		case "updatedBy":
+
+			out.Values[i] = ec._Transaction_updatedBy(ctx, field, obj)
+
+		case "createdBy":
+
+			out.Values[i] = ec._Transaction_createdBy(ctx, field, obj)
+
+		case "deletedAt":
+
+			out.Values[i] = ec._Transaction_deletedAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._Transaction_updatedAt(ctx, field, obj)
+
+		case "createdAt":
+
+			out.Values[i] = ec._Transaction_createdAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var transactionResultTypeImplementors = []string{"TransactionResultType"}
+
+func (ec *executionContext) _TransactionResultType(ctx context.Context, sel ast.SelectionSet, obj *TransactionResultType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, transactionResultTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TransactionResultType")
+		case "data":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TransactionResultType_data(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TransactionResultType_total(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "current_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TransactionResultType_current_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "per_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TransactionResultType_per_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TransactionResultType_total_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userImplementors = []string{"User"}
+
+func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj *User) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("User")
+		case "id":
+
+			out.Values[i] = ec._User_id(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "username":
+
+			out.Values[i] = ec._User_username(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "password":
+
+			out.Values[i] = ec._User_password(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "email":
+
+			out.Values[i] = ec._User_email(ctx, field, obj)
+
+		case "nickname":
+
+			out.Values[i] = ec._User_nickname(ctx, field, obj)
+
+		case "accounts":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_accounts(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "todo":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_todo(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "deletedBy":
+
+			out.Values[i] = ec._User_deletedBy(ctx, field, obj)
+
+		case "updatedBy":
+
+			out.Values[i] = ec._User_updatedBy(ctx, field, obj)
+
+		case "createdBy":
+
+			out.Values[i] = ec._User_createdBy(ctx, field, obj)
+
+		case "deletedAt":
+
+			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
+
+		case "updatedAt":
+
+			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
+
+		case "createdAt":
+
+			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&invalids, 1)
+			}
+		case "accountsIds":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_accountsIds(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "todoIds":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._User_todoIds(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var userResultTypeImplementors = []string{"UserResultType"}
+
+func (ec *executionContext) _UserResultType(ctx context.Context, sel ast.SelectionSet, obj *UserResultType) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, userResultTypeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("UserResultType")
+		case "data":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserResultType_data(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserResultType_total(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "current_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserResultType_current_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "per_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserResultType_per_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "total_page":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserResultType_total_page(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -7816,11 +13696,11 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNBook2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx context.Context, sel ast.SelectionSet, v Book) graphql.Marshaler {
-	return ec._Book(ctx, sel, &v)
+func (ec *executionContext) marshalNAccount2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx context.Context, sel ast.SelectionSet, v Account) graphql.Marshaler {
+	return ec._Account(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookᚄ(ctx context.Context, sel ast.SelectionSet, v []*Book) graphql.Marshaler {
+func (ec *executionContext) marshalNAccount2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountᚄ(ctx context.Context, sel ast.SelectionSet, v []*Account) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -7844,7 +13724,7 @@ func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋsjᚑdistributor�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx, sel, v[i])
+			ret[i] = ec.marshalNAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -7864,107 +13744,31 @@ func (ec *executionContext) marshalNBook2ᚕᚖgithubᚗcomᚋsjᚑdistributor�
 	return ret
 }
 
-func (ec *executionContext) marshalNBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx context.Context, sel ast.SelectionSet, v *Book) graphql.Marshaler {
+func (ec *executionContext) marshalNAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx context.Context, sel ast.SelectionSet, v *Account) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Book(ctx, sel, v)
+	return ec._Account(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNBookCategory2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx context.Context, sel ast.SelectionSet, v BookCategory) graphql.Marshaler {
-	return ec._BookCategory(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNBookCategory2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryᚄ(ctx context.Context, sel ast.SelectionSet, v []*BookCategory) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
-}
-
-func (ec *executionContext) marshalNBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx context.Context, sel ast.SelectionSet, v *BookCategory) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._BookCategory(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNBookCategoryCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) unmarshalNAccountCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
 	return v.(map[string]interface{}), nil
 }
 
-func (ec *executionContext) unmarshalNBookCategoryFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterType(ctx context.Context, v interface{}) (*BookCategoryFilterType, error) {
-	res, err := ec.unmarshalInputBookCategoryFilterType(ctx, v)
+func (ec *executionContext) unmarshalNAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx context.Context, v interface{}) (*AccountFilterType, error) {
+	res, err := ec.unmarshalInputAccountFilterType(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNBookCategorySortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortType(ctx context.Context, v interface{}) (*BookCategorySortType, error) {
-	res, err := ec.unmarshalInputBookCategorySortType(ctx, v)
+func (ec *executionContext) unmarshalNAccountSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortType(ctx context.Context, v interface{}) (*AccountSortType, error) {
+	res, err := ec.unmarshalInputAccountSortType(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNBookCategoryUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
-	return v.(map[string]interface{}), nil
-}
-
-func (ec *executionContext) unmarshalNBookCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
-	return v.(map[string]interface{}), nil
-}
-
-func (ec *executionContext) unmarshalNBookFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterType(ctx context.Context, v interface{}) (*BookFilterType, error) {
-	res, err := ec.unmarshalInputBookFilterType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNBookSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortType(ctx context.Context, v interface{}) (*BookSortType, error) {
-	res, err := ec.unmarshalInputBookSortType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalNBookUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) unmarshalNAccountUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
 	return v.(map[string]interface{}), nil
 }
 
@@ -7996,38 +13800,6 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNID2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]string, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNID2string(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNID2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalNID2string(ctx, sel, v[i])
-	}
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -8075,6 +13847,158 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalNTodo2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx context.Context, sel ast.SelectionSet, v Todo) graphql.Marshaler {
+	return ec._Todo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTodo2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoᚄ(ctx context.Context, sel ast.SelectionSet, v []*Todo) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx context.Context, sel ast.SelectionSet, v *Todo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTodoCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) unmarshalNTodoFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterType(ctx context.Context, v interface{}) (*TodoFilterType, error) {
+	res, err := ec.unmarshalInputTodoFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTodoSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortType(ctx context.Context, v interface{}) (*TodoSortType, error) {
+	res, err := ec.unmarshalInputTodoSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTodoUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) marshalNTransaction2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx context.Context, sel ast.SelectionSet, v Transaction) graphql.Marshaler {
+	return ec._Transaction(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTransaction2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionᚄ(ctx context.Context, sel ast.SelectionSet, v []*Transaction) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx context.Context, sel ast.SelectionSet, v *Transaction) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Transaction(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTransactionCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) unmarshalNTransactionFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterType(ctx context.Context, v interface{}) (*TransactionFilterType, error) {
+	res, err := ec.unmarshalInputTransactionFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTransactionSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortType(ctx context.Context, v interface{}) (*TransactionSortType, error) {
+	res, err := ec.unmarshalInputTransactionSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTransactionUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
+}
+
 func (ec *executionContext) unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (graphql.Upload, error) {
 	res, err := graphql.UnmarshalUpload(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -8088,6 +14012,82 @@ func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋg
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNUser2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNUser2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*User) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNUserCreateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
+}
+
+func (ec *executionContext) unmarshalNUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx context.Context, v interface{}) (*UserFilterType, error) {
+	res, err := ec.unmarshalInputUserFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUserSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortType(ctx context.Context, v interface{}) (*UserSortType, error) {
+	res, err := ec.unmarshalInputUserSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUserUpdateInput2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	return v.(map[string]interface{}), nil
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -8343,21 +14343,77 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
-func (ec *executionContext) marshalOBook2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBook(ctx context.Context, sel ast.SelectionSet, v *Book) graphql.Marshaler {
+func (ec *executionContext) marshalOAccount2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccount(ctx context.Context, sel ast.SelectionSet, v *Account) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._Book(ctx, sel, v)
+	return ec._Account(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOBookCategory2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategory(ctx context.Context, sel ast.SelectionSet, v *BookCategory) graphql.Marshaler {
+func (ec *executionContext) unmarshalOAccountFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterTypeᚄ(ctx context.Context, v interface{}) ([]*AccountFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*AccountFilterType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOAccountFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountFilterType(ctx context.Context, v interface{}) (*AccountFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAccountFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOAccountRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountRelationship(ctx context.Context, v interface{}) ([]*AccountRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*AccountRelationship, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOAccountRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountRelationship(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOAccountRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountRelationship(ctx context.Context, v interface{}) (*AccountRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputAccountRelationship(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOAccountResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountResultType(ctx context.Context, sel ast.SelectionSet, v *AccountResultType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._BookCategory(ctx, sel, v)
+	return ec._AccountResultType(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalOBookCategoryFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterTypeᚄ(ctx context.Context, v interface{}) ([]*BookCategoryFilterType, error) {
+func (ec *executionContext) unmarshalOAccountSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortTypeᚄ(ctx context.Context, v interface{}) ([]*AccountSortType, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -8366,10 +14422,10 @@ func (ec *executionContext) unmarshalOBookCategoryFilterType2ᚕᚖgithubᚗcom�
 		vSlice = graphql.CoerceList(v)
 	}
 	var err error
-	res := make([]*BookCategoryFilterType, len(vSlice))
+	res := make([]*AccountSortType, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBookCategoryFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterType(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNAccountSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortType(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -8377,145 +14433,11 @@ func (ec *executionContext) unmarshalOBookCategoryFilterType2ᚕᚖgithubᚗcom�
 	return res, nil
 }
 
-func (ec *executionContext) unmarshalOBookCategoryFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryFilterType(ctx context.Context, v interface{}) (*BookCategoryFilterType, error) {
+func (ec *executionContext) unmarshalOAccountSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐAccountSortType(ctx context.Context, v interface{}) (*AccountSortType, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := ec.unmarshalInputBookCategoryFilterType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOBookCategoryRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryRelationship(ctx context.Context, v interface{}) (*BookCategoryRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBookCategoryRelationship(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOBookCategoryResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategoryResultType(ctx context.Context, sel ast.SelectionSet, v *BookCategoryResultType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._BookCategoryResultType(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOBookCategorySortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortTypeᚄ(ctx context.Context, v interface{}) ([]*BookCategorySortType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*BookCategorySortType, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBookCategorySortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOBookCategorySortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookCategorySortType(ctx context.Context, v interface{}) (*BookCategorySortType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBookCategorySortType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOBookFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterTypeᚄ(ctx context.Context, v interface{}) ([]*BookFilterType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*BookFilterType, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBookFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOBookFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookFilterType(ctx context.Context, v interface{}) (*BookFilterType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBookFilterType(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) unmarshalOBookRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookRelationship(ctx context.Context, v interface{}) ([]*BookRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*BookRelationship, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalOBookRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookRelationship(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOBookRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookRelationship(ctx context.Context, v interface{}) (*BookRelationship, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBookRelationship(ctx, v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOBookResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookResultType(ctx context.Context, sel ast.SelectionSet, v *BookResultType) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._BookResultType(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOBookSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortTypeᚄ(ctx context.Context, v interface{}) ([]*BookSortType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var vSlice []interface{}
-	if v != nil {
-		vSlice = graphql.CoerceList(v)
-	}
-	var err error
-	res := make([]*BookSortType, len(vSlice))
-	for i := range vSlice {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNBookSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortType(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) unmarshalOBookSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐBookSortType(ctx context.Context, v interface{}) (*BookSortType, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := ec.unmarshalInputBookSortType(ctx, v)
+	res, err := ec.unmarshalInputAccountSortType(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -8737,6 +14659,280 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOTodo2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodo(ctx context.Context, sel ast.SelectionSet, v *Todo) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTodoFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterTypeᚄ(ctx context.Context, v interface{}) ([]*TodoFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TodoFilterType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTodoFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTodoFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoFilterType(ctx context.Context, v interface{}) (*TodoFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTodoFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTodoRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoRelationship(ctx context.Context, v interface{}) ([]*TodoRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TodoRelationship, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOTodoRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoRelationship(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTodoRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoRelationship(ctx context.Context, v interface{}) (*TodoRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTodoRelationship(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTodoResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoResultType(ctx context.Context, sel ast.SelectionSet, v *TodoResultType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TodoResultType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTodoSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortTypeᚄ(ctx context.Context, v interface{}) ([]*TodoSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TodoSortType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTodoSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTodoSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTodoSortType(ctx context.Context, v interface{}) (*TodoSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTodoSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTransaction2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransaction(ctx context.Context, sel ast.SelectionSet, v *Transaction) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Transaction(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTransactionFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterTypeᚄ(ctx context.Context, v interface{}) ([]*TransactionFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TransactionFilterType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTransactionFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTransactionFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionFilterType(ctx context.Context, v interface{}) (*TransactionFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTransactionFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOTransactionRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionRelationship(ctx context.Context, v interface{}) ([]*TransactionRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TransactionRelationship, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOTransactionRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionRelationship(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTransactionRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionRelationship(ctx context.Context, v interface{}) (*TransactionRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTransactionRelationship(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTransactionResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionResultType(ctx context.Context, sel ast.SelectionSet, v *TransactionResultType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._TransactionResultType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOTransactionSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortTypeᚄ(ctx context.Context, v interface{}) ([]*TransactionSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TransactionSortType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTransactionSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTransactionSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTransactionSortType(ctx context.Context, v interface{}) (*TransactionSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTransactionSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUserFilterType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterTypeᚄ(ctx context.Context, v interface{}) ([]*UserFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*UserFilterType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOUserFilterType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserFilterType(ctx context.Context, v interface{}) (*UserFilterType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUserRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserRelationship(ctx context.Context, v interface{}) (*UserRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserRelationship(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOUserResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserResultType(ctx context.Context, sel ast.SelectionSet, v *UserResultType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._UserResultType(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalOUserSortType2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortTypeᚄ(ctx context.Context, v interface{}) ([]*UserSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*UserSortType, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNUserSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortType(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOUserSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserSortType(ctx context.Context, v interface{}) (*UserSortType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserSortType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

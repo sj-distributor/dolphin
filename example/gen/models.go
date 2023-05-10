@@ -17,80 +17,161 @@ func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("%s not found", e.Entity)
 }
 
-type BookCategoryResultType struct {
+type UserResultType struct {
 	EntityResultType
 }
 
-type BookCategory struct {
-	ID          string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	Name        string  `json:"name" gorm:"type:varchar(64) comment '分類名稱';NOT NULL;"`
-	Description *string `json:"description" gorm:"type:text comment '分類描述';DEFAULT NULL;"`
-	DeletedBy   *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy   *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy   *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt   *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt   *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt   int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+type User struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Username  string  `json:"username" gorm:"type:varchar(32) comment '用戶名';NOT NULL;unique_index:username;" validator:"type:username;"`
+	Password  string  `json:"password" gorm:"type:varchar(64) comment '登錄密碼';NOT NULL;" validator:"type:password;"`
+	Email     *string `json:"email" gorm:"type:varchar(64) comment '用戶郵箱地址';default:null;" validator:"type:email;"`
+	Nickname  *string `json:"nickname" gorm:"type:varchar(64) comment '暱稱';DEFAULT NULL;index:nickname;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
 
-	Books []*Book `json:"books" gorm:"foreignkey:CategoryID"`
+	Accounts []*Account `json:"accounts" gorm:"foreignkey:OwnerID"`
+
+	Todo []*Todo `json:"todo" gorm:"foreignkey:AccountID"`
 }
 
-func (m *BookCategory) Is_Entity() {}
+func (m *User) Is_Entity() {}
 
-type BookCategoryChanges struct {
-	ID          string
-	Name        string
-	Description *string
-	DeletedBy   *string
-	UpdatedBy   *string
-	CreatedBy   *string
-	DeletedAt   *int64
-	UpdatedAt   *int64
-	CreatedAt   int64
+type UserChanges struct {
+	ID        string
+	Username  string
+	Password  string
+	Email     *string
+	Nickname  *string
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
 
-	Books []*Book
+	Accounts []*Account
+	Todo     []*Todo
 
-	BooksIDs []*string
+	AccountsIDs []*string
+	TodoIDs     []*string
 }
 
-type BookResultType struct {
+type AccountResultType struct {
 	EntityResultType
 }
 
-type Book struct {
-	ID            string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	Title         string  `json:"title" gorm:"type:varchar(128) comment '圖書名稱';NOT NULL;"`
-	Author        string  `json:"author" gorm:"type:varchar(64) comment '作者';NOT NULL;"`
-	Price         *int64  `json:"price" gorm:"type:int(13) comment '價格';DEFAULT NULL;" validator:"type:int;"`
-	PublishDateAt *int64  `json:"publishDateAt" gorm:"type:int(13) comment '出版日期';DEFAULT NULL;" validator:"type:int;"`
-	CategoryID    *string `json:"categoryId" gorm:"type:varchar(36) comment 'category_id';default:null;"`
-	DeletedBy     *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy     *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy     *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt     *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt     *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt     int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+type Account struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Name      string  `json:"name" gorm:"type varchar(32) comment '賬戶名稱';NOT NULL;"`
+	Balance   int64   `json:"balance" gorm:"type int(13) comment '賬戶餘額';default:0;" validator:"type:int;"`
+	OwnerID   *string `json:"ownerId" gorm:"type:varchar(36) comment 'owner_id';default:null;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
 
-	Category *BookCategory `json:"category"`
+	Owner *User `json:"owner"`
+
+	Transactions []*Transaction `json:"transactions" gorm:"foreignkey:AccountID"`
 }
 
-func (m *Book) Is_Entity() {}
+func (m *Account) Is_Entity() {}
 
-type BookChanges struct {
-	ID            string
-	Title         string
-	Author        string
-	Price         *int64
-	PublishDateAt *int64
-	CategoryID    *string
-	DeletedBy     *string
-	UpdatedBy     *string
-	CreatedBy     *string
-	DeletedAt     *int64
-	UpdatedAt     *int64
-	CreatedAt     int64
+type AccountChanges struct {
+	ID        string
+	Name      string
+	Balance   int64
+	OwnerID   *string
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
 
-	Category *BookCategory
+	Owner        *User
+	Transactions []*Transaction
+
+	TransactionsIDs []*string
+}
+
+type TransactionResultType struct {
+	EntityResultType
+}
+
+type Transaction struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Amount    int64   `json:"amount" gorm:"type int(13) comment '交易金額';NOT NULL;" validator:"type:int;"`
+	Date      int64   `json:"date" gorm:"type int(13) comment '交易日期';NOT NULL;" validator:"type:int;"`
+	Note      *string `json:"note" gorm:"type varchar(255) comment '備注信息';default:null;"`
+	AccountID *string `json:"accountId" gorm:"type:varchar(36) comment 'account_id';default:null;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+
+	Account *Account `json:"account"`
+}
+
+func (m *Transaction) Is_Entity() {}
+
+type TransactionChanges struct {
+	ID        string
+	Amount    int64
+	Date      int64
+	Note      *string
+	AccountID *string
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
+
+	Account *Account
+}
+
+type TodoResultType struct {
+	EntityResultType
+}
+
+type Todo struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Name      string  `json:"name" gorm:"type varchar(32) comment 'todo名稱';NOT NULL;"`
+	AccountID *string `json:"accountId" gorm:"type:varchar(36) comment 'account_id';default:null;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+
+	Account *User `json:"account"`
+}
+
+func (m *Todo) Is_Entity() {}
+
+type TodoChanges struct {
+	ID        string
+	Name      string
+	AccountID *string
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
+
+	Account *User
 }
 
 // used to convert map[string]interface{} to EntityChanges struct

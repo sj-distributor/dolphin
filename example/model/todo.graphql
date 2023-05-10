@@ -1,8 +1,27 @@
+type User @entity(title: "用戶管理") {
+  username: String! @column(gorm: "type:varchar(32) comment '用戶名';NOT NULL;unique_index:username;") @validator(type: "username")
+  password: String! @column(gorm: "type:varchar(64) comment '登錄密碼';NOT NULL;") @validator(type: "password")
+  email: String @column(gorm: "type:varchar(64) comment '用戶郵箱地址';default:null;") @validator(type: "email")
+  nickname: String @column(gorm: "type:varchar(64) comment '暱稱';DEFAULT NULL;index:nickname;")
+  accounts:[Account!]! @relationship(inverse:"owner")
+  todo:[Todo!]! @relationship(inverse:"account")
+}
 
-type Todo @entity(title: "代办事项") {
-  title: String! @column @validator(type: "password")
-  age: Int @column
-  money: Int! @column
-  remark: String @column
-  user: User @relationship(inverse:"todo")
+type Account @entity(title:"賬戶管理"){
+  name:String!@column(gorm:"type varchar(32) comment '賬戶名稱';NOT NULL;")
+  balance:Int!@column(gorm:"type int(13) comment '賬戶餘額';default:0;")@validator(type:"int")
+  owner:User!@relationship(inverse:"accounts")
+  transactions:[Transaction!]!@relationship(inverse:"account")
+}
+
+type Transaction @entity(title:"交易管理"){
+  amount:Int!@column(gorm:"type int(13) comment '交易金額';NOT NULL;")@validator(type:"int")
+  date:Int!@column(gorm:"type int(13) comment '交易日期';NOT NULL;")@validator(type:"int")
+  note:String@column(gorm:"type varchar(255) comment '備注信息';default:null;")
+  account:Account!@relationship(inverse:"transactions")
+}
+
+type Todo @entity(title:"Todo"){
+  name:String!@column(gorm:"type varchar(32) comment 'todo名稱';NOT NULL;")
+  account:User!@relationship(inverse:"todo")
 }

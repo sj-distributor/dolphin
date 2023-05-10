@@ -8,46 +8,90 @@ import (
 type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
 
-	CreateBookCategory     func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *BookCategory, err error)
-	UpdateBookCategory     func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *BookCategory, err error)
-	DeleteBookCategories   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryBookCategories func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryBookCategory      func(ctx context.Context, r *GeneratedResolver, id string) (*BookCategory, error)
-	QueryBookCategories    func(ctx context.Context, r *GeneratedResolver, opts QueryBookCategoriesHandlerOptions) (*BookCategoryResultType, error)
+	CreateUser    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *User, err error)
+	UpdateUser    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *User, err error)
+	DeleteUsers   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryUsers func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryUser     func(ctx context.Context, r *GeneratedResolver, id string) (*User, error)
+	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error)
 
-	BookCategoryBooks func(ctx context.Context, r *GeneratedResolver, obj *BookCategory, input map[string]interface{}) (res []*Book, err error)
+	UserAccounts func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Account, err error)
 
-	CreateBook    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Book, err error)
-	UpdateBook    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Book, err error)
-	DeleteBooks   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryBooks func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryBook     func(ctx context.Context, r *GeneratedResolver, id string) (*Book, error)
-	QueryBooks    func(ctx context.Context, r *GeneratedResolver, opts QueryBooksHandlerOptions) (*BookResultType, error)
+	UserTodo func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Todo, err error)
 
-	BookCategory func(ctx context.Context, r *GeneratedResolver, obj *Book) (res *BookCategory, err error)
+	CreateAccount    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Account, err error)
+	UpdateAccount    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Account, err error)
+	DeleteAccounts   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryAccounts func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryAccount     func(ctx context.Context, r *GeneratedResolver, id string) (*Account, error)
+	QueryAccounts    func(ctx context.Context, r *GeneratedResolver, opts QueryAccountsHandlerOptions) (*AccountResultType, error)
+
+	AccountOwner func(ctx context.Context, r *GeneratedResolver, obj *Account) (res *User, err error)
+
+	AccountTransactions func(ctx context.Context, r *GeneratedResolver, obj *Account) (res []*Transaction, err error)
+
+	CreateTransaction    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Transaction, err error)
+	UpdateTransaction    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Transaction, err error)
+	DeleteTransactions   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryTransactions func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryTransaction     func(ctx context.Context, r *GeneratedResolver, id string) (*Transaction, error)
+	QueryTransactions    func(ctx context.Context, r *GeneratedResolver, opts QueryTransactionsHandlerOptions) (*TransactionResultType, error)
+
+	TransactionAccount func(ctx context.Context, r *GeneratedResolver, obj *Transaction) (res *Account, err error)
+
+	CreateTodo    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Todo, err error)
+	UpdateTodo    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Todo, err error)
+	DeleteTodos   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryTodos func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryTodo     func(ctx context.Context, r *GeneratedResolver, id string) (*Todo, error)
+	QueryTodos    func(ctx context.Context, r *GeneratedResolver, opts QueryTodosHandlerOptions) (*TodoResultType, error)
+
+	TodoAccount func(ctx context.Context, r *GeneratedResolver, obj *Todo) (res *User, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {
 	handlers := ResolutionHandlers{
 		OnEvent: func(ctx context.Context, r *GeneratedResolver, e *Event) error { return nil },
 
-		CreateBookCategory:     CreateBookCategoryHandler,
-		UpdateBookCategory:     UpdateBookCategoryHandler,
-		DeleteBookCategories:   DeleteBookCategoriesHandler,
-		RecoveryBookCategories: RecoveryBookCategoriesHandler,
-		QueryBookCategory:      QueryBookCategoryHandler,
-		QueryBookCategories:    QueryBookCategoriesHandler,
+		CreateUser:    CreateUserHandler,
+		UpdateUser:    UpdateUserHandler,
+		DeleteUsers:   DeleteUsersHandler,
+		RecoveryUsers: RecoveryUsersHandler,
+		QueryUser:     QueryUserHandler,
+		QueryUsers:    QueryUsersHandler,
 
-		BookCategoryBooks: BookCategoryBooksHandler,
+		UserAccounts: UserAccountsHandler,
 
-		CreateBook:    CreateBookHandler,
-		UpdateBook:    UpdateBookHandler,
-		DeleteBooks:   DeleteBooksHandler,
-		RecoveryBooks: RecoveryBooksHandler,
-		QueryBook:     QueryBookHandler,
-		QueryBooks:    QueryBooksHandler,
+		UserTodo: UserTodoHandler,
 
-		BookCategory: BookCategoryHandler,
+		CreateAccount:    CreateAccountHandler,
+		UpdateAccount:    UpdateAccountHandler,
+		DeleteAccounts:   DeleteAccountsHandler,
+		RecoveryAccounts: RecoveryAccountsHandler,
+		QueryAccount:     QueryAccountHandler,
+		QueryAccounts:    QueryAccountsHandler,
+
+		AccountOwner: AccountOwnerHandler,
+
+		AccountTransactions: AccountTransactionsHandler,
+
+		CreateTransaction:    CreateTransactionHandler,
+		UpdateTransaction:    UpdateTransactionHandler,
+		DeleteTransactions:   DeleteTransactionsHandler,
+		RecoveryTransactions: RecoveryTransactionsHandler,
+		QueryTransaction:     QueryTransactionHandler,
+		QueryTransactions:    QueryTransactionsHandler,
+
+		TransactionAccount: TransactionAccountHandler,
+
+		CreateTodo:    CreateTodoHandler,
+		UpdateTodo:    UpdateTodoHandler,
+		DeleteTodos:   DeleteTodosHandler,
+		RecoveryTodos: RecoveryTodosHandler,
+		QueryTodo:     QueryTodoHandler,
+		QueryTodos:    QueryTodosHandler,
+
+		TodoAccount: TodoAccountHandler,
 	}
 	return handlers
 }

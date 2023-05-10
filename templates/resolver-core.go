@@ -17,11 +17,7 @@ type ResolutionHandlers struct {
 		Query{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, id string) (*{{$obj.Name}}, error)
 		Query{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions) (*{{$obj.Name}}ResultType, error)
 		{{range $rel := $obj.Relationships}}
-			{{if $rel.IsToMany}}
-				{{$obj.Name}}{{$rel.MethodName}} func (ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, input map[string]interface{}) (res {{$rel.ReturnType}}, err error)
-			{{else}}
-				{{$obj.Name}}{{$rel.MethodName}} func (ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error)
-			{{end}}
+			{{$obj.Name}}{{$rel.MethodName}} func (ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error)
 		{{end}}
 	{{end}}
 }

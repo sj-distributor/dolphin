@@ -17,13 +17,15 @@ autobind:
 
 models:
   
-  BookCategory:
-    model: github.com/sj-distributor/dolphin-example/gen.BookCategory
+  User:
+    model: github.com/sj-distributor/dolphin-example/gen.User
     fields:
-      books:
+      accounts:
         resolver: true
-  BookCategoryResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.BookCategoryResultType
+      todo:
+        resolver: true
+  UserResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.UserResultType
     fields:
       data:
         resolver: true
@@ -35,18 +37,20 @@ models:
         resolver: true
       total_page:
         resolver: true
-  BookCategoryCreateInput:
+  UserCreateInput:
     model: "map[string]interface{}"
-  BookCategoryUpdateInput:
+  UserUpdateInput:
     model: "map[string]interface{}"
   
-  Book:
-    model: github.com/sj-distributor/dolphin-example/gen.Book
+  Account:
+    model: github.com/sj-distributor/dolphin-example/gen.Account
     fields:
-      category:
+      owner:
         resolver: true
-  BookResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.BookResultType
+      transactions:
+        resolver: true
+  AccountResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.AccountResultType
     fields:
       data:
         resolver: true
@@ -58,9 +62,55 @@ models:
         resolver: true
       total_page:
         resolver: true
-  BookCreateInput:
+  AccountCreateInput:
     model: "map[string]interface{}"
-  BookUpdateInput:
+  AccountUpdateInput:
+    model: "map[string]interface{}"
+  
+  Transaction:
+    model: github.com/sj-distributor/dolphin-example/gen.Transaction
+    fields:
+      account:
+        resolver: true
+  TransactionResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.TransactionResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  TransactionCreateInput:
+    model: "map[string]interface{}"
+  TransactionUpdateInput:
+    model: "map[string]interface{}"
+  
+  Todo:
+    model: github.com/sj-distributor/dolphin-example/gen.Todo
+    fields:
+      account:
+        resolver: true
+  TodoResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.TodoResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  TodoCreateInput:
+    model: "map[string]interface{}"
+  TodoUpdateInput:
     model: "map[string]interface{}"
   
   _Any:

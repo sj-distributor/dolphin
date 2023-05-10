@@ -28,34 +28,66 @@ func (r *Resolver) Query() gen.QueryResolver {
 	return &QueryResolver{&gen.GeneratedQueryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type BookCategoryResultTypeResolver struct {
-	*gen.GeneratedBookCategoryResultTypeResolver
+type UserResultTypeResolver struct {
+	*gen.GeneratedUserResultTypeResolver
 }
 
-func (r *Resolver) BookCategoryResultType() gen.BookCategoryResultTypeResolver {
-	return &BookCategoryResultTypeResolver{&gen.GeneratedBookCategoryResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) UserResultType() gen.UserResultTypeResolver {
+	return &UserResultTypeResolver{&gen.GeneratedUserResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type BookCategoryResolver struct {
-	*gen.GeneratedBookCategoryResolver
+type UserResolver struct {
+	*gen.GeneratedUserResolver
 }
 
-func (r *Resolver) BookCategory() gen.BookCategoryResolver {
-	return &BookCategoryResolver{&gen.GeneratedBookCategoryResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) User() gen.UserResolver {
+	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type BookResultTypeResolver struct {
-	*gen.GeneratedBookResultTypeResolver
+type AccountResultTypeResolver struct {
+	*gen.GeneratedAccountResultTypeResolver
 }
 
-func (r *Resolver) BookResultType() gen.BookResultTypeResolver {
-	return &BookResultTypeResolver{&gen.GeneratedBookResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) AccountResultType() gen.AccountResultTypeResolver {
+	return &AccountResultTypeResolver{&gen.GeneratedAccountResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type BookResolver struct {
-	*gen.GeneratedBookResolver
+type AccountResolver struct {
+	*gen.GeneratedAccountResolver
 }
 
-func (r *Resolver) Book() gen.BookResolver {
-	return &BookResolver{&gen.GeneratedBookResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) Account() gen.AccountResolver {
+	return &AccountResolver{&gen.GeneratedAccountResolver{GeneratedResolver: r.GeneratedResolver}}
+}
+
+type TransactionResultTypeResolver struct {
+	*gen.GeneratedTransactionResultTypeResolver
+}
+
+func (r *Resolver) TransactionResultType() gen.TransactionResultTypeResolver {
+	return &TransactionResultTypeResolver{&gen.GeneratedTransactionResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+}
+
+type TransactionResolver struct {
+	*gen.GeneratedTransactionResolver
+}
+
+func (r *Resolver) Transaction() gen.TransactionResolver {
+	return &TransactionResolver{&gen.GeneratedTransactionResolver{GeneratedResolver: r.GeneratedResolver}}
+}
+
+type TodoResultTypeResolver struct {
+	*gen.GeneratedTodoResultTypeResolver
+}
+
+func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
+	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+}
+
+type TodoResolver struct {
+	*gen.GeneratedTodoResolver
+}
+
+func (r *Resolver) Todo() gen.TodoResolver {
+	return &TodoResolver{&gen.GeneratedTodoResolver{GeneratedResolver: r.GeneratedResolver}}
 }

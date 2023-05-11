@@ -119,9 +119,7 @@ func (db *DB) Query() *gorm.DB {
 func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate(
 		User{},
-		Account{},
-		Transaction{},
-		Todo{},
+		Task{},
 	)
 }
 

@@ -68,11 +68,12 @@ type MutationEvents struct {
 		item.CreatedBy = principalID
 
 		{{range $rel := .Relationships}}
-			if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
-			}
 			{{if $rel.IsToMany}}
+				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Ids"] != nil {
+					tx.Rollback()
+					return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
+				}
+
 				var {{$rel.Name}}Ids []string
 
 				if _, ok := input["{{$rel.Name}}"]; ok {
@@ -95,7 +96,19 @@ type MutationEvents struct {
 					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
 					item.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
 				}
+
+				if ids, exists := input["{{$rel.Name}}Ids"]; exists {
+					for _, v := range ids.([]interface{}) {
+						{{$rel.Name}}Ids = append({{$rel.Name}}Ids, v.(string))
+					}
+				}
+
 			{{else}}
+				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
+					tx.Rollback()
+					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+				}
+
 				if _, ok := input["{{$rel.Name}}"]; ok {
 					var {{$rel.Name}} *{{$rel.TargetType}}
 					{{$rel.Name}}Input := input["{{$rel.Name}}"].(map[string]interface{})
@@ -210,10 +223,17 @@ type MutationEvents struct {
 		}
 
 		{{range $rel := .Relationships}}
-			if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
-				tx.Rollback()
-				return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
-			}
+			{{if $rel.IsToMany}}
+				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Ids"] != nil {
+					tx.Rollback()
+					return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
+				}
+			{{else}}
+				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
+					tx.Rollback()
+					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+				}
+			{{end}}
 		{{end}}
 
 		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}"), item, &id); err != nil {
@@ -227,6 +247,8 @@ type MutationEvents struct {
 
 		{{range $rel := .Relationships}}
 			{{if $rel.IsToMany}}
+				var {{$rel.Name}}Ids []string
+
 				if _, ok := input["{{$rel.Name}}"]; ok {
 					if err := tx.Unscoped().Model(&{{$rel.TargetType}}{}).Where("{{$rel.ToSnakeRelationshipName}}_id = ?", id).Update("{{$rel.ToSnakeRelationshipName}}_id", "").Error; err != nil {
 						tx.Rollback()
@@ -240,7 +262,7 @@ type MutationEvents struct {
 					}
 
 					for _, v := range {{$rel.Name}}Maps {
-						{{$rel.Name}} := &{{$rel.TargetType}}{}
+						var {{$rel.Name}} *{{$rel.TargetType}}
 						v["{{$rel.ToSnakeRelationshipName}}Id"] = id
 						if v["id"] == nil {
 							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v)
@@ -254,6 +276,20 @@ type MutationEvents struct {
 					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
 					item.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
 					newItem.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
+				}
+
+				if ids, exists := input["{{$rel.Name}}Ids"]; exists {
+					if err := tx.Unscoped().Model(&{{$rel.TargetType}}{}).Where("{{$rel.ToSnakeRelationshipName}}_id = ?", id).Update("{{$rel.ToSnakeRelationshipName}}_id", "").Error; err != nil {
+						tx.Rollback()
+						return item, err
+					}
+					for _, v := range ids.([]interface{}) {
+						{{$rel.Name}}Ids = append({{$rel.Name}}Ids, v.(string))
+					}
+			
+					if len({{$rel.Name}}Ids) > 0 {
+						isChange = true
+					}
 				}
 			{{else}}
 			if _, ok := input["{{$rel.Name}}"]; ok {
@@ -321,6 +357,17 @@ type MutationEvents struct {
 	    return item, err
 	  }
 
+		{{range $rel := .Relationships}}
+			{{if $rel.IsToMany}}
+				if len({{$rel.Name}}Ids) > 0 {
+					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id IN(?)", {{$rel.Name}}Ids).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
+						tx.Rollback()
+						return item, err
+					}
+				}
+			{{end}}
+		{{end}}
+		
 		if len(event.Changes) > 0 {
 			AddMutationEvent(ctx, event)
 		}

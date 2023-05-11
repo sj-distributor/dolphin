@@ -14,23 +14,15 @@ schema {
 type Query {
   user(id: ID!): User
   users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
-  account(id: ID!): Account
-  accounts(current_page: Int = 1, per_page: Int = 10, q: String, sort: [AccountSortType!], filter: AccountFilterType, rand: Boolean = false): AccountResultType
-  transaction(id: ID!): Transaction
-  transactions(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TransactionSortType!], filter: TransactionFilterType, rand: Boolean = false): TransactionResultType
-  todo(id: ID!): Todo
-  todos(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TodoSortType!], filter: TodoFilterType, rand: Boolean = false): TodoResultType
+  task(id: ID!): Task
+  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType
 }
 
 type Mutation {
   createUser(input: UserCreateInput!): User!
   updateUser(id: ID!, input: UserUpdateInput!): User!
-  createAccount(input: AccountCreateInput!): Account!
-  updateAccount(id: ID!, input: AccountUpdateInput!): Account!
-  createTransaction(input: TransactionCreateInput!): Transaction!
-  updateTransaction(id: ID!, input: TransactionUpdateInput!): Transaction!
-  createTodo(input: TodoCreateInput!): Todo!
-  updateTodo(id: ID!, input: TodoUpdateInput!): Todo!
+  createTask(input: TaskCreateInput!): Task!
+  updateTask(id: ID!, input: TaskUpdateInput!): Task!
 }
 
 enum ObjectSortType {
@@ -47,58 +39,26 @@ input FileField {
 
 type User {
   id: ID!
-  username: String!
+  phone: String!
   password: String!
   email: String
   nickname: String
-  accounts: [Account!]!
-  todo: [Todo!]!
+  age: Int
+  tasks: [Task!]!
   deletedBy: ID
   updatedBy: ID
   createdBy: ID
   deletedAt: Int
   updatedAt: Int
   createdAt: Int!
-  accountsIds: [ID!]
-  todoIds: [ID!]
+  tasksIds: [ID!]
 }
 
-type Account {
+type Task {
   id: ID!
-  name: String!
-  balance: Int!
-  owner: User!
-  transactions: [Transaction!]!
-  ownerId: ID
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
-  transactionsIds: [ID!]
-}
-
-type Transaction {
-  id: ID!
-  amount: Int!
-  date: Int!
-  note: String
-  account: Account!
-  accountId: ID
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
-}
-
-type Todo {
-  id: ID!
-  name: String!
-  account: User!
-  accountId: ID
+  title: String
+  user: User
+  userId: ID
   deletedBy: ID
   updatedBy: ID
   createdBy: ID
@@ -108,43 +68,40 @@ type Todo {
 }
 
 input UserCreateInput {
-  username: String!
+  phone: String!
   password: String!
   email: String
   nickname: String
-  accounts: [AccountRelationship]
-  todo: [TodoRelationship]
-  accountsIds: [ID!]
-  todoIds: [ID!]
+  age: Int
+  tasks: [TaskRelationship]
+  tasksIds: [ID!]
 }
 
 input UserUpdateInput {
-  username: String!
-  password: String!
+  phone: String
+  password: String
   email: String
   nickname: String
-  accounts: [AccountRelationship]
-  todo: [TodoRelationship]
-  accountsIds: [ID!]
-  todoIds: [ID!]
+  age: Int
+  tasks: [TaskRelationship]
+  tasksIds: [ID!]
 }
 
 input UserSortType {
   id: ObjectSortType
-  username: ObjectSortType
+  phone: ObjectSortType
   password: ObjectSortType
   email: ObjectSortType
   nickname: ObjectSortType
+  age: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  accountsIds: ObjectSortType
-  todoIds: ObjectSortType
-  accounts: AccountSortType
-  todo: TodoSortType
+  tasksIds: ObjectSortType
+  tasks: TaskSortType
 }
 
 input UserFilterType {
@@ -158,17 +115,17 @@ input UserFilterType {
   id_lte: ID
   id_in: [ID!]
   id_null: Boolean
-  username: String
-  username_ne: String
-  username_gt: String
-  username_lt: String
-  username_gte: String
-  username_lte: String
-  username_in: [String!]
-  username_like: String
-  username_prefix: String
-  username_suffix: String
-  username_null: Boolean
+  phone: String
+  phone_ne: String
+  phone_gt: String
+  phone_lt: String
+  phone_gte: String
+  phone_lte: String
+  phone_in: [String!]
+  phone_like: String
+  phone_prefix: String
+  phone_suffix: String
+  phone_null: Boolean
   password: String
   password_ne: String
   password_gt: String
@@ -202,6 +159,14 @@ input UserFilterType {
   nickname_prefix: String
   nickname_suffix: String
   nickname_null: Boolean
+  age: Int
+  age_ne: Int
+  age_gt: Int
+  age_lt: Int
+  age_gte: Int
+  age_lte: Int
+  age_in: [Int!]
+  age_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -250,18 +215,17 @@ input UserFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  accounts: AccountFilterType
-  todo: TodoFilterType
+  tasks: TaskFilterType
 }
 
 input UserRelationship {
   id: ID
-  username: String!
+  phone: String!
   password: String!
   email: String
   nickname: String
-  accountsIds: [ID!]
-  todoIds: [ID!]
+  age: Int
+  tasksIds: [ID!]
 }
 
 type UserResultType {
@@ -272,43 +236,34 @@ type UserResultType {
   total_page: Int!
 }
 
-input AccountCreateInput {
-  name: String!
-  balance: Int!
-  owner: UserRelationship
-  transactions: [TransactionRelationship]
-  ownerId: ID
-  transactionsIds: [ID!]
+input TaskCreateInput {
+  title: String
+  user: UserRelationship
+  userId: ID
 }
 
-input AccountUpdateInput {
-  name: String!
-  balance: Int!
-  owner: UserRelationship
-  transactions: [TransactionRelationship]
-  ownerId: ID
-  transactionsIds: [ID!]
+input TaskUpdateInput {
+  title: String
+  user: UserRelationship
+  userId: ID
 }
 
-input AccountSortType {
+input TaskSortType {
   id: ObjectSortType
-  name: ObjectSortType
-  balance: ObjectSortType
-  ownerId: ObjectSortType
+  title: ObjectSortType
+  userId: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  transactionsIds: ObjectSortType
-  owner: UserSortType
-  transactions: TransactionSortType
+  user: UserSortType
 }
 
-input AccountFilterType {
-  AND: [AccountFilterType!]
-  OR: [AccountFilterType!]
+input TaskFilterType {
+  AND: [TaskFilterType!]
+  OR: [TaskFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -317,33 +272,25 @@ input AccountFilterType {
   id_lte: ID
   id_in: [ID!]
   id_null: Boolean
-  name: String
-  name_ne: String
-  name_gt: String
-  name_lt: String
-  name_gte: String
-  name_lte: String
-  name_in: [String!]
-  name_like: String
-  name_prefix: String
-  name_suffix: String
-  name_null: Boolean
-  balance: Int
-  balance_ne: Int
-  balance_gt: Int
-  balance_lt: Int
-  balance_gte: Int
-  balance_lte: Int
-  balance_in: [Int!]
-  balance_null: Boolean
-  ownerId: ID
-  ownerId_ne: ID
-  ownerId_gt: ID
-  ownerId_lt: ID
-  ownerId_gte: ID
-  ownerId_lte: ID
-  ownerId_in: [ID!]
-  ownerId_null: Boolean
+  title: String
+  title_ne: String
+  title_gt: String
+  title_lt: String
+  title_gte: String
+  title_lte: String
+  title_in: [String!]
+  title_like: String
+  title_prefix: String
+  title_suffix: String
+  title_null: Boolean
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
+  userId_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -392,284 +339,17 @@ input AccountFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  owner: UserFilterType
-  transactions: TransactionFilterType
+  user: UserFilterType
 }
 
-input AccountRelationship {
+input TaskRelationship {
   id: ID
-  name: String!
-  balance: Int!
-  ownerId: ID
-  transactionsIds: [ID!]
+  title: String
+  userId: ID
 }
 
-type AccountResultType {
-  data: [Account!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input TransactionCreateInput {
-  amount: Int!
-  date: Int!
-  note: String
-  account: AccountRelationship
-  accountId: ID
-}
-
-input TransactionUpdateInput {
-  amount: Int!
-  date: Int!
-  note: String
-  account: AccountRelationship
-  accountId: ID
-}
-
-input TransactionSortType {
-  id: ObjectSortType
-  amount: ObjectSortType
-  date: ObjectSortType
-  note: ObjectSortType
-  accountId: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-  account: AccountSortType
-}
-
-input TransactionFilterType {
-  AND: [TransactionFilterType!]
-  OR: [TransactionFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  amount: Int
-  amount_ne: Int
-  amount_gt: Int
-  amount_lt: Int
-  amount_gte: Int
-  amount_lte: Int
-  amount_in: [Int!]
-  amount_null: Boolean
-  date: Int
-  date_ne: Int
-  date_gt: Int
-  date_lt: Int
-  date_gte: Int
-  date_lte: Int
-  date_in: [Int!]
-  date_null: Boolean
-  note: String
-  note_ne: String
-  note_gt: String
-  note_lt: String
-  note_gte: String
-  note_lte: String
-  note_in: [String!]
-  note_like: String
-  note_prefix: String
-  note_suffix: String
-  note_null: Boolean
-  accountId: ID
-  accountId_ne: ID
-  accountId_gt: ID
-  accountId_lt: ID
-  accountId_gte: ID
-  accountId_lte: ID
-  accountId_in: [ID!]
-  accountId_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-  account: AccountFilterType
-}
-
-input TransactionRelationship {
-  id: ID
-  amount: Int!
-  date: Int!
-  note: String
-  accountId: ID
-}
-
-type TransactionResultType {
-  data: [Transaction!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input TodoCreateInput {
-  name: String!
-  account: UserRelationship
-  accountId: ID
-}
-
-input TodoUpdateInput {
-  name: String!
-  account: UserRelationship
-  accountId: ID
-}
-
-input TodoSortType {
-  id: ObjectSortType
-  name: ObjectSortType
-  accountId: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-  account: UserSortType
-}
-
-input TodoFilterType {
-  AND: [TodoFilterType!]
-  OR: [TodoFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  name: String
-  name_ne: String
-  name_gt: String
-  name_lt: String
-  name_gte: String
-  name_lte: String
-  name_in: [String!]
-  name_like: String
-  name_prefix: String
-  name_suffix: String
-  name_null: Boolean
-  accountId: ID
-  accountId_ne: ID
-  accountId_gt: ID
-  accountId_lt: ID
-  accountId_gte: ID
-  accountId_lte: ID
-  accountId_in: [ID!]
-  accountId_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-  account: UserFilterType
-}
-
-input TodoRelationship {
-  id: ID
-  name: String!
-  accountId: ID
-}
-
-type TodoResultType {
-  data: [Todo!]!
+type TaskResultType {
+  data: [Task!]!
   total: Int!
   current_page: Int!
   per_page: Int!

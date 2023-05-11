@@ -46,6 +46,9 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 				Type: t,
 			})
 		} else {
+			if name == "UpdateInput" {
+				t = getNullableType(t)
+			}
 			fields = append(fields, &ast.InputValueDefinition{
 				Kind:        kinds.InputValueDefinition,
 				Name:        col.Def.Name,

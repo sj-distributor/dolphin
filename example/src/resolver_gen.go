@@ -44,50 +44,18 @@ func (r *Resolver) User() gen.UserResolver {
 	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type AccountResultTypeResolver struct {
-	*gen.GeneratedAccountResultTypeResolver
+type TaskResultTypeResolver struct {
+	*gen.GeneratedTaskResultTypeResolver
 }
 
-func (r *Resolver) AccountResultType() gen.AccountResultTypeResolver {
-	return &AccountResultTypeResolver{&gen.GeneratedAccountResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) TaskResultType() gen.TaskResultTypeResolver {
+	return &TaskResultTypeResolver{&gen.GeneratedTaskResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type AccountResolver struct {
-	*gen.GeneratedAccountResolver
+type TaskResolver struct {
+	*gen.GeneratedTaskResolver
 }
 
-func (r *Resolver) Account() gen.AccountResolver {
-	return &AccountResolver{&gen.GeneratedAccountResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TransactionResultTypeResolver struct {
-	*gen.GeneratedTransactionResultTypeResolver
-}
-
-func (r *Resolver) TransactionResultType() gen.TransactionResultTypeResolver {
-	return &TransactionResultTypeResolver{&gen.GeneratedTransactionResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TransactionResolver struct {
-	*gen.GeneratedTransactionResolver
-}
-
-func (r *Resolver) Transaction() gen.TransactionResolver {
-	return &TransactionResolver{&gen.GeneratedTransactionResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TodoResultTypeResolver struct {
-	*gen.GeneratedTodoResultTypeResolver
-}
-
-func (r *Resolver) TodoResultType() gen.TodoResultTypeResolver {
-	return &TodoResultTypeResolver{&gen.GeneratedTodoResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TodoResolver struct {
-	*gen.GeneratedTodoResolver
-}
-
-func (r *Resolver) Todo() gen.TodoResolver {
-	return &TodoResolver{&gen.GeneratedTodoResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) Task() gen.TaskResolver {
+	return &TaskResolver{&gen.GeneratedTaskResolver{GeneratedResolver: r.GeneratedResolver}}
 }

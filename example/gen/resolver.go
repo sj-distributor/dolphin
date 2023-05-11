@@ -15,38 +15,16 @@ type ResolutionHandlers struct {
 	QueryUser     func(ctx context.Context, r *GeneratedResolver, id string) (*User, error)
 	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error)
 
-	UserAccounts func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Account, err error)
+	UserTasks func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Task, err error)
 
-	UserTodo func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Todo, err error)
+	CreateTask    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Task, err error)
+	UpdateTask    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Task, err error)
+	DeleteTasks   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryTasks func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryTask     func(ctx context.Context, r *GeneratedResolver, id string) (*Task, error)
+	QueryTasks    func(ctx context.Context, r *GeneratedResolver, opts QueryTasksHandlerOptions) (*TaskResultType, error)
 
-	CreateAccount    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Account, err error)
-	UpdateAccount    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Account, err error)
-	DeleteAccounts   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryAccounts func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryAccount     func(ctx context.Context, r *GeneratedResolver, id string) (*Account, error)
-	QueryAccounts    func(ctx context.Context, r *GeneratedResolver, opts QueryAccountsHandlerOptions) (*AccountResultType, error)
-
-	AccountOwner func(ctx context.Context, r *GeneratedResolver, obj *Account) (res *User, err error)
-
-	AccountTransactions func(ctx context.Context, r *GeneratedResolver, obj *Account) (res []*Transaction, err error)
-
-	CreateTransaction    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Transaction, err error)
-	UpdateTransaction    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Transaction, err error)
-	DeleteTransactions   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryTransactions func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryTransaction     func(ctx context.Context, r *GeneratedResolver, id string) (*Transaction, error)
-	QueryTransactions    func(ctx context.Context, r *GeneratedResolver, opts QueryTransactionsHandlerOptions) (*TransactionResultType, error)
-
-	TransactionAccount func(ctx context.Context, r *GeneratedResolver, obj *Transaction) (res *Account, err error)
-
-	CreateTodo    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Todo, err error)
-	UpdateTodo    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Todo, err error)
-	DeleteTodos   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryTodos func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryTodo     func(ctx context.Context, r *GeneratedResolver, id string) (*Todo, error)
-	QueryTodos    func(ctx context.Context, r *GeneratedResolver, opts QueryTodosHandlerOptions) (*TodoResultType, error)
-
-	TodoAccount func(ctx context.Context, r *GeneratedResolver, obj *Todo) (res *User, err error)
+	TaskUser func(ctx context.Context, r *GeneratedResolver, obj *Task) (res *User, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {
@@ -60,38 +38,16 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 		QueryUser:     QueryUserHandler,
 		QueryUsers:    QueryUsersHandler,
 
-		UserAccounts: UserAccountsHandler,
+		UserTasks: UserTasksHandler,
 
-		UserTodo: UserTodoHandler,
+		CreateTask:    CreateTaskHandler,
+		UpdateTask:    UpdateTaskHandler,
+		DeleteTasks:   DeleteTasksHandler,
+		RecoveryTasks: RecoveryTasksHandler,
+		QueryTask:     QueryTaskHandler,
+		QueryTasks:    QueryTasksHandler,
 
-		CreateAccount:    CreateAccountHandler,
-		UpdateAccount:    UpdateAccountHandler,
-		DeleteAccounts:   DeleteAccountsHandler,
-		RecoveryAccounts: RecoveryAccountsHandler,
-		QueryAccount:     QueryAccountHandler,
-		QueryAccounts:    QueryAccountsHandler,
-
-		AccountOwner: AccountOwnerHandler,
-
-		AccountTransactions: AccountTransactionsHandler,
-
-		CreateTransaction:    CreateTransactionHandler,
-		UpdateTransaction:    UpdateTransactionHandler,
-		DeleteTransactions:   DeleteTransactionsHandler,
-		RecoveryTransactions: RecoveryTransactionsHandler,
-		QueryTransaction:     QueryTransactionHandler,
-		QueryTransactions:    QueryTransactionsHandler,
-
-		TransactionAccount: TransactionAccountHandler,
-
-		CreateTodo:    CreateTodoHandler,
-		UpdateTodo:    UpdateTodoHandler,
-		DeleteTodos:   DeleteTodosHandler,
-		RecoveryTodos: RecoveryTodosHandler,
-		QueryTodo:     QueryTodoHandler,
-		QueryTodos:    QueryTodosHandler,
-
-		TodoAccount: TodoAccountHandler,
+		TaskUser: TaskUserHandler,
 	}
 	return handlers
 }

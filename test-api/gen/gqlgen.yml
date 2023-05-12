@@ -1,0 +1,88 @@
+# Generated with dolphin
+
+schema:
+  - schema.graphql
+exec:
+  filename: generated.go
+  package: gen
+model:
+  filename: models_gen.go
+  package: gen
+resolver:
+  filename: resolver.go
+  type: Resolver
+  package: gen
+autobind:
+  - "github.com/marlon/test-api/gen"
+
+models:
+  
+  User:
+    model: github.com/marlon/test-api/gen.User
+    fields:
+      tasks:
+        resolver: true
+  UserResultType:
+    model: github.com/marlon/test-api/gen.UserResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  UserCreateInput:
+    model: "map[string]interface{}"
+  UserUpdateInput:
+    model: "map[string]interface{}"
+  
+  Task:
+    model: github.com/marlon/test-api/gen.Task
+    fields:
+      assignee:
+        resolver: true
+  TaskResultType:
+    model: github.com/marlon/test-api/gen.TaskResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  TaskCreateInput:
+    model: "map[string]interface{}"
+  TaskUpdateInput:
+    model: "map[string]interface{}"
+  
+  UploadFile:
+    model: github.com/marlon/test-api/gen.UploadFile
+    fields:
+  UploadFileResultType:
+    model: github.com/marlon/test-api/gen.UploadFileResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  UploadFileCreateInput:
+    model: "map[string]interface{}"
+  UploadFileUpdateInput:
+    model: "map[string]interface{}"
+  
+  _Any:
+    model: github.com/marlon/test-api/gen._Any

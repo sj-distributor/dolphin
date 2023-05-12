@@ -9,7 +9,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/iancoleman/strcase"
-	"github.com/sj-distributor/dolphin-example/enums"
+	"github.com/marlon/test-api/enums"
 	"github.com/vektah/gqlparser/v2/ast"
 	"gorm.io/gorm"
 )

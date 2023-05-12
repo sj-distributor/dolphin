@@ -172,6 +172,9 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.Loaders, path.Join(p, "gen/loaders.go"), data); err != nil {
 		return err
 	}
+	if err := templates.WriteTemplate(templates.HttpHandler, path.Join(p, "gen/http-handler.go"), data); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.ResolverCore, path.Join(p, "gen/resolver.go"), data); err != nil {
 		return err
 	}
@@ -181,9 +184,19 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.ResolverMutations, path.Join(p, "gen/resolver-mutations.go"), data); err != nil {
 		return err
 	}
+	if err := templates.WriteTemplate(templates.ResultType, path.Join(p, "gen/result-type.go"), data); err != nil {
+		return err
+	}
+	if err := templates.WriteTemplate(templates.ResolverUtils, path.Join(p, "gen/resolver-utils.go"), data); err != nil {
+		return err
+	}
+	if err := templates.WriteTemplate(templates.ResolverEvents, path.Join(p, "gen/events.go"), data); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.ResolverSrcGen, path.Join(p, "src/resolver_gen.go"), data); err != nil {
 		return err
 	}
+
 	return nil
 }
 

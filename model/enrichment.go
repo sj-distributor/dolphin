@@ -46,6 +46,7 @@ func EnrichModel(m *Model) error {
 		scalarDefinition("Time"),
 		scalarDefinition("Upload"),
 		scalarDefinition("_Any"),
+		scalarDefinition("Any"),
 		schemaDefinition(m),
 		queryDefinition(m),
 		mutationDefinition(m),

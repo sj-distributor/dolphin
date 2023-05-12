@@ -1,7 +1,6 @@
 package templates
 
 var Loaders = `package gen
-
 import (
 	"context"
 	"errors"

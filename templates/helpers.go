@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"bufio"
 	"bytes"
 	"fmt"
 	"io"
@@ -9,11 +10,15 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"strings"
 	"text/template"
 
+	"github.com/howeyc/gopass"
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/urfave/cli"
 )
+
+var promptCache map[string]string
 
 type TemplateData struct {
 	Model     *model.Model
@@ -72,4 +77,38 @@ func RunInteractiveInDir(cmd, dir string) error {
 // RunInteractive ...
 func RunInteractive(cmd string) error {
 	return RunInteractiveInDir(cmd, "")
+}
+
+// Prompt ...
+func Prompt(text string) string {
+	return prompt(text, nil, false)
+}
+
+func prompt(text string, key *string, masked bool) string {
+	if key != nil {
+		if promptCache == nil {
+			promptCache = map[string]string{}
+		}
+
+		if val := promptCache[*key]; val != "" {
+			return val
+		}
+	}
+
+	fmt.Print(text + ": ")
+
+	if masked {
+		val, err := gopass.GetPasswdMasked()
+		if err != nil {
+			panic(err)
+		}
+		return string(val)
+	}
+
+	scanner := bufio.NewScanner(os.Stdin)
+	if scanner.Scan() {
+		return strings.Trim(scanner.Text(), " ")
+	}
+
+	return ""
 }

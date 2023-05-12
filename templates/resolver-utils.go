@@ -1,4 +1,6 @@
-package gen
+package templates
+
+var ResolverUtils = `package gen
 
 import (
 	"context"
@@ -9,9 +11,9 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/iancoleman/strcase"
-	"github.com/sj-distributor/dolphin-example/enums"
 	"github.com/vektah/gqlparser/v2/ast"
 	"gorm.io/gorm"
+	"{{.Config.Package}}/enums"
 )
 
 func IndexOf(str []string, data interface{}) int {
@@ -154,3 +156,4 @@ func CheckStructFieldIsEmpty(item interface{}, input map[string]interface{}) (er
 	}
 	return err
 }
+`

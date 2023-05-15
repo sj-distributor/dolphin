@@ -17,179 +17,80 @@ func (e *NotFoundError) Error() string {
 	return fmt.Sprintf("%s not found", e.Entity)
 }
 
-type OrderResultType struct {
+type UserResultType struct {
 	EntityResultType
 }
 
-type Order struct {
-	ID           string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	OrderNo      string  `json:"orderNo" gorm:"type:varchar(64) comment '訂單號';NOT NULL;index:order_no;"`
-	CustomerInfo *string `json:"customerInfo" gorm:"type:varchar(255) comment '客戶信息';default:null;"`
-	GoodsInfo    *string `json:"goodsInfo" gorm:"type:varchar(255) comment '貨物信息';default:null;"`
-	DeletedBy    *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy    *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy    *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt    *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt    *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt    int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+type User struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Phone     string  `json:"phone" gorm:"type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;" validator:"type:phone;"`
+	Password  string  `json:"password" gorm:"type:varchar(64) comment '登录密码';NOT NULL;" validator:"type:password;"`
+	Email     *string `json:"email" gorm:"type:varchar(64) comment '用户邮箱地址';default:null;" validator:"type:email;"`
+	Nickname  *string `json:"nickname" gorm:"type:varchar(64) comment '昵称';DEFAULT NULL;index:nickname;"`
+	Age       *int64  `json:"age" gorm:"type:int(3) comment '年龄';default:1;" validator:"type:int;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+
+	Tasks []*Task `json:"tasks" gorm:"foreignkey:UserID"`
 }
 
-func (m *Order) Is_Entity() {}
+func (m *User) Is_Entity() {}
 
-type OrderChanges struct {
-	ID           string
-	OrderNo      string
-	CustomerInfo *string
-	GoodsInfo    *string
-	DeletedBy    *string
-	UpdatedBy    *string
-	CreatedBy    *string
-	DeletedAt    *int64
-	UpdatedAt    *int64
-	CreatedAt    int64
+type UserChanges struct {
+	ID        string
+	Phone     string
+	Password  string
+	Email     *string
+	Nickname  *string
+	Age       *int64
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
+
+	Tasks []*Task
+
+	TasksIDs []*string
 }
 
-type ShipmentResultType struct {
+type TaskResultType struct {
 	EntityResultType
 }
 
-type Shipment struct {
-	ID                 string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	ShipmentNo         string  `json:"shipmentNo" gorm:"type:varchar(64) comment '運輸單號';NOT NULL;index:shipment_no;"`
-	TransportationMode *string `json:"transportationMode" gorm:"type:varchar(32) comment '運輸方式';default:null;"`
-	StartLocationID    *string `json:"startLocationId" gorm:"type:varchar(36) comment 'start_location_id';default:null;"`
-	EndLocationID      *string `json:"endLocationId" gorm:"type:varchar(36) comment 'end_location_id';default:null;"`
-	DeletedBy          *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy          *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy          *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt          *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt          *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt          int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
+type Task struct {
+	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
+	Title     *string `json:"title" gorm:"type:varchar(64) comment '标题';NOT NULL;"`
+	UserID    *string `json:"userId" gorm:"type:varchar(36) comment 'user_id';default:null;"`
+	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
+	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
+	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
+	DeletedAt *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
+	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
+	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
 
-	StartLocation *Location `json:"startLocation"`
-
-	EndLocation *Location `json:"endLocation"`
+	User *User `json:"user"`
 }
 
-func (m *Shipment) Is_Entity() {}
+func (m *Task) Is_Entity() {}
 
-type ShipmentChanges struct {
-	ID                 string
-	ShipmentNo         string
-	TransportationMode *string
-	StartLocationID    *string
-	EndLocationID      *string
-	DeletedBy          *string
-	UpdatedBy          *string
-	CreatedBy          *string
-	DeletedAt          *int64
-	UpdatedAt          *int64
-	CreatedAt          int64
+type TaskChanges struct {
+	ID        string
+	Title     *string
+	UserID    *string
+	DeletedBy *string
+	UpdatedBy *string
+	CreatedBy *string
+	DeletedAt *int64
+	UpdatedAt *int64
+	CreatedAt int64
 
-	StartLocation *Location
-	EndLocation   *Location
-}
-
-type CarrierResultType struct {
-	EntityResultType
-}
-
-type Carrier struct {
-	ID            string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	CarrierName   string  `json:"carrierName" gorm:"type:varchar(64) comment '承運商名稱';NOT NULL;index:name;"`
-	ContactPerson *string `json:"contactPerson" gorm:"type:varchar(32) comment '聯系人';default:null;"`
-	ContactInfo   *string `json:"contactInfo" gorm:"type:varchar(32) comment '聯系方式';default:null;"`
-	DeletedBy     *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy     *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy     *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt     *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt     *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt     int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
-}
-
-func (m *Carrier) Is_Entity() {}
-
-type CarrierChanges struct {
-	ID            string
-	CarrierName   string
-	ContactPerson *string
-	ContactInfo   *string
-	DeletedBy     *string
-	UpdatedBy     *string
-	CreatedBy     *string
-	DeletedAt     *int64
-	UpdatedAt     *int64
-	CreatedAt     int64
-}
-
-type LocationResultType struct {
-	EntityResultType
-}
-
-type Location struct {
-	ID               string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	WarehouseAddress *string `json:"warehouseAddress" gorm:"type:varchar(255) comment '倉庫地址';default:null;"`
-	LoadingAddress   *string `json:"loadingAddress" gorm:"type:varchar(255) comment '裝卸點地址';default:null;"`
-	DeletedBy        *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy        *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy        *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt        *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt        *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt        int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
-
-	StartShipments []*Shipment `json:"startShipments" gorm:"foreignkey:StartLocationID"`
-
-	EndShipments []*Shipment `json:"endShipments" gorm:"foreignkey:EndLocationID"`
-}
-
-func (m *Location) Is_Entity() {}
-
-type LocationChanges struct {
-	ID               string
-	WarehouseAddress *string
-	LoadingAddress   *string
-	DeletedBy        *string
-	UpdatedBy        *string
-	CreatedBy        *string
-	DeletedAt        *int64
-	UpdatedAt        *int64
-	CreatedAt        int64
-
-	StartShipments []*Shipment
-	EndShipments   []*Shipment
-
-	StartShipmentsIDs []*string
-	EndShipmentsIDs   []*string
-}
-
-type EquipmentdResultType struct {
-	EntityResultType
-}
-
-type Equipmentd struct {
-	ID          string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
-	VehicleType *string `json:"vehicleType" gorm:"type:varchar(32) comment '車型';default:null;"`
-	Capacity    *int64  `json:"capacity" gorm:"type:int(13) comment '容量';default:null;" validator:"type:int;"`
-	DeletedBy   *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
-	UpdatedBy   *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
-	CreatedBy   *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
-	DeletedAt   *int64  `json:"deletedAt" gorm:"type:bigint(13) comment 'deleted_at';default:null;"`
-	UpdatedAt   *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
-	CreatedAt   int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
-}
-
-func (m *Equipmentd) Is_Entity() {}
-
-type EquipmentdChanges struct {
-	ID          string
-	VehicleType *string
-	Capacity    *int64
-	DeletedBy   *string
-	UpdatedBy   *string
-	CreatedBy   *string
-	DeletedAt   *int64
-	UpdatedAt   *int64
-	CreatedAt   int64
+	User *User
 }
 
 // used to convert map[string]interface{} to EntityChanges struct

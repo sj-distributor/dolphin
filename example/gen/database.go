@@ -118,11 +118,8 @@ func (db *DB) Query() *gorm.DB {
 // AutoMigrate ...
 func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate(
-		Order{},
-		Shipment{},
-		Carrier{},
-		Location{},
-		Equipmentd{},
+		User{},
+		Task{},
 	)
 }
 

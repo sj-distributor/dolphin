@@ -14,29 +14,17 @@ schema {
 }
 
 type Query {
-  order(id: ID!): Order
-  orders(current_page: Int = 1, per_page: Int = 10, q: String, sort: [OrderSortType!], filter: OrderFilterType, rand: Boolean = false): OrderResultType
-  shipment(id: ID!): Shipment
-  shipments(current_page: Int = 1, per_page: Int = 10, q: String, sort: [ShipmentSortType!], filter: ShipmentFilterType, rand: Boolean = false): ShipmentResultType
-  carrier(id: ID!): Carrier
-  carriers(current_page: Int = 1, per_page: Int = 10, q: String, sort: [CarrierSortType!], filter: CarrierFilterType, rand: Boolean = false): CarrierResultType
-  location(id: ID!): Location
-  locations(current_page: Int = 1, per_page: Int = 10, q: String, sort: [LocationSortType!], filter: LocationFilterType, rand: Boolean = false): LocationResultType
-  equipmentd(id: ID!): Equipmentd
-  equipmentds(current_page: Int = 1, per_page: Int = 10, q: String, sort: [EquipmentdSortType!], filter: EquipmentdFilterType, rand: Boolean = false): EquipmentdResultType
+  user(id: ID, filter: UserFilterType): User
+  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
+  task(id: ID, filter: TaskFilterType): Task
+  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType
 }
 
 type Mutation {
-  createOrder(input: OrderCreateInput!): Order!
-  updateOrder(id: ID!, input: OrderUpdateInput!): Order!
-  createShipment(input: ShipmentCreateInput!): Shipment!
-  updateShipment(id: ID!, input: ShipmentUpdateInput!): Shipment!
-  createCarrier(input: CarrierCreateInput!): Carrier!
-  updateCarrier(id: ID!, input: CarrierUpdateInput!): Carrier!
-  createLocation(input: LocationCreateInput!): Location!
-  updateLocation(id: ID!, input: LocationUpdateInput!): Location!
-  createEquipmentd(input: EquipmentdCreateInput!): Equipmentd!
-  updateEquipmentd(id: ID!, input: EquipmentdUpdateInput!): Equipmentd!
+  createUser(input: UserCreateInput!): User!
+  updateUser(id: ID!, input: UserUpdateInput!): User!
+  createTask(input: TaskCreateInput!): Task!
+  updateTask(id: ID!, input: TaskUpdateInput!): Task!
 }
 
 enum ObjectSortType {
@@ -51,11 +39,28 @@ input FileField {
   file: Upload!
 }
 
-type Order {
+type User {
   id: ID!
-  orderNo: String!
-  customerInfo: String
-  goodsInfo: String
+  phone: String!
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  tasks: [Task!]!
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+  tasksIds: [ID!]
+}
+
+type Task {
+  id: ID!
+  title: String
+  user: User
+  userId: ID
   deletedBy: ID
   updatedBy: ID
   createdBy: ID
@@ -64,91 +69,46 @@ type Order {
   createdAt: Int!
 }
 
-type Shipment {
-  id: ID!
-  shipmentNo: String!
-  startLocation: Location!
-  endLocation: Location!
-  transportationMode: String
-  startLocationId: ID
-  endLocationId: ID
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
+input UserCreateInput {
+  phone: String!
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  tasks: [TaskRelationship]
+  tasksIds: [ID!]
 }
 
-type Carrier {
-  id: ID!
-  carrierName: String!
-  contactPerson: String
-  contactInfo: String
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
+input UserUpdateInput {
+  phone: String
+  password: String
+  email: String
+  nickname: String
+  age: Int
+  tasks: [TaskRelationship]
+  tasksIds: [ID!]
 }
 
-type Location {
-  id: ID!
-  warehouseAddress: String
-  loadingAddress: String
-  startShipments: [Shipment!]!
-  endShipments: [Shipment!]!
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
-  startShipmentsIds: [ID!]
-  endShipmentsIds: [ID!]
-}
-
-type Equipmentd {
-  id: ID!
-  vehicleType: String
-  capacity: Int
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
-}
-
-input OrderCreateInput {
-  orderNo: String!
-  customerInfo: String
-  goodsInfo: String
-}
-
-input OrderUpdateInput {
-  orderNo: String
-  customerInfo: String
-  goodsInfo: String
-}
-
-input OrderSortType {
+input UserSortType {
   id: ObjectSortType
-  orderNo: ObjectSortType
-  customerInfo: ObjectSortType
-  goodsInfo: ObjectSortType
+  phone: ObjectSortType
+  password: ObjectSortType
+  email: ObjectSortType
+  nickname: ObjectSortType
+  age: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
+  tasksIds: ObjectSortType
+  tasks: TaskSortType
 }
 
-input OrderFilterType {
-  AND: [OrderFilterType!]
-  OR: [OrderFilterType!]
+input UserFilterType {
+  AND: [UserFilterType!]
+  OR: [UserFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -157,39 +117,58 @@ input OrderFilterType {
   id_lte: ID
   id_in: [ID!]
   id_null: Boolean
-  orderNo: String
-  orderNo_ne: String
-  orderNo_gt: String
-  orderNo_lt: String
-  orderNo_gte: String
-  orderNo_lte: String
-  orderNo_in: [String!]
-  orderNo_like: String
-  orderNo_prefix: String
-  orderNo_suffix: String
-  orderNo_null: Boolean
-  customerInfo: String
-  customerInfo_ne: String
-  customerInfo_gt: String
-  customerInfo_lt: String
-  customerInfo_gte: String
-  customerInfo_lte: String
-  customerInfo_in: [String!]
-  customerInfo_like: String
-  customerInfo_prefix: String
-  customerInfo_suffix: String
-  customerInfo_null: Boolean
-  goodsInfo: String
-  goodsInfo_ne: String
-  goodsInfo_gt: String
-  goodsInfo_lt: String
-  goodsInfo_gte: String
-  goodsInfo_lte: String
-  goodsInfo_in: [String!]
-  goodsInfo_like: String
-  goodsInfo_prefix: String
-  goodsInfo_suffix: String
-  goodsInfo_null: Boolean
+  phone: String
+  phone_ne: String
+  phone_gt: String
+  phone_lt: String
+  phone_gte: String
+  phone_lte: String
+  phone_in: [String!]
+  phone_like: String
+  phone_prefix: String
+  phone_suffix: String
+  phone_null: Boolean
+  password: String
+  password_ne: String
+  password_gt: String
+  password_lt: String
+  password_gte: String
+  password_lte: String
+  password_in: [String!]
+  password_like: String
+  password_prefix: String
+  password_suffix: String
+  password_null: Boolean
+  email: String
+  email_ne: String
+  email_gt: String
+  email_lt: String
+  email_gte: String
+  email_lte: String
+  email_in: [String!]
+  email_like: String
+  email_prefix: String
+  email_suffix: String
+  email_null: Boolean
+  nickname: String
+  nickname_ne: String
+  nickname_gt: String
+  nickname_lt: String
+  nickname_gte: String
+  nickname_lte: String
+  nickname_in: [String!]
+  nickname_like: String
+  nickname_prefix: String
+  nickname_suffix: String
+  nickname_null: Boolean
+  age: Int
+  age_ne: Int
+  age_gt: Int
+  age_lt: Int
+  age_gte: Int
+  age_lte: Int
+  age_in: [Int!]
+  age_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -238,60 +217,55 @@ input OrderFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
+  tasks: TaskFilterType
 }
 
-input OrderRelationship {
+input UserRelationship {
   id: ID
-  orderNo: String!
-  customerInfo: String
-  goodsInfo: String
+  phone: String!
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  tasksIds: [ID!]
 }
 
-type OrderResultType {
-  data: [Order!]!
+type UserResultType {
+  data: [User!]!
   total: Int!
   current_page: Int!
   per_page: Int!
   total_page: Int!
 }
 
-input ShipmentCreateInput {
-  shipmentNo: String!
-  startLocation: LocationRelationship
-  endLocation: LocationRelationship
-  transportationMode: String
-  startLocationId: ID
-  endLocationId: ID
+input TaskCreateInput {
+  title: String
+  user: UserRelationship
+  userId: ID
 }
 
-input ShipmentUpdateInput {
-  shipmentNo: String
-  startLocation: LocationRelationship
-  endLocation: LocationRelationship
-  transportationMode: String
-  startLocationId: ID
-  endLocationId: ID
+input TaskUpdateInput {
+  title: String
+  user: UserRelationship
+  userId: ID
 }
 
-input ShipmentSortType {
+input TaskSortType {
   id: ObjectSortType
-  shipmentNo: ObjectSortType
-  transportationMode: ObjectSortType
-  startLocationId: ObjectSortType
-  endLocationId: ObjectSortType
+  title: ObjectSortType
+  userId: ObjectSortType
   deletedBy: ObjectSortType
   updatedBy: ObjectSortType
   createdBy: ObjectSortType
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  startLocation: LocationSortType
-  endLocation: LocationSortType
+  user: UserSortType
 }
 
-input ShipmentFilterType {
-  AND: [ShipmentFilterType!]
-  OR: [ShipmentFilterType!]
+input TaskFilterType {
+  AND: [TaskFilterType!]
+  OR: [TaskFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -300,44 +274,25 @@ input ShipmentFilterType {
   id_lte: ID
   id_in: [ID!]
   id_null: Boolean
-  shipmentNo: String
-  shipmentNo_ne: String
-  shipmentNo_gt: String
-  shipmentNo_lt: String
-  shipmentNo_gte: String
-  shipmentNo_lte: String
-  shipmentNo_in: [String!]
-  shipmentNo_like: String
-  shipmentNo_prefix: String
-  shipmentNo_suffix: String
-  shipmentNo_null: Boolean
-  transportationMode: String
-  transportationMode_ne: String
-  transportationMode_gt: String
-  transportationMode_lt: String
-  transportationMode_gte: String
-  transportationMode_lte: String
-  transportationMode_in: [String!]
-  transportationMode_like: String
-  transportationMode_prefix: String
-  transportationMode_suffix: String
-  transportationMode_null: Boolean
-  startLocationId: ID
-  startLocationId_ne: ID
-  startLocationId_gt: ID
-  startLocationId_lt: ID
-  startLocationId_gte: ID
-  startLocationId_lte: ID
-  startLocationId_in: [ID!]
-  startLocationId_null: Boolean
-  endLocationId: ID
-  endLocationId_ne: ID
-  endLocationId_gt: ID
-  endLocationId_lt: ID
-  endLocationId_gte: ID
-  endLocationId_lte: ID
-  endLocationId_in: [ID!]
-  endLocationId_null: Boolean
+  title: String
+  title_ne: String
+  title_gt: String
+  title_lt: String
+  title_gte: String
+  title_lte: String
+  title_in: [String!]
+  title_like: String
+  title_prefix: String
+  title_suffix: String
+  title_null: Boolean
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
+  userId_null: Boolean
   deletedBy: ID
   deletedBy_ne: ID
   deletedBy_gt: ID
@@ -386,405 +341,17 @@ input ShipmentFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  startLocation: LocationFilterType
-  endLocation: LocationFilterType
+  user: UserFilterType
 }
 
-input ShipmentRelationship {
+input TaskRelationship {
   id: ID
-  shipmentNo: String!
-  transportationMode: String
-  startLocationId: ID
-  endLocationId: ID
+  title: String
+  userId: ID
 }
 
-type ShipmentResultType {
-  data: [Shipment!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input CarrierCreateInput {
-  carrierName: String!
-  contactPerson: String
-  contactInfo: String
-}
-
-input CarrierUpdateInput {
-  carrierName: String
-  contactPerson: String
-  contactInfo: String
-}
-
-input CarrierSortType {
-  id: ObjectSortType
-  carrierName: ObjectSortType
-  contactPerson: ObjectSortType
-  contactInfo: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-}
-
-input CarrierFilterType {
-  AND: [CarrierFilterType!]
-  OR: [CarrierFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  carrierName: String
-  carrierName_ne: String
-  carrierName_gt: String
-  carrierName_lt: String
-  carrierName_gte: String
-  carrierName_lte: String
-  carrierName_in: [String!]
-  carrierName_like: String
-  carrierName_prefix: String
-  carrierName_suffix: String
-  carrierName_null: Boolean
-  contactPerson: String
-  contactPerson_ne: String
-  contactPerson_gt: String
-  contactPerson_lt: String
-  contactPerson_gte: String
-  contactPerson_lte: String
-  contactPerson_in: [String!]
-  contactPerson_like: String
-  contactPerson_prefix: String
-  contactPerson_suffix: String
-  contactPerson_null: Boolean
-  contactInfo: String
-  contactInfo_ne: String
-  contactInfo_gt: String
-  contactInfo_lt: String
-  contactInfo_gte: String
-  contactInfo_lte: String
-  contactInfo_in: [String!]
-  contactInfo_like: String
-  contactInfo_prefix: String
-  contactInfo_suffix: String
-  contactInfo_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-}
-
-input CarrierRelationship {
-  id: ID
-  carrierName: String!
-  contactPerson: String
-  contactInfo: String
-}
-
-type CarrierResultType {
-  data: [Carrier!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input LocationCreateInput {
-  warehouseAddress: String
-  loadingAddress: String
-  startShipments: [ShipmentRelationship]
-  endShipments: [ShipmentRelationship]
-  startShipmentsIds: [ID!]
-  endShipmentsIds: [ID!]
-}
-
-input LocationUpdateInput {
-  warehouseAddress: String
-  loadingAddress: String
-  startShipments: [ShipmentRelationship]
-  endShipments: [ShipmentRelationship]
-  startShipmentsIds: [ID!]
-  endShipmentsIds: [ID!]
-}
-
-input LocationSortType {
-  id: ObjectSortType
-  warehouseAddress: ObjectSortType
-  loadingAddress: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-  startShipmentsIds: ObjectSortType
-  endShipmentsIds: ObjectSortType
-  startShipments: ShipmentSortType
-  endShipments: ShipmentSortType
-}
-
-input LocationFilterType {
-  AND: [LocationFilterType!]
-  OR: [LocationFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  warehouseAddress: String
-  warehouseAddress_ne: String
-  warehouseAddress_gt: String
-  warehouseAddress_lt: String
-  warehouseAddress_gte: String
-  warehouseAddress_lte: String
-  warehouseAddress_in: [String!]
-  warehouseAddress_like: String
-  warehouseAddress_prefix: String
-  warehouseAddress_suffix: String
-  warehouseAddress_null: Boolean
-  loadingAddress: String
-  loadingAddress_ne: String
-  loadingAddress_gt: String
-  loadingAddress_lt: String
-  loadingAddress_gte: String
-  loadingAddress_lte: String
-  loadingAddress_in: [String!]
-  loadingAddress_like: String
-  loadingAddress_prefix: String
-  loadingAddress_suffix: String
-  loadingAddress_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-  startShipments: ShipmentFilterType
-  endShipments: ShipmentFilterType
-}
-
-input LocationRelationship {
-  id: ID
-  warehouseAddress: String
-  loadingAddress: String
-  startShipmentsIds: [ID!]
-  endShipmentsIds: [ID!]
-}
-
-type LocationResultType {
-  data: [Location!]!
-  total: Int!
-  current_page: Int!
-  per_page: Int!
-  total_page: Int!
-}
-
-input EquipmentdCreateInput {
-  vehicleType: String
-  capacity: Int
-}
-
-input EquipmentdUpdateInput {
-  vehicleType: String
-  capacity: Int
-}
-
-input EquipmentdSortType {
-  id: ObjectSortType
-  vehicleType: ObjectSortType
-  capacity: ObjectSortType
-  deletedBy: ObjectSortType
-  updatedBy: ObjectSortType
-  createdBy: ObjectSortType
-  deletedAt: ObjectSortType
-  updatedAt: ObjectSortType
-  createdAt: ObjectSortType
-}
-
-input EquipmentdFilterType {
-  AND: [EquipmentdFilterType!]
-  OR: [EquipmentdFilterType!]
-  id: ID
-  id_ne: ID
-  id_gt: ID
-  id_lt: ID
-  id_gte: ID
-  id_lte: ID
-  id_in: [ID!]
-  id_null: Boolean
-  vehicleType: String
-  vehicleType_ne: String
-  vehicleType_gt: String
-  vehicleType_lt: String
-  vehicleType_gte: String
-  vehicleType_lte: String
-  vehicleType_in: [String!]
-  vehicleType_like: String
-  vehicleType_prefix: String
-  vehicleType_suffix: String
-  vehicleType_null: Boolean
-  capacity: Int
-  capacity_ne: Int
-  capacity_gt: Int
-  capacity_lt: Int
-  capacity_gte: Int
-  capacity_lte: Int
-  capacity_in: [Int!]
-  capacity_null: Boolean
-  deletedBy: ID
-  deletedBy_ne: ID
-  deletedBy_gt: ID
-  deletedBy_lt: ID
-  deletedBy_gte: ID
-  deletedBy_lte: ID
-  deletedBy_in: [ID!]
-  deletedBy_null: Boolean
-  updatedBy: ID
-  updatedBy_ne: ID
-  updatedBy_gt: ID
-  updatedBy_lt: ID
-  updatedBy_gte: ID
-  updatedBy_lte: ID
-  updatedBy_in: [ID!]
-  updatedBy_null: Boolean
-  createdBy: ID
-  createdBy_ne: ID
-  createdBy_gt: ID
-  createdBy_lt: ID
-  createdBy_gte: ID
-  createdBy_lte: ID
-  createdBy_in: [ID!]
-  createdBy_null: Boolean
-  deletedAt: Int
-  deletedAt_ne: Int
-  deletedAt_gt: Int
-  deletedAt_lt: Int
-  deletedAt_gte: Int
-  deletedAt_lte: Int
-  deletedAt_in: [Int!]
-  deletedAt_null: Boolean
-  updatedAt: Int
-  updatedAt_ne: Int
-  updatedAt_gt: Int
-  updatedAt_lt: Int
-  updatedAt_gte: Int
-  updatedAt_lte: Int
-  updatedAt_in: [Int!]
-  updatedAt_null: Boolean
-  createdAt: Int
-  createdAt_ne: Int
-  createdAt_gt: Int
-  createdAt_lt: Int
-  createdAt_gte: Int
-  createdAt_lte: Int
-  createdAt_in: [Int!]
-  createdAt_null: Boolean
-}
-
-input EquipmentdRelationship {
-  id: ID
-  vehicleType: String
-  capacity: Int
-}
-
-type EquipmentdResultType {
-  data: [Equipmentd!]!
+type TaskResultType {
+  data: [Task!]!
   total: Int!
   current_page: Int!
   per_page: Int!

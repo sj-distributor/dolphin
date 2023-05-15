@@ -17,10 +17,18 @@ import (
 type GeneratedQueryResolver struct{ *GeneratedResolver }
 
 {{range $obj := .Model.ObjectEntities}}
-	func (r *GeneratedQueryResolver) {{$obj.Name}}(ctx context.Context, id string) (*{{$obj.Name}}, error) {
-		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, id)
+	type Query{{$obj.Name}}HandlerOptions struct {
+		ID *string
+		Filter *{{$obj.Name}}FilterType
 	}
-	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string) (*{{$obj.Name}}, error) {
+	func (r *GeneratedQueryResolver) {{$obj.Name}}(ctx context.Context, id *string, filter *{{$obj.Name}}FilterType) (*{{$obj.Name}}, error) {
+		opts := Query{{$obj.Name}}HandlerOptions{
+			ID: id,
+			Filter: filter,
+		}
+		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts)
+	}
+	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error) {
 		selection := []ast.Selection{}
 		for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 			selection = append(selection, f.Field)
@@ -31,11 +39,14 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		rt := &{{$obj.Name}}ResultType{
 			EntityResultType: EntityResultType{
 				Query:        &query,
+				Filter: opts.Filter,
 				SelectionSet: &selectionSet,
 			},
 		}
 		qb := r.DB.Query()
-		qb = qb.Where(TableName("{{$obj.TableName}}") + ".id = ?", id)
+		if opts.ID != nil {
+			qb = qb.Where(TableName("{{$obj.TableName}}") + ".id = ?", *opts.ID)
+		}
 
 		var items []*{{$obj.Name}}
 		giOpts := GetItemsOptions{

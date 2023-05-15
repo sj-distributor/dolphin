@@ -8,96 +8,46 @@ import (
 type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
 
-	CreateOrder    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Order, err error)
-	UpdateOrder    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Order, err error)
-	DeleteOrders   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryOrders func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryOrder     func(ctx context.Context, r *GeneratedResolver, id string) (*Order, error)
-	QueryOrders    func(ctx context.Context, r *GeneratedResolver, opts QueryOrdersHandlerOptions) (*OrderResultType, error)
+	CreateUser    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *User, err error)
+	UpdateUser    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *User, err error)
+	DeleteUsers   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryUsers func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryUser     func(ctx context.Context, r *GeneratedResolver, opts QueryUserHandlerOptions) (*User, error)
+	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error)
 
-	CreateShipment    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Shipment, err error)
-	UpdateShipment    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Shipment, err error)
-	DeleteShipments   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryShipments func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryShipment     func(ctx context.Context, r *GeneratedResolver, id string) (*Shipment, error)
-	QueryShipments    func(ctx context.Context, r *GeneratedResolver, opts QueryShipmentsHandlerOptions) (*ShipmentResultType, error)
+	UserTasks func(ctx context.Context, r *GeneratedResolver, obj *User) (res []*Task, err error)
 
-	ShipmentStartLocation func(ctx context.Context, r *GeneratedResolver, obj *Shipment) (res *Location, err error)
+	CreateTask    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Task, err error)
+	UpdateTask    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Task, err error)
+	DeleteTasks   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
+	RecoveryTasks func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
+	QueryTask     func(ctx context.Context, r *GeneratedResolver, opts QueryTaskHandlerOptions) (*Task, error)
+	QueryTasks    func(ctx context.Context, r *GeneratedResolver, opts QueryTasksHandlerOptions) (*TaskResultType, error)
 
-	ShipmentEndLocation func(ctx context.Context, r *GeneratedResolver, obj *Shipment) (res *Location, err error)
-
-	CreateCarrier    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Carrier, err error)
-	UpdateCarrier    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Carrier, err error)
-	DeleteCarriers   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryCarriers func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryCarrier     func(ctx context.Context, r *GeneratedResolver, id string) (*Carrier, error)
-	QueryCarriers    func(ctx context.Context, r *GeneratedResolver, opts QueryCarriersHandlerOptions) (*CarrierResultType, error)
-
-	CreateLocation    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Location, err error)
-	UpdateLocation    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Location, err error)
-	DeleteLocations   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryLocations func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryLocation     func(ctx context.Context, r *GeneratedResolver, id string) (*Location, error)
-	QueryLocations    func(ctx context.Context, r *GeneratedResolver, opts QueryLocationsHandlerOptions) (*LocationResultType, error)
-
-	LocationStartShipments func(ctx context.Context, r *GeneratedResolver, obj *Location) (res []*Shipment, err error)
-
-	LocationEndShipments func(ctx context.Context, r *GeneratedResolver, obj *Location) (res []*Shipment, err error)
-
-	CreateEquipmentd    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Equipmentd, err error)
-	UpdateEquipmentd    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Equipmentd, err error)
-	DeleteEquipmentds   func(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-	RecoveryEquipmentds func(ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-	QueryEquipmentd     func(ctx context.Context, r *GeneratedResolver, id string) (*Equipmentd, error)
-	QueryEquipmentds    func(ctx context.Context, r *GeneratedResolver, opts QueryEquipmentdsHandlerOptions) (*EquipmentdResultType, error)
+	TaskUser func(ctx context.Context, r *GeneratedResolver, obj *Task) (res *User, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {
 	handlers := ResolutionHandlers{
 		OnEvent: func(ctx context.Context, r *GeneratedResolver, e *Event) error { return nil },
 
-		CreateOrder:    CreateOrderHandler,
-		UpdateOrder:    UpdateOrderHandler,
-		DeleteOrders:   DeleteOrdersHandler,
-		RecoveryOrders: RecoveryOrdersHandler,
-		QueryOrder:     QueryOrderHandler,
-		QueryOrders:    QueryOrdersHandler,
+		CreateUser:    CreateUserHandler,
+		UpdateUser:    UpdateUserHandler,
+		DeleteUsers:   DeleteUsersHandler,
+		RecoveryUsers: RecoveryUsersHandler,
+		QueryUser:     QueryUserHandler,
+		QueryUsers:    QueryUsersHandler,
 
-		CreateShipment:    CreateShipmentHandler,
-		UpdateShipment:    UpdateShipmentHandler,
-		DeleteShipments:   DeleteShipmentsHandler,
-		RecoveryShipments: RecoveryShipmentsHandler,
-		QueryShipment:     QueryShipmentHandler,
-		QueryShipments:    QueryShipmentsHandler,
+		UserTasks: UserTasksHandler,
 
-		ShipmentStartLocation: ShipmentStartLocationHandler,
+		CreateTask:    CreateTaskHandler,
+		UpdateTask:    UpdateTaskHandler,
+		DeleteTasks:   DeleteTasksHandler,
+		RecoveryTasks: RecoveryTasksHandler,
+		QueryTask:     QueryTaskHandler,
+		QueryTasks:    QueryTasksHandler,
 
-		ShipmentEndLocation: ShipmentEndLocationHandler,
-
-		CreateCarrier:    CreateCarrierHandler,
-		UpdateCarrier:    UpdateCarrierHandler,
-		DeleteCarriers:   DeleteCarriersHandler,
-		RecoveryCarriers: RecoveryCarriersHandler,
-		QueryCarrier:     QueryCarrierHandler,
-		QueryCarriers:    QueryCarriersHandler,
-
-		CreateLocation:    CreateLocationHandler,
-		UpdateLocation:    UpdateLocationHandler,
-		DeleteLocations:   DeleteLocationsHandler,
-		RecoveryLocations: RecoveryLocationsHandler,
-		QueryLocation:     QueryLocationHandler,
-		QueryLocations:    QueryLocationsHandler,
-
-		LocationStartShipments: LocationStartShipmentsHandler,
-
-		LocationEndShipments: LocationEndShipmentsHandler,
-
-		CreateEquipmentd:    CreateEquipmentdHandler,
-		UpdateEquipmentd:    UpdateEquipmentdHandler,
-		DeleteEquipmentds:   DeleteEquipmentdsHandler,
-		RecoveryEquipmentds: RecoveryEquipmentdsHandler,
-		QueryEquipmentd:     QueryEquipmentdHandler,
-		QueryEquipmentds:    QueryEquipmentdsHandler,
+		TaskUser: TaskUserHandler,
 	}
 	return handlers
 }

@@ -17,11 +17,13 @@ autobind:
 
 models:
   
-  Order:
-    model: github.com/sj-distributor/dolphin-example/gen.Order
+  User:
+    model: github.com/sj-distributor/dolphin-example/gen.User
     fields:
-  OrderResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.OrderResultType
+      tasks:
+        resolver: true
+  UserResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.UserResultType
     fields:
       data:
         resolver: true
@@ -33,20 +35,18 @@ models:
         resolver: true
       total_page:
         resolver: true
-  OrderCreateInput:
+  UserCreateInput:
     model: "map[string]interface{}"
-  OrderUpdateInput:
+  UserUpdateInput:
     model: "map[string]interface{}"
   
-  Shipment:
-    model: github.com/sj-distributor/dolphin-example/gen.Shipment
+  Task:
+    model: github.com/sj-distributor/dolphin-example/gen.Task
     fields:
-      startLocation:
+      user:
         resolver: true
-      endLocation:
-        resolver: true
-  ShipmentResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.ShipmentResultType
+  TaskResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.TaskResultType
     fields:
       data:
         resolver: true
@@ -58,76 +58,9 @@ models:
         resolver: true
       total_page:
         resolver: true
-  ShipmentCreateInput:
+  TaskCreateInput:
     model: "map[string]interface{}"
-  ShipmentUpdateInput:
-    model: "map[string]interface{}"
-  
-  Carrier:
-    model: github.com/sj-distributor/dolphin-example/gen.Carrier
-    fields:
-  CarrierResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.CarrierResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  CarrierCreateInput:
-    model: "map[string]interface{}"
-  CarrierUpdateInput:
-    model: "map[string]interface{}"
-  
-  Location:
-    model: github.com/sj-distributor/dolphin-example/gen.Location
-    fields:
-      startShipments:
-        resolver: true
-      endShipments:
-        resolver: true
-  LocationResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.LocationResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  LocationCreateInput:
-    model: "map[string]interface{}"
-  LocationUpdateInput:
-    model: "map[string]interface{}"
-  
-  Equipmentd:
-    model: github.com/sj-distributor/dolphin-example/gen.Equipmentd
-    fields:
-  EquipmentdResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.EquipmentdResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  EquipmentdCreateInput:
-    model: "map[string]interface{}"
-  EquipmentdUpdateInput:
+  TaskUpdateInput:
     model: "map[string]interface{}"
   
   _Any:

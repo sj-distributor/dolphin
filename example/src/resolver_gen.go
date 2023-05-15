@@ -28,58 +28,34 @@ func (r *Resolver) Query() gen.QueryResolver {
 	return &QueryResolver{&gen.GeneratedQueryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type OrderResultTypeResolver struct {
-	*gen.GeneratedOrderResultTypeResolver
+type UserResultTypeResolver struct {
+	*gen.GeneratedUserResultTypeResolver
 }
 
-func (r *Resolver) OrderResultType() gen.OrderResultTypeResolver {
-	return &OrderResultTypeResolver{&gen.GeneratedOrderResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) UserResultType() gen.UserResultTypeResolver {
+	return &UserResultTypeResolver{&gen.GeneratedUserResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type ShipmentResultTypeResolver struct {
-	*gen.GeneratedShipmentResultTypeResolver
+type UserResolver struct {
+	*gen.GeneratedUserResolver
 }
 
-func (r *Resolver) ShipmentResultType() gen.ShipmentResultTypeResolver {
-	return &ShipmentResultTypeResolver{&gen.GeneratedShipmentResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) User() gen.UserResolver {
+	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type ShipmentResolver struct {
-	*gen.GeneratedShipmentResolver
+type TaskResultTypeResolver struct {
+	*gen.GeneratedTaskResultTypeResolver
 }
 
-func (r *Resolver) Shipment() gen.ShipmentResolver {
-	return &ShipmentResolver{&gen.GeneratedShipmentResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) TaskResultType() gen.TaskResultTypeResolver {
+	return &TaskResultTypeResolver{&gen.GeneratedTaskResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type CarrierResultTypeResolver struct {
-	*gen.GeneratedCarrierResultTypeResolver
+type TaskResolver struct {
+	*gen.GeneratedTaskResolver
 }
 
-func (r *Resolver) CarrierResultType() gen.CarrierResultTypeResolver {
-	return &CarrierResultTypeResolver{&gen.GeneratedCarrierResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type LocationResultTypeResolver struct {
-	*gen.GeneratedLocationResultTypeResolver
-}
-
-func (r *Resolver) LocationResultType() gen.LocationResultTypeResolver {
-	return &LocationResultTypeResolver{&gen.GeneratedLocationResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type LocationResolver struct {
-	*gen.GeneratedLocationResolver
-}
-
-func (r *Resolver) Location() gen.LocationResolver {
-	return &LocationResolver{&gen.GeneratedLocationResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type EquipmentdResultTypeResolver struct {
-	*gen.GeneratedEquipmentdResultTypeResolver
-}
-
-func (r *Resolver) EquipmentdResultType() gen.EquipmentdResultTypeResolver {
-	return &EquipmentdResultTypeResolver{&gen.GeneratedEquipmentdResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
+func (r *Resolver) Task() gen.TaskResolver {
+	return &TaskResolver{&gen.GeneratedTaskResolver{GeneratedResolver: r.GeneratedResolver}}
 }

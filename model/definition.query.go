@@ -39,7 +39,12 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("id"),
 				// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "Input for searching by object ID"}, // 这是描述说明
-				Type: nonNull(namedType("ID")),
+				Type: namedType("ID"),
+			},
+			{
+				Kind: kinds.InputValueDefinition,
+				Name: nameNode("filter"),
+				Type: namedType(obj.Name() + "FilterType"),
 			},
 		},
 	}

@@ -70,7 +70,7 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 	for _, col := range obj.Columns() {
 		t := col.Def.Type
 
-		if !col.IsUpdatable() || col.IsReadonlyType() {
+		if !col.IsUpdatable() || col.IsReadonlyType() || isListType(getNullableType(t)) {
 			continue
 		}
 

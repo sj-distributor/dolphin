@@ -25,6 +25,13 @@
 3. go install golang.org/x/tools/cmd/goimports
 ```
 
+### 快速上手
+
+1. `go get -d github.com/sj-distributor/dolphin`
+2. `go run github.com/sj-distributor/dolphin init`
+3. 修改 `model` 目录下的`graphql`的文件
+4. `make generate`
+
 ### example 示例说明
   1. `cd example`
   2. 修改 `makefile` 文件的 `DATABASE` 值

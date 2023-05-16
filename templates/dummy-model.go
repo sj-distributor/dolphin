@@ -8,23 +8,13 @@ type User @entity(title: "用户管理") {
 	nickname: String @column(gorm: "type:varchar(64) comment '昵称';DEFAULT NULL;index:nickname;")
 	age: Int @column(gorm: "type:int(3) comment '年龄';default:1;") @validator(type: "int")
 	lastName: String @column
-	tasks: [Task!]! @relationship(inverse:"assignee")
+	tasks: [Task!]! @relationship(inverse:"user")
 }
 
 type Task @entity(title: "任务管理") {
 	title: String @column
 	completed: Boolean @column
 	dueDate: Time @column
-
-	assignee: User @relationship(inverse:"tasks")
-}
-
-type UploadFile @entity(title: "上传文件管理") {
-	name: String! @column(gorm: "type:varchar(255) comment '文件名称';NOT NULL;index:name;") @validator(required: "true", repeat: "no")
-	hash: String! @column(gorm: "type:text comment '文件hash值';NOT NULL;") @validator(required: "true", repeat: "no")
-}
-
-extend type Mutation {
-  upload(files: [FileField!]!): Any @entity(title: "上传文件", default: 1)
+	user: User @relationship(inverse:"tasks")
 }
 `

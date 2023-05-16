@@ -148,7 +148,16 @@ func createMainFile(p string) error {
 func createDummyModelFile(p string) error {
 	data := templates.TemplateData{Model: nil, Config: nil}
 	ensureDir(path.Join(p, "model"))
-	return templates.WriteTemplate(templates.DummyModel, path.Join(p, "model/test.graphql"), data)
+
+	if err := templates.WriteTemplate(templates.DummyModel, path.Join(p, "model/test.graphql"), data); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.UploadModel, path.Join(p, "model/upload.graphql"), data); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createMakeFile(p string) error {

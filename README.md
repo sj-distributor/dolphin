@@ -20,17 +20,23 @@
 
 ### 必做事项
 ```
-1. 设置 GOPATH 环境变量
+1. 安装Golang，设置 GOPATH 环境变量
 2. go get -d golang.org/x/tools/cmd/goimports
 3. go install golang.org/x/tools/cmd/goimports
 ```
 
-### 快速上手
+### 快速上手（执行过前面4步的，可从第5步开始）
 
-1. `go get -d github.com/sj-distributor/dolphin`
-2. `go run github.com/sj-distributor/dolphin init`
-3. 修改 `model` 目录下的`graphql`的文件
-4. `make generate`
+1. `mkdir dolphin-test && cd dolphin-test`
+2. `go mod init github.com/sj-distributor/dolphin-test`
+3. `go get -d github.com/sj-distributor/dolphin`
+4. `go run github.com/sj-distributor/dolphin init`
+5. 修改 `model` 目录下的`graphql`的文件（可选）
+6. 生成代码：`make generate`
+7. 同步表：`make migrate`
+8. 运行：`make start`
+
+#### 可在 `makefile` 文件扩展 `make` 命令
 
 ### example 示例说明
   1. `cd example`

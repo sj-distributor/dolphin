@@ -1,5 +1,6 @@
-package validator
+package templates
 
+var Validator = `package utils
 import (
 	"fmt"
 	"reflect"
@@ -7,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/duke-git/lancet/v2/convertor"
-	"github.com/sj-distributor/dolphin-example/utils"
 )
 
 // generateMap ...
@@ -113,7 +113,7 @@ func CheckMinAndMax(mapData map[string]interface{}, field reflect.Value) error {
 func CheckRuleValue(mapData map[string]interface{}, field reflect.Value) error {
 	if mapData["type"] != nil {
 		value := field.Interface()
-		rl := utils.Rule[mapData["type"].(string)] // utils.Rule 为正则规则
+		rl := Rule[mapData["type"].(string)] // Rule 为正则规则
 		if rl["rgx"] == nil {
 			return fmt.Errorf("type " + mapData["type"].(string) + " is empty")
 		}
@@ -129,8 +129,8 @@ func CheckRuleValue(mapData map[string]interface{}, field reflect.Value) error {
 	return nil
 }
 
-// Validate ...
-func Validate(field reflect.Value, tag reflect.StructTag) error {
+// Struct ...
+func Struct(field reflect.Value, tag reflect.StructTag) error {
 	validator := tag.Get("validator")
 
 	if validator != "" {
@@ -163,18 +163,21 @@ func Validate(field reflect.Value, tag reflect.StructTag) error {
 	return nil
 }
 
-// Struct ...
-func Struct(item interface{}) error {
+// Validate ...
+func Validate(item interface{}) error {
 	data := reflect.ValueOf(item)
 	elem := data.Elem()
 	elemKey := elem.Type()
 
 	for i := 0; i < elem.NumField(); i++ {
+		if strings.Contains(elemKey.Field(i).Type.String(), "*") {
+			continue
+		}
 		tag := elemKey.Field(i).Tag
-
-		if err := Validate(elem.Field(i), tag); err != nil {
+		if err := Struct(elem.Field(i), tag); err != nil {
 			return err
 		}
 	}
 	return nil
 }
+`

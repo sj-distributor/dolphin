@@ -10,7 +10,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/graph-gophers/dataloader"
 	"github.com/99designs/gqlgen/graphql"
-	"{{.Config.Package}}/validator"
+	"{{.Config.Package}}/utils"
 )
 
 type GeneratedMutationResolver struct{ *GeneratedResolver }
@@ -153,6 +153,11 @@ type MutationEvents struct {
 			{{end}}
 		{{end}}
 
+		if err := utils.Validate(item); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		
 	  if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 	  	tx.Rollback()
 	    return item, err
@@ -343,10 +348,10 @@ type MutationEvents struct {
 			{{end}}
 		{{end}}
 
-		// if err := validator.Struct(item); err != nil {
-		// 	tx.Rollback()
-		// 	return nil, err
-		// }
+		if err := utils.Validate(item); err != nil {
+			tx.Rollback()
+			return nil, err
+		}
 	
 		if !isChange {
 			return item, nil

@@ -230,13 +230,12 @@ type UserFilterType struct {
 }
 
 type UserRelationship struct {
-	ID       *string  `json:"id,omitempty"`
-	Phone    string   `json:"phone"`
-	Password string   `json:"password"`
-	Email    *string  `json:"email,omitempty"`
-	Nickname *string  `json:"nickname,omitempty"`
-	Age      *int     `json:"age,omitempty"`
-	TasksIds []string `json:"tasksIds,omitempty"`
+	ID       *string `json:"id,omitempty"`
+	Phone    string  `json:"phone"`
+	Password string  `json:"password"`
+	Email    *string `json:"email,omitempty"`
+	Nickname *string `json:"nickname,omitempty"`
+	Age      *int    `json:"age,omitempty"`
 }
 
 type UserSortType struct {

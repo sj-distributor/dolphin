@@ -159,8 +159,8 @@ func (r *GeneratedUserResolver) Tasks(ctx context.Context, obj *User) (res []*Ta
 	return r.Handlers.UserTasks(ctx, r.GeneratedResolver, obj)
 }
 func UserTasksHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items []*Task, err error) {
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 
+	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	item, _ := loaders["TaskUser"].Load(ctx, dataloader.StringKey(obj.ID))()
 	items = []*Task{}
 	if item != nil {
@@ -336,8 +336,8 @@ func (r *GeneratedTaskResolver) User(ctx context.Context, obj *Task) (res *User,
 	return r.Handlers.TaskUser(ctx, r.GeneratedResolver, obj)
 }
 func TaskUserHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items *User, err error) {
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 
+	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.UserID != nil {
 		item, _ := loaders["User"].Load(ctx, dataloader.StringKey(*obj.UserID))()
 		items, _ = item.(*User)

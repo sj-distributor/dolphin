@@ -227,7 +227,6 @@ input UserRelationship {
   email: String
   nickname: String
   age: Int
-  tasksIds: [ID!]
 }
 
 type UserResultType {

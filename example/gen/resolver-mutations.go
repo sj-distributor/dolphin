@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/sj-distributor/dolphin-example/utils"
 	"gorm.io/gorm/clause"
 )
 
@@ -120,6 +121,11 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	if _, ok := input["age"]; ok && (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) {
 		item.Age = changes.Age
 		event.AddNewValue("age", changes.Age)
+	}
+
+	if err := utils.Validate(item); err != nil {
+		tx.Rollback()
+		return nil, err
 	}
 
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
@@ -293,10 +299,10 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		isChange = true
 	}
 
-	// if err := validator.Struct(item); err != nil {
-	// 	tx.Rollback()
-	// 	return nil, err
-	// }
+	if err := utils.Validate(item); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 
 	if !isChange {
 		return item, nil
@@ -512,6 +518,11 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		event.AddNewValue("userId", changes.UserID)
 	}
 
+	if err := utils.Validate(item); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 		tx.Rollback()
 		return item, err
@@ -644,10 +655,10 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		isChange = true
 	}
 
-	// if err := validator.Struct(item); err != nil {
-	// 	tx.Rollback()
-	// 	return nil, err
-	// }
+	if err := utils.Validate(item); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
 
 	if !isChange {
 		return item, nil

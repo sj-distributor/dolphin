@@ -193,14 +193,24 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 				return r.Handlers.{{$obj.Name}}{{$rel.MethodName}}(ctx, r.GeneratedResolver, obj)
 			}
 			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (items {{$rel.ReturnType}}, err error) {
-				loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 				{{if $rel.IsToMany}}
+					{{if $rel.IsManyToMany}}
+						items   = []*{{$rel.TargetType}}{}
+						selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}")))
+						wheres  := []string{}
+						values  := []interface{}{}
+						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
+						err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Preload("{{$obj.Name}}").Find(&items).Error
+					{{else}}
+						loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 						item, _ := loaders["{{$rel.TargetType}}{{$rel.UpperRelationshipName}}"].Load(ctx, dataloader.StringKey(obj.ID))()
 						items = {{$rel.ReturnType}}{}
 						if item != nil {
 							items = item.({{$rel.ReturnType}})
 						}
+					{{end}}
 				{{else}}
+					loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 					if obj.{{$rel.MethodName}}ID != nil {
 						item, _ := loaders["{{$rel.Target.Name}}"].Load(ctx, dataloader.StringKey(*obj.{{$rel.MethodName}}ID))()
 						items, _ = item.({{$rel.ReturnType}})

@@ -125,7 +125,7 @@ type MutationEvents struct {
 					}
 					
 					{{if $rel.InverseRelationship.IsToOne}}
-					if err := tx.Model(&{{$rel.MethodName}}{}).Where("id = ?", {{$rel.Name}}.ID).Updates({{$rel.MethodName}}{ {{$rel.UpperRelationshipName}}ID: &item.ID}).Error; err != nil {
+					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Updates({{$rel.TargetType}}{ {{$rel.UpperRelationshipName}}ID: &item.ID}).Error; err != nil {
 						tx.Rollback()
 						return nil, err
 					}

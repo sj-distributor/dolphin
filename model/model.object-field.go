@@ -327,6 +327,14 @@ func (o *ObjectField) ModelTags() string {
 		_gorm = "type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"
 	}
 
+	if o.Name() == "weight" {
+		_gorm = "type:int(11) comment '权重：用来排序';default:1;index:weight;"
+	}
+
+	if o.Name() == "state" {
+		_gorm = "type:int(2) comment '状态：1/正常、2/禁用';default:1;index:state;"
+	}
+
 	for _, d := range o.Def.Directives {
 		if d.Name.Value == "column" {
 			for _, arg := range d.Arguments {

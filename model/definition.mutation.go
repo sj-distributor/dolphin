@@ -17,8 +17,7 @@ func mutationDefinition(m *Model) *ast.ObjectDefinition {
 	fields := []*ast.FieldDefinition{}
 
 	for _, obj := range m.ObjectEntities() {
-		// fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj), deleteFieldDefinition(obj), recoveryFieldDefinition(obj))
-		fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj))
+		fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj), deleteFieldDefinition(obj), recoveryFieldDefinition(obj))
 	}
 	return &ast.ObjectDefinition{
 		Kind:   kinds.ObjectDefinition,
@@ -64,6 +63,42 @@ func updateFieldDefinition(obj Object) *ast.FieldDefinition {
 		Arguments: []*ast.InputValueDefinition{
 			&idInput,
 			updateFieldInput(obj),
+		},
+	}
+}
+
+func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
+	return &ast.FieldDefinition{
+		Kind: kinds.FieldDefinition,
+		Name: nameNode("delete" + inflection.Plural(obj.Name())),
+		Type: nonNull(namedType("Boolean")),
+		Arguments: []*ast.InputValueDefinition{
+			{
+				Kind: kinds.InputValueDefinition,
+				Name: nameNode("id"),
+				Type: nonNull(listType(nonNull(namedType("ID")))),
+			},
+			{
+				Kind:         kinds.InputValueDefinition,
+				Name:         nameNode("unscoped"),
+				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},
+				Type:         namedType("Boolean"),
+			},
+		},
+	}
+}
+
+func recoveryFieldDefinition(obj Object) *ast.FieldDefinition {
+	return &ast.FieldDefinition{
+		Kind: kinds.FieldDefinition,
+		Name: nameNode("recovery" + inflection.Plural(obj.Name())),
+		Type: nonNull(namedType("Boolean")),
+		Arguments: []*ast.InputValueDefinition{
+			{
+				Kind: kinds.InputValueDefinition,
+				Name: nameNode("id"),
+				Type: nonNull(listType(nonNull(namedType("ID")))),
+			},
 		},
 	}
 }

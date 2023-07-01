@@ -391,8 +391,12 @@ type MutationEvents struct {
       }
     }()
 
-		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}"), item, &id); err != nil {
-			tx.Rollback()
+		var isDelete int64 = 1
+		if tye == "recovery" {
+			isDelete = 2
+		}
+
+		if err = tx.Unscoped().Where("is_delete = ? and id = ?", isDelete, id).First(item).Error; err != nil {
 			return err
 		}
 
@@ -408,18 +412,15 @@ type MutationEvents struct {
 
 		// 如果是恢复删除数据
 		if tye == "recovery" {
-			if err := tx.Unscoped().Model(&item).Updates(map[string]interface{}{"DeletedAt": nil, "DeletedBy": nil}).Error; err != nil {
-				tx.Rollback()
+			if err := tx.Unscoped().Model(&item).Updates(map[string]interface{}{"IsDelete": 1, "DeletedAt": nil, "DeletedBy": nil}).Error; err != nil {
 				return err
 			}
 		} else {
 			if unscoped != nil && *unscoped == true {
 				if err := tx.Unscoped().Model(&item).Delete(item).Error; err != nil {
-					tx.Rollback()
 					return err
 				}
-			} else if err := tx.Model(&item).Updates({{$obj.Name}}{DeletedAt: &deletedAt, DeletedBy: principalID, UpdatedBy: principalID}).Error; err != nil {
-				tx.Rollback()
+			} else if err := tx.Model(&item).Updates({{$obj.Name}}{IsDelete: &isDelete, DeletedAt: &deletedAt, DeletedBy: principalID, UpdatedBy: principalID}).Error; err != nil {
 				return err
 			}
 		}
@@ -439,6 +440,7 @@ type MutationEvents struct {
 	}
 
 	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool,error) {
+		tx := GetTransaction(ctx)
 		var err error = nil
 
 		if len(id) > 0 {
@@ -451,6 +453,7 @@ type MutationEvents struct {
 		}
 
 		if err != nil {
+			tx.Rollback()
 			return false, err
 		}
 		return true, err

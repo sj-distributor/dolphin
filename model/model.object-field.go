@@ -327,6 +327,10 @@ func (o *ObjectField) ModelTags() string {
 		_gorm = "type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"
 	}
 
+	if o.Name() == "isDelete" {
+		_gorm = "type:int(2) comment '是否删除：1/正常、2/删除';default:1;index:is_delete;"
+	}
+
 	if o.Name() == "weight" {
 		_gorm = "type:int(11) comment '权重：用来排序';default:1;index:weight;"
 	}

@@ -8,6 +8,7 @@ import (
 // EnrichModelObjects ...
 func EnrichModelObjects(m *Model) error {
 	id := columnDefinition("id", "ID", true)
+	isDelete := columnDefinition("isDelete", "Int", false)
 	weight := columnDefinition("weight", "Int", false)
 	state := columnDefinition("state", "Int", false)
 	createdAt := columnDefinition("createdAt", "Int", true)
@@ -24,7 +25,7 @@ func EnrichModelObjects(m *Model) error {
 				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", false))
 			}
 		}
-		o.Def.Fields = append(o.Def.Fields, weight, state, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
+		o.Def.Fields = append(o.Def.Fields, isDelete, weight, state, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
 	}
 	return nil
 }

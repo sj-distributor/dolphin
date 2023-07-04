@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/iancoleman/strcase"
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/sj-distributor/dolphin/templates"
 	"github.com/urfave/cli"
@@ -95,21 +96,9 @@ func fileExists(filename string) bool {
 }
 
 func createConfigFile(p, isAuto string) error {
-	configSource, err := ioutil.ReadFile(path.Join(p, "go.mod"))
+	defaultPackagep, err := getDefaultPackageName(p)
 	if err != nil {
 		return err
-	}
-
-	re := regexp.MustCompile("module .*")
-	defaultPackagep := strings.Replace(re.FindString(string(configSource)), "module ", "", -1)
-
-	if os.Getenv("GOp") != "" {
-		cw, _ := os.Getwd()
-		defaultPackagep, _ = filepath.Rel(os.Getenv("GOp")+"/src", cw)
-	}
-
-	if defaultPackagep == "" {
-		defaultPackagep = "github.com/dolphin/graphql-test"
 	}
 
 	if isAuto != "auto" {
@@ -161,8 +150,14 @@ func createDummyModelFile(p string) error {
 }
 
 func createMakeFile(p string) error {
+	defaultPackagep, err := getDefaultPackageName(p)
+	if err != nil {
+		return err
+	}
+	databaseName := extractRepoName(defaultPackagep)
+
 	data := templates.TemplateData{Model: nil, Config: nil}
-	return templates.WriteTemplate(templates.Makefile, path.Join(p, "makefile"), data)
+	return templates.WriteTemplate(templates.Makefile(databaseName), path.Join(p, "makefile"), data)
 }
 
 // func createDockerFile(p string) error {
@@ -266,4 +261,36 @@ func createUtilsFile(p string) error {
 
 func runGenerate(p string) error {
 	return generate("*.graphql", p)
+}
+
+func getDefaultPackageName(p string) (string, error) {
+	configSource, err := ioutil.ReadFile(path.Join(p, "go.mod"))
+	if err != nil {
+		return "", err
+	}
+
+	re := regexp.MustCompile("module .*")
+	defaultPackagep := strings.Replace(re.FindString(string(configSource)), "module ", "", -1)
+
+	if os.Getenv("GOp") != "" {
+		cw, _ := os.Getwd()
+		defaultPackagep, _ = filepath.Rel(os.Getenv("GOp")+"/src", cw)
+	}
+
+	if defaultPackagep == "" {
+		defaultPackagep = "github.com/dolphin/graphql-test"
+	}
+
+	return defaultPackagep, nil
+}
+
+func extractRepoName(url string) string {
+	index := strings.LastIndex(url, "/")
+
+	if index == -1 || index == len(url)-1 {
+		return ""
+	}
+
+	repoName := url[index+1:]
+	return strcase.ToSnake(repoName)
 }

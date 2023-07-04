@@ -142,9 +142,9 @@ func createDummyModelFile(p string) error {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.UploadModel, path.Join(p, "model/upload.graphql"), data); err != nil {
-		return err
-	}
+	// if err := templates.WriteTemplate(templates.UploadModel, path.Join(p, "model/upload.graphql"), data); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -212,9 +212,9 @@ func createSrcFile(p string) error {
 	}
 	ensureDir(path.Join(p, "src"))
 
-	if err := templates.WriteTemplate(templates.UpLoad, path.Join(p, "src/upload.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
+	// if err := templates.WriteTemplate(templates.UpLoad, path.Join(p, "src/upload.go"), templates.TemplateData{Config: &c}); err != nil {
+	// 	return err
+	// }
 
 	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err

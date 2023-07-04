@@ -24,13 +24,13 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 					}
 			
 					items := &[]{{$object.Name}}{}
-					selects := GetFieldsRequested(ctx, "{{$object.ToLowerPluralName}}")
-					if IndexOf(selects, "{{$object.ToLowerPluralName}}" + ".id") == -1 {
-						selects = append(selects, "{{$object.ToLowerPluralName}}" + ".id")
+					selects := GetFieldsRequested(ctx, "{{$object.ToSnakePluraName}}")
+					if IndexOf(selects, "{{$object.ToSnakePluraName}}" + ".id") == -1 {
+						selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
 					}
 
-					if IndexOf(selects, "{{$object.ToLowerPluralName}}"+".{{$rel.Name}}_id") == -1 {
-						selects = append(selects, "{{$object.ToLowerPluralName}}"+".{{$rel.Name}}_id")
+					if IndexOf(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.Name}}_id") == -1 {
+						selects = append(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.Name}}_id")
 					}
 			
 					res := db.Query().Select(selects).Find(items, "{{$rel.Name}}_id IN (?)", ids)
@@ -80,9 +80,9 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			}
 
 			items := &[]{{$object.Name}}{}
-			selects := GetFieldsRequested(ctx, "{{$object.ToLowerPluralName}}")
-			if len(selects) > 0 && IndexOf(selects, "{{$object.ToLowerPluralName}}" + ".id") == -1 {
-				selects = append(selects, "{{$object.ToLowerPluralName}}" + ".id")
+			selects := GetFieldsRequested(ctx, "{{$object.ToSnakePluraName}}")
+			if len(selects) > 0 && IndexOf(selects, "{{$object.ToSnakePluraName}}" + ".id") == -1 {
+				selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
 			}
 
 			res := db.Query().Select(selects).Find(items, "id IN (?)", ids)

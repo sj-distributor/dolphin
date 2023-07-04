@@ -32,6 +32,9 @@ func (o *Object) LowerName() string {
 func (o *Object) ToSnakeName() string {
 	return strcase.ToSnake(o.Name())
 }
+func (o *Object) ToSnakePluraName() string {
+	return strcase.ToSnake(o.ToLowerPluralName())
+}
 func (o *Object) TableName() string {
 	return strcase.ToSnake(inflection.Plural(o.LowerName()))
 }

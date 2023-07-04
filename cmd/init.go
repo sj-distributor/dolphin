@@ -20,15 +20,12 @@ var initCmd = cli.Command{
 	Name:  "init",
 	Usage: "initialize new project",
 	Action: func(ctx *cli.Context) error {
-		p := ctx.Args().First()
-		if p == "" {
-			p = "."
-		}
+		p := "."
 
 		fmt.Printf("Initializing project in %s\n", p)
 
 		if !fileExists(path.Join(p, "dolphin.yml")) {
-			if err := createConfigFile(p); err != nil {
+			if err := createConfigFile(p, ctx.Args().First()); err != nil {
 				return cli.NewExitError(err, 1)
 			}
 		}
@@ -97,7 +94,7 @@ func fileExists(filename string) bool {
 	return false
 }
 
-func createConfigFile(p string) error {
+func createConfigFile(p, isAuto string) error {
 	configSource, err := ioutil.ReadFile(path.Join(p, "go.mod"))
 	if err != nil {
 		return err
@@ -115,10 +112,13 @@ func createConfigFile(p string) error {
 		defaultPackagep = "github.com/dolphin/graphql-test"
 	}
 
-	packagep := templates.Prompt(fmt.Sprintf("Package p (default: %s)", defaultPackagep))
-	if packagep != "" {
-		defaultPackagep = packagep
+	if isAuto != "auto" {
+		packagep := templates.Prompt(fmt.Sprintf("Package p (default: %s)", defaultPackagep))
+		if packagep != "" {
+			defaultPackagep = packagep
+		}
 	}
+
 	c := model.Config{Package: defaultPackagep}
 
 	content, err := yaml.Marshal(c)

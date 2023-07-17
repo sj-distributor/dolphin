@@ -20,7 +20,13 @@ models:
   User:
     model: github.com/sj-distributor/dolphin-example/gen.User
     fields:
-      tasks:
+      t:
+        resolver: true
+      tt:
+        resolver: true
+      ttt:
+        resolver: true
+      tttt:
         resolver: true
   UserResultType:
     model: github.com/sj-distributor/dolphin-example/gen.UserResultType
@@ -43,7 +49,13 @@ models:
   Task:
     model: github.com/sj-distributor/dolphin-example/gen.Task
     fields:
-      user:
+      u:
+        resolver: true
+      uu:
+        resolver: true
+      uuu:
+        resolver: true
+      uuuu:
         resolver: true
   TaskResultType:
     model: github.com/sj-distributor/dolphin-example/gen.TaskResultType

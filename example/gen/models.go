@@ -24,10 +24,11 @@ type UserResultType struct {
 type User struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
 	Phone     string  `json:"phone" gorm:"type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;" validator:"type:phone;"`
-	Password  string  `json:"password" gorm:"type:varchar(64) comment '登录密码';NOT NULL;" validator:"type:password;"`
-	Email     *string `json:"email" gorm:"type:varchar(64) comment '用户邮箱地址';default:null;" validator:"type:email;"`
-	Nickname  *string `json:"nickname" gorm:"type:varchar(64) comment '昵称';DEFAULT NULL;index:nickname;"`
-	Age       *int64  `json:"age" gorm:"type:int(3) comment '年龄';default:1;" validator:"type:int;"`
+	TID       *string `json:"tId" gorm:"type:varchar(36) comment 't_id';default:null;"`
+	TtID      *string `json:"ttId" gorm:"type:varchar(36) comment 'tt_id';default:null;"`
+	IsDelete  *int64  `json:"isDelete" gorm:"type:int(2) comment '是否删除：1/正常、2/删除';default:1;index:is_delete;"`
+	Weight    *int64  `json:"weight" gorm:"type:int(11) comment '权重：用来排序';default:1;index:weight;"`
+	State     *int64  `json:"state" gorm:"type:int(2) comment '状态：1/正常、2/禁用';default:1;index:state;"`
 	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
 	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
 	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
@@ -35,7 +36,13 @@ type User struct {
 	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
 	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
 
-	Tasks []*Task `json:"tasks" gorm:"foreignkey:UserID"`
+	T *Task `json:"t"`
+
+	Tt *Task `json:"tt"`
+
+	Ttt []*Task `json:"ttt" gorm:"foreignkey:UuuID"`
+
+	Tttt []*Task `json:"tttt" gorm:"many2many:task_uuuu;jointable_foreignkey:uuuu_id;association_jointable_foreignkey:tttt_id"`
 }
 
 func (m *User) Is_Entity() {}
@@ -43,10 +50,11 @@ func (m *User) Is_Entity() {}
 type UserChanges struct {
 	ID        string
 	Phone     string
-	Password  string
-	Email     *string
-	Nickname  *string
-	Age       *int64
+	TID       *string
+	TtID      *string
+	IsDelete  *int64
+	Weight    *int64
+	State     *int64
 	DeletedBy *string
 	UpdatedBy *string
 	CreatedBy *string
@@ -54,9 +62,13 @@ type UserChanges struct {
 	UpdatedAt *int64
 	CreatedAt int64
 
-	Tasks []*Task
+	T    *Task
+	Tt   *Task
+	Ttt  []*Task
+	Tttt []*Task
 
-	TasksIDs []*string
+	TttIDs  []*string
+	TtttIDs []*string
 }
 
 type TaskResultType struct {
@@ -66,7 +78,11 @@ type TaskResultType struct {
 type Task struct {
 	ID        string  `json:"id" gorm:"type:varchar(36) comment 'uuid';primary_key;unique_index;NOT NULL;"`
 	Title     *string `json:"title" gorm:"type:varchar(64) comment '标题';NOT NULL;"`
-	UserID    *string `json:"userId" gorm:"type:varchar(36) comment 'user_id';default:null;"`
+	UID       *string `json:"uId" gorm:"type:varchar(36) comment 'u_id';default:null;"`
+	UuuID     *string `json:"uuuId" gorm:"type:varchar(36) comment 'uuu_id';default:null;"`
+	IsDelete  *int64  `json:"isDelete" gorm:"type:int(2) comment '是否删除：1/正常、2/删除';default:1;index:is_delete;"`
+	Weight    *int64  `json:"weight" gorm:"type:int(11) comment '权重：用来排序';default:1;index:weight;"`
+	State     *int64  `json:"state" gorm:"type:int(2) comment '状态：1/正常、2/禁用';default:1;index:state;"`
 	DeletedBy *string `json:"deletedBy" gorm:"type:varchar(36) comment 'deleted_by';default:null;index:deleted_by;"`
 	UpdatedBy *string `json:"updatedBy" gorm:"type:varchar(36) comment 'updated_by';default:null;index:updated_by;"`
 	CreatedBy *string `json:"createdBy" gorm:"type:varchar(36) comment 'created_by';default:null;index:created_by;"`
@@ -74,7 +90,13 @@ type Task struct {
 	UpdatedAt *int64  `json:"updatedAt" gorm:"type:bigint(13) comment 'updated_at';default:null; autoUpdateTime:milli;"`
 	CreatedAt int64   `json:"createdAt" gorm:"type:bigint(13) comment 'created_at';default:null; autoCreateTime:milli;"`
 
-	User *User `json:"user"`
+	U *User `json:"u"`
+
+	Uu []*User `json:"uu" gorm:"foreignkey:TtID"`
+
+	Uuu *User `json:"uuu"`
+
+	Uuuu []*User `json:"uuuu" gorm:"many2many:task_uuuu;jointable_foreignkey:tttt_id;association_jointable_foreignkey:uuuu_id"`
 }
 
 func (m *Task) Is_Entity() {}
@@ -82,7 +104,11 @@ func (m *Task) Is_Entity() {}
 type TaskChanges struct {
 	ID        string
 	Title     *string
-	UserID    *string
+	UID       *string
+	UuuID     *string
+	IsDelete  *int64
+	Weight    *int64
+	State     *int64
 	DeletedBy *string
 	UpdatedBy *string
 	CreatedBy *string
@@ -90,7 +116,13 @@ type TaskChanges struct {
 	UpdatedAt *int64
 	CreatedAt int64
 
-	User *User
+	U    *User
+	Uu   []*User
+	Uuu  *User
+	Uuuu []*User
+
+	UuIDs   []*string
+	UuuuIDs []*string
 }
 
 // used to convert map[string]interface{} to EntityChanges struct

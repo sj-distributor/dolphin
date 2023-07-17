@@ -37,14 +37,46 @@ type TaskFilterType struct {
 	TitlePrefix   *string           `json:"title_prefix,omitempty"`
 	TitleSuffix   *string           `json:"title_suffix,omitempty"`
 	TitleNull     *bool             `json:"title_null,omitempty"`
-	UserID        *string           `json:"userId,omitempty"`
-	UserIDNe      *string           `json:"userId_ne,omitempty"`
-	UserIDGt      *string           `json:"userId_gt,omitempty"`
-	UserIDLt      *string           `json:"userId_lt,omitempty"`
-	UserIDGte     *string           `json:"userId_gte,omitempty"`
-	UserIDLte     *string           `json:"userId_lte,omitempty"`
-	UserIDIn      []string          `json:"userId_in,omitempty"`
-	UserIDNull    *bool             `json:"userId_null,omitempty"`
+	UID           *string           `json:"uId,omitempty"`
+	UIDNe         *string           `json:"uId_ne,omitempty"`
+	UIDGt         *string           `json:"uId_gt,omitempty"`
+	UIDLt         *string           `json:"uId_lt,omitempty"`
+	UIDGte        *string           `json:"uId_gte,omitempty"`
+	UIDLte        *string           `json:"uId_lte,omitempty"`
+	UIDIn         []string          `json:"uId_in,omitempty"`
+	UIDNull       *bool             `json:"uId_null,omitempty"`
+	UuuID         *string           `json:"uuuId,omitempty"`
+	UuuIDNe       *string           `json:"uuuId_ne,omitempty"`
+	UuuIDGt       *string           `json:"uuuId_gt,omitempty"`
+	UuuIDLt       *string           `json:"uuuId_lt,omitempty"`
+	UuuIDGte      *string           `json:"uuuId_gte,omitempty"`
+	UuuIDLte      *string           `json:"uuuId_lte,omitempty"`
+	UuuIDIn       []string          `json:"uuuId_in,omitempty"`
+	UuuIDNull     *bool             `json:"uuuId_null,omitempty"`
+	IsDelete      *int              `json:"isDelete,omitempty"`
+	IsDeleteNe    *int              `json:"isDelete_ne,omitempty"`
+	IsDeleteGt    *int              `json:"isDelete_gt,omitempty"`
+	IsDeleteLt    *int              `json:"isDelete_lt,omitempty"`
+	IsDeleteGte   *int              `json:"isDelete_gte,omitempty"`
+	IsDeleteLte   *int              `json:"isDelete_lte,omitempty"`
+	IsDeleteIn    []int             `json:"isDelete_in,omitempty"`
+	IsDeleteNull  *bool             `json:"isDelete_null,omitempty"`
+	Weight        *int              `json:"weight,omitempty"`
+	WeightNe      *int              `json:"weight_ne,omitempty"`
+	WeightGt      *int              `json:"weight_gt,omitempty"`
+	WeightLt      *int              `json:"weight_lt,omitempty"`
+	WeightGte     *int              `json:"weight_gte,omitempty"`
+	WeightLte     *int              `json:"weight_lte,omitempty"`
+	WeightIn      []int             `json:"weight_in,omitempty"`
+	WeightNull    *bool             `json:"weight_null,omitempty"`
+	State         *int              `json:"state,omitempty"`
+	StateNe       *int              `json:"state_ne,omitempty"`
+	StateGt       *int              `json:"state_gt,omitempty"`
+	StateLt       *int              `json:"state_lt,omitempty"`
+	StateGte      *int              `json:"state_gte,omitempty"`
+	StateLte      *int              `json:"state_lte,omitempty"`
+	StateIn       []int             `json:"state_in,omitempty"`
+	StateNull     *bool             `json:"state_null,omitempty"`
 	DeletedBy     *string           `json:"deletedBy,omitempty"`
 	DeletedByNe   *string           `json:"deletedBy_ne,omitempty"`
 	DeletedByGt   *string           `json:"deletedBy_gt,omitempty"`
@@ -93,166 +125,190 @@ type TaskFilterType struct {
 	CreatedAtLte  *int              `json:"createdAt_lte,omitempty"`
 	CreatedAtIn   []int             `json:"createdAt_in,omitempty"`
 	CreatedAtNull *bool             `json:"createdAt_null,omitempty"`
-	User          *UserFilterType   `json:"user,omitempty"`
+	U             *UserFilterType   `json:"u,omitempty"`
+	Uu            *UserFilterType   `json:"uu,omitempty"`
+	Uuu           *UserFilterType   `json:"uuu,omitempty"`
+	Uuuu          *UserFilterType   `json:"uuuu,omitempty"`
 }
 
 type TaskRelationship struct {
-	ID     *string `json:"id,omitempty"`
-	Title  *string `json:"title,omitempty"`
-	UserID *string `json:"userId,omitempty"`
+	ID       *string `json:"id,omitempty"`
+	Title    *string `json:"title,omitempty"`
+	UID      *string `json:"uId,omitempty"`
+	UuuID    *string `json:"uuuId,omitempty"`
+	IsDelete *int    `json:"isDelete,omitempty"`
+	Weight   *int    `json:"weight,omitempty"`
+	State    *int    `json:"state,omitempty"`
 }
 
 type TaskSortType struct {
 	ID        *ObjectSortType `json:"id,omitempty"`
 	Title     *ObjectSortType `json:"title,omitempty"`
-	UserID    *ObjectSortType `json:"userId,omitempty"`
+	UID       *ObjectSortType `json:"uId,omitempty"`
+	UuuID     *ObjectSortType `json:"uuuId,omitempty"`
+	IsDelete  *ObjectSortType `json:"isDelete,omitempty"`
+	Weight    *ObjectSortType `json:"weight,omitempty"`
+	State     *ObjectSortType `json:"state,omitempty"`
 	DeletedBy *ObjectSortType `json:"deletedBy,omitempty"`
 	UpdatedBy *ObjectSortType `json:"updatedBy,omitempty"`
 	CreatedBy *ObjectSortType `json:"createdBy,omitempty"`
 	DeletedAt *ObjectSortType `json:"deletedAt,omitempty"`
 	UpdatedAt *ObjectSortType `json:"updatedAt,omitempty"`
 	CreatedAt *ObjectSortType `json:"createdAt,omitempty"`
-	User      *UserSortType   `json:"user,omitempty"`
+	UuIds     *ObjectSortType `json:"uuIds,omitempty"`
+	UuuuIds   *ObjectSortType `json:"uuuuIds,omitempty"`
+	U         *UserSortType   `json:"u,omitempty"`
+	Uu        *UserSortType   `json:"uu,omitempty"`
+	Uuu       *UserSortType   `json:"uuu,omitempty"`
+	Uuuu      *UserSortType   `json:"uuuu,omitempty"`
 }
 
 type UserFilterType struct {
-	And            []*UserFilterType `json:"AND,omitempty"`
-	Or             []*UserFilterType `json:"OR,omitempty"`
-	ID             *string           `json:"id,omitempty"`
-	IDNe           *string           `json:"id_ne,omitempty"`
-	IDGt           *string           `json:"id_gt,omitempty"`
-	IDLt           *string           `json:"id_lt,omitempty"`
-	IDGte          *string           `json:"id_gte,omitempty"`
-	IDLte          *string           `json:"id_lte,omitempty"`
-	IDIn           []string          `json:"id_in,omitempty"`
-	IDNull         *bool             `json:"id_null,omitempty"`
-	Phone          *string           `json:"phone,omitempty"`
-	PhoneNe        *string           `json:"phone_ne,omitempty"`
-	PhoneGt        *string           `json:"phone_gt,omitempty"`
-	PhoneLt        *string           `json:"phone_lt,omitempty"`
-	PhoneGte       *string           `json:"phone_gte,omitempty"`
-	PhoneLte       *string           `json:"phone_lte,omitempty"`
-	PhoneIn        []string          `json:"phone_in,omitempty"`
-	PhoneLike      *string           `json:"phone_like,omitempty"`
-	PhonePrefix    *string           `json:"phone_prefix,omitempty"`
-	PhoneSuffix    *string           `json:"phone_suffix,omitempty"`
-	PhoneNull      *bool             `json:"phone_null,omitempty"`
-	Password       *string           `json:"password,omitempty"`
-	PasswordNe     *string           `json:"password_ne,omitempty"`
-	PasswordGt     *string           `json:"password_gt,omitempty"`
-	PasswordLt     *string           `json:"password_lt,omitempty"`
-	PasswordGte    *string           `json:"password_gte,omitempty"`
-	PasswordLte    *string           `json:"password_lte,omitempty"`
-	PasswordIn     []string          `json:"password_in,omitempty"`
-	PasswordLike   *string           `json:"password_like,omitempty"`
-	PasswordPrefix *string           `json:"password_prefix,omitempty"`
-	PasswordSuffix *string           `json:"password_suffix,omitempty"`
-	PasswordNull   *bool             `json:"password_null,omitempty"`
-	Email          *string           `json:"email,omitempty"`
-	EmailNe        *string           `json:"email_ne,omitempty"`
-	EmailGt        *string           `json:"email_gt,omitempty"`
-	EmailLt        *string           `json:"email_lt,omitempty"`
-	EmailGte       *string           `json:"email_gte,omitempty"`
-	EmailLte       *string           `json:"email_lte,omitempty"`
-	EmailIn        []string          `json:"email_in,omitempty"`
-	EmailLike      *string           `json:"email_like,omitempty"`
-	EmailPrefix    *string           `json:"email_prefix,omitempty"`
-	EmailSuffix    *string           `json:"email_suffix,omitempty"`
-	EmailNull      *bool             `json:"email_null,omitempty"`
-	Nickname       *string           `json:"nickname,omitempty"`
-	NicknameNe     *string           `json:"nickname_ne,omitempty"`
-	NicknameGt     *string           `json:"nickname_gt,omitempty"`
-	NicknameLt     *string           `json:"nickname_lt,omitempty"`
-	NicknameGte    *string           `json:"nickname_gte,omitempty"`
-	NicknameLte    *string           `json:"nickname_lte,omitempty"`
-	NicknameIn     []string          `json:"nickname_in,omitempty"`
-	NicknameLike   *string           `json:"nickname_like,omitempty"`
-	NicknamePrefix *string           `json:"nickname_prefix,omitempty"`
-	NicknameSuffix *string           `json:"nickname_suffix,omitempty"`
-	NicknameNull   *bool             `json:"nickname_null,omitempty"`
-	Age            *int              `json:"age,omitempty"`
-	AgeNe          *int              `json:"age_ne,omitempty"`
-	AgeGt          *int              `json:"age_gt,omitempty"`
-	AgeLt          *int              `json:"age_lt,omitempty"`
-	AgeGte         *int              `json:"age_gte,omitempty"`
-	AgeLte         *int              `json:"age_lte,omitempty"`
-	AgeIn          []int             `json:"age_in,omitempty"`
-	AgeNull        *bool             `json:"age_null,omitempty"`
-	DeletedBy      *string           `json:"deletedBy,omitempty"`
-	DeletedByNe    *string           `json:"deletedBy_ne,omitempty"`
-	DeletedByGt    *string           `json:"deletedBy_gt,omitempty"`
-	DeletedByLt    *string           `json:"deletedBy_lt,omitempty"`
-	DeletedByGte   *string           `json:"deletedBy_gte,omitempty"`
-	DeletedByLte   *string           `json:"deletedBy_lte,omitempty"`
-	DeletedByIn    []string          `json:"deletedBy_in,omitempty"`
-	DeletedByNull  *bool             `json:"deletedBy_null,omitempty"`
-	UpdatedBy      *string           `json:"updatedBy,omitempty"`
-	UpdatedByNe    *string           `json:"updatedBy_ne,omitempty"`
-	UpdatedByGt    *string           `json:"updatedBy_gt,omitempty"`
-	UpdatedByLt    *string           `json:"updatedBy_lt,omitempty"`
-	UpdatedByGte   *string           `json:"updatedBy_gte,omitempty"`
-	UpdatedByLte   *string           `json:"updatedBy_lte,omitempty"`
-	UpdatedByIn    []string          `json:"updatedBy_in,omitempty"`
-	UpdatedByNull  *bool             `json:"updatedBy_null,omitempty"`
-	CreatedBy      *string           `json:"createdBy,omitempty"`
-	CreatedByNe    *string           `json:"createdBy_ne,omitempty"`
-	CreatedByGt    *string           `json:"createdBy_gt,omitempty"`
-	CreatedByLt    *string           `json:"createdBy_lt,omitempty"`
-	CreatedByGte   *string           `json:"createdBy_gte,omitempty"`
-	CreatedByLte   *string           `json:"createdBy_lte,omitempty"`
-	CreatedByIn    []string          `json:"createdBy_in,omitempty"`
-	CreatedByNull  *bool             `json:"createdBy_null,omitempty"`
-	DeletedAt      *int              `json:"deletedAt,omitempty"`
-	DeletedAtNe    *int              `json:"deletedAt_ne,omitempty"`
-	DeletedAtGt    *int              `json:"deletedAt_gt,omitempty"`
-	DeletedAtLt    *int              `json:"deletedAt_lt,omitempty"`
-	DeletedAtGte   *int              `json:"deletedAt_gte,omitempty"`
-	DeletedAtLte   *int              `json:"deletedAt_lte,omitempty"`
-	DeletedAtIn    []int             `json:"deletedAt_in,omitempty"`
-	DeletedAtNull  *bool             `json:"deletedAt_null,omitempty"`
-	UpdatedAt      *int              `json:"updatedAt,omitempty"`
-	UpdatedAtNe    *int              `json:"updatedAt_ne,omitempty"`
-	UpdatedAtGt    *int              `json:"updatedAt_gt,omitempty"`
-	UpdatedAtLt    *int              `json:"updatedAt_lt,omitempty"`
-	UpdatedAtGte   *int              `json:"updatedAt_gte,omitempty"`
-	UpdatedAtLte   *int              `json:"updatedAt_lte,omitempty"`
-	UpdatedAtIn    []int             `json:"updatedAt_in,omitempty"`
-	UpdatedAtNull  *bool             `json:"updatedAt_null,omitempty"`
-	CreatedAt      *int              `json:"createdAt,omitempty"`
-	CreatedAtNe    *int              `json:"createdAt_ne,omitempty"`
-	CreatedAtGt    *int              `json:"createdAt_gt,omitempty"`
-	CreatedAtLt    *int              `json:"createdAt_lt,omitempty"`
-	CreatedAtGte   *int              `json:"createdAt_gte,omitempty"`
-	CreatedAtLte   *int              `json:"createdAt_lte,omitempty"`
-	CreatedAtIn    []int             `json:"createdAt_in,omitempty"`
-	CreatedAtNull  *bool             `json:"createdAt_null,omitempty"`
-	Tasks          *TaskFilterType   `json:"tasks,omitempty"`
+	And           []*UserFilterType `json:"AND,omitempty"`
+	Or            []*UserFilterType `json:"OR,omitempty"`
+	ID            *string           `json:"id,omitempty"`
+	IDNe          *string           `json:"id_ne,omitempty"`
+	IDGt          *string           `json:"id_gt,omitempty"`
+	IDLt          *string           `json:"id_lt,omitempty"`
+	IDGte         *string           `json:"id_gte,omitempty"`
+	IDLte         *string           `json:"id_lte,omitempty"`
+	IDIn          []string          `json:"id_in,omitempty"`
+	IDNull        *bool             `json:"id_null,omitempty"`
+	Phone         *string           `json:"phone,omitempty"`
+	PhoneNe       *string           `json:"phone_ne,omitempty"`
+	PhoneGt       *string           `json:"phone_gt,omitempty"`
+	PhoneLt       *string           `json:"phone_lt,omitempty"`
+	PhoneGte      *string           `json:"phone_gte,omitempty"`
+	PhoneLte      *string           `json:"phone_lte,omitempty"`
+	PhoneIn       []string          `json:"phone_in,omitempty"`
+	PhoneLike     *string           `json:"phone_like,omitempty"`
+	PhonePrefix   *string           `json:"phone_prefix,omitempty"`
+	PhoneSuffix   *string           `json:"phone_suffix,omitempty"`
+	PhoneNull     *bool             `json:"phone_null,omitempty"`
+	TID           *string           `json:"tId,omitempty"`
+	TIDNe         *string           `json:"tId_ne,omitempty"`
+	TIDGt         *string           `json:"tId_gt,omitempty"`
+	TIDLt         *string           `json:"tId_lt,omitempty"`
+	TIDGte        *string           `json:"tId_gte,omitempty"`
+	TIDLte        *string           `json:"tId_lte,omitempty"`
+	TIDIn         []string          `json:"tId_in,omitempty"`
+	TIDNull       *bool             `json:"tId_null,omitempty"`
+	TtID          *string           `json:"ttId,omitempty"`
+	TtIDNe        *string           `json:"ttId_ne,omitempty"`
+	TtIDGt        *string           `json:"ttId_gt,omitempty"`
+	TtIDLt        *string           `json:"ttId_lt,omitempty"`
+	TtIDGte       *string           `json:"ttId_gte,omitempty"`
+	TtIDLte       *string           `json:"ttId_lte,omitempty"`
+	TtIDIn        []string          `json:"ttId_in,omitempty"`
+	TtIDNull      *bool             `json:"ttId_null,omitempty"`
+	IsDelete      *int              `json:"isDelete,omitempty"`
+	IsDeleteNe    *int              `json:"isDelete_ne,omitempty"`
+	IsDeleteGt    *int              `json:"isDelete_gt,omitempty"`
+	IsDeleteLt    *int              `json:"isDelete_lt,omitempty"`
+	IsDeleteGte   *int              `json:"isDelete_gte,omitempty"`
+	IsDeleteLte   *int              `json:"isDelete_lte,omitempty"`
+	IsDeleteIn    []int             `json:"isDelete_in,omitempty"`
+	IsDeleteNull  *bool             `json:"isDelete_null,omitempty"`
+	Weight        *int              `json:"weight,omitempty"`
+	WeightNe      *int              `json:"weight_ne,omitempty"`
+	WeightGt      *int              `json:"weight_gt,omitempty"`
+	WeightLt      *int              `json:"weight_lt,omitempty"`
+	WeightGte     *int              `json:"weight_gte,omitempty"`
+	WeightLte     *int              `json:"weight_lte,omitempty"`
+	WeightIn      []int             `json:"weight_in,omitempty"`
+	WeightNull    *bool             `json:"weight_null,omitempty"`
+	State         *int              `json:"state,omitempty"`
+	StateNe       *int              `json:"state_ne,omitempty"`
+	StateGt       *int              `json:"state_gt,omitempty"`
+	StateLt       *int              `json:"state_lt,omitempty"`
+	StateGte      *int              `json:"state_gte,omitempty"`
+	StateLte      *int              `json:"state_lte,omitempty"`
+	StateIn       []int             `json:"state_in,omitempty"`
+	StateNull     *bool             `json:"state_null,omitempty"`
+	DeletedBy     *string           `json:"deletedBy,omitempty"`
+	DeletedByNe   *string           `json:"deletedBy_ne,omitempty"`
+	DeletedByGt   *string           `json:"deletedBy_gt,omitempty"`
+	DeletedByLt   *string           `json:"deletedBy_lt,omitempty"`
+	DeletedByGte  *string           `json:"deletedBy_gte,omitempty"`
+	DeletedByLte  *string           `json:"deletedBy_lte,omitempty"`
+	DeletedByIn   []string          `json:"deletedBy_in,omitempty"`
+	DeletedByNull *bool             `json:"deletedBy_null,omitempty"`
+	UpdatedBy     *string           `json:"updatedBy,omitempty"`
+	UpdatedByNe   *string           `json:"updatedBy_ne,omitempty"`
+	UpdatedByGt   *string           `json:"updatedBy_gt,omitempty"`
+	UpdatedByLt   *string           `json:"updatedBy_lt,omitempty"`
+	UpdatedByGte  *string           `json:"updatedBy_gte,omitempty"`
+	UpdatedByLte  *string           `json:"updatedBy_lte,omitempty"`
+	UpdatedByIn   []string          `json:"updatedBy_in,omitempty"`
+	UpdatedByNull *bool             `json:"updatedBy_null,omitempty"`
+	CreatedBy     *string           `json:"createdBy,omitempty"`
+	CreatedByNe   *string           `json:"createdBy_ne,omitempty"`
+	CreatedByGt   *string           `json:"createdBy_gt,omitempty"`
+	CreatedByLt   *string           `json:"createdBy_lt,omitempty"`
+	CreatedByGte  *string           `json:"createdBy_gte,omitempty"`
+	CreatedByLte  *string           `json:"createdBy_lte,omitempty"`
+	CreatedByIn   []string          `json:"createdBy_in,omitempty"`
+	CreatedByNull *bool             `json:"createdBy_null,omitempty"`
+	DeletedAt     *int              `json:"deletedAt,omitempty"`
+	DeletedAtNe   *int              `json:"deletedAt_ne,omitempty"`
+	DeletedAtGt   *int              `json:"deletedAt_gt,omitempty"`
+	DeletedAtLt   *int              `json:"deletedAt_lt,omitempty"`
+	DeletedAtGte  *int              `json:"deletedAt_gte,omitempty"`
+	DeletedAtLte  *int              `json:"deletedAt_lte,omitempty"`
+	DeletedAtIn   []int             `json:"deletedAt_in,omitempty"`
+	DeletedAtNull *bool             `json:"deletedAt_null,omitempty"`
+	UpdatedAt     *int              `json:"updatedAt,omitempty"`
+	UpdatedAtNe   *int              `json:"updatedAt_ne,omitempty"`
+	UpdatedAtGt   *int              `json:"updatedAt_gt,omitempty"`
+	UpdatedAtLt   *int              `json:"updatedAt_lt,omitempty"`
+	UpdatedAtGte  *int              `json:"updatedAt_gte,omitempty"`
+	UpdatedAtLte  *int              `json:"updatedAt_lte,omitempty"`
+	UpdatedAtIn   []int             `json:"updatedAt_in,omitempty"`
+	UpdatedAtNull *bool             `json:"updatedAt_null,omitempty"`
+	CreatedAt     *int              `json:"createdAt,omitempty"`
+	CreatedAtNe   *int              `json:"createdAt_ne,omitempty"`
+	CreatedAtGt   *int              `json:"createdAt_gt,omitempty"`
+	CreatedAtLt   *int              `json:"createdAt_lt,omitempty"`
+	CreatedAtGte  *int              `json:"createdAt_gte,omitempty"`
+	CreatedAtLte  *int              `json:"createdAt_lte,omitempty"`
+	CreatedAtIn   []int             `json:"createdAt_in,omitempty"`
+	CreatedAtNull *bool             `json:"createdAt_null,omitempty"`
+	T             *TaskFilterType   `json:"t,omitempty"`
+	Tt            *TaskFilterType   `json:"tt,omitempty"`
+	Ttt           *TaskFilterType   `json:"ttt,omitempty"`
+	Tttt          *TaskFilterType   `json:"tttt,omitempty"`
 }
 
 type UserRelationship struct {
 	ID       *string `json:"id,omitempty"`
 	Phone    string  `json:"phone"`
-	Password string  `json:"password"`
-	Email    *string `json:"email,omitempty"`
-	Nickname *string `json:"nickname,omitempty"`
-	Age      *int    `json:"age,omitempty"`
+	TID      *string `json:"tId,omitempty"`
+	TtID     *string `json:"ttId,omitempty"`
+	IsDelete *int    `json:"isDelete,omitempty"`
+	Weight   *int    `json:"weight,omitempty"`
+	State    *int    `json:"state,omitempty"`
 }
 
 type UserSortType struct {
 	ID        *ObjectSortType `json:"id,omitempty"`
 	Phone     *ObjectSortType `json:"phone,omitempty"`
-	Password  *ObjectSortType `json:"password,omitempty"`
-	Email     *ObjectSortType `json:"email,omitempty"`
-	Nickname  *ObjectSortType `json:"nickname,omitempty"`
-	Age       *ObjectSortType `json:"age,omitempty"`
+	TID       *ObjectSortType `json:"tId,omitempty"`
+	TtID      *ObjectSortType `json:"ttId,omitempty"`
+	IsDelete  *ObjectSortType `json:"isDelete,omitempty"`
+	Weight    *ObjectSortType `json:"weight,omitempty"`
+	State     *ObjectSortType `json:"state,omitempty"`
 	DeletedBy *ObjectSortType `json:"deletedBy,omitempty"`
 	UpdatedBy *ObjectSortType `json:"updatedBy,omitempty"`
 	CreatedBy *ObjectSortType `json:"createdBy,omitempty"`
 	DeletedAt *ObjectSortType `json:"deletedAt,omitempty"`
 	UpdatedAt *ObjectSortType `json:"updatedAt,omitempty"`
 	CreatedAt *ObjectSortType `json:"createdAt,omitempty"`
-	TasksIds  *ObjectSortType `json:"tasksIds,omitempty"`
-	Tasks     *TaskSortType   `json:"tasks,omitempty"`
+	TttIds    *ObjectSortType `json:"tttIds,omitempty"`
+	TtttIds   *ObjectSortType `json:"ttttIds,omitempty"`
+	T         *TaskSortType   `json:"t,omitempty"`
+	Tt        *TaskSortType   `json:"tt,omitempty"`
+	Ttt       *TaskSortType   `json:"ttt,omitempty"`
+	Tttt      *TaskSortType   `json:"tttt,omitempty"`
 }
 
 type ObjectSortType string

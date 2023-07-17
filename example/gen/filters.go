@@ -64,10 +64,37 @@ func (f *UserFilterType) ApplyWithAlias(ctx context.Context, alias string, where
 		*joins = append(*joins, js...)
 	}
 
-	if f.Tasks != nil {
-		_alias := alias + "_tasks"
-		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+"."+"user_id"+" = "+alias+".id")
-		err := f.Tasks.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+	if f.T != nil {
+		_alias := alias + "_t"
+		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"t_id")
+		err := f.T.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Tt != nil {
+		_alias := alias + "_tt"
+		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"tt_id")
+		err := f.Tt.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Ttt != nil {
+		_alias := alias + "_ttt"
+		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+"."+"uuu_id"+" = "+alias+".id")
+		err := f.Ttt.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Tttt != nil {
+		_alias := alias + "_tttt"
+		*joins = append(*joins, "LEFT JOIN "+"task_uuuu"+" "+_alias+"_jointable"+" ON "+alias+".id = "+_alias+"_jointable"+"."+"uuuu_id"+" LEFT JOIN "+TableName("tasks")+" "+_alias+" ON "+_alias+"_jointable"+"."+"tttt_id"+" = "+_alias+".id")
+		err := f.Tttt.ApplyWithAlias(ctx, _alias, wheres, values, joins)
 		if err != nil {
 			return err
 		}
@@ -181,220 +208,218 @@ func (f *UserFilterType) WhereContent(aliasPrefix string) (conditions []string, 
 		}
 	}
 
-	if f.Password != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" = ?")
-		values = append(values, f.Password)
+	if f.TID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" = ?")
+		values = append(values, f.TID)
 	}
 
-	if f.PasswordNe != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" != ?")
-		values = append(values, f.PasswordNe)
+	if f.TIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" != ?")
+		values = append(values, f.TIDNe)
 	}
 
-	if f.PasswordGt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" > ?")
-		values = append(values, f.PasswordGt)
+	if f.TIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" > ?")
+		values = append(values, f.TIDGt)
 	}
 
-	if f.PasswordLt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" < ?")
-		values = append(values, f.PasswordLt)
+	if f.TIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" < ?")
+		values = append(values, f.TIDLt)
 	}
 
-	if f.PasswordGte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" >= ?")
-		values = append(values, f.PasswordGte)
+	if f.TIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" >= ?")
+		values = append(values, f.TIDGte)
 	}
 
-	if f.PasswordLte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" <= ?")
-		values = append(values, f.PasswordLte)
+	if f.TIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" <= ?")
+		values = append(values, f.TIDLte)
 	}
 
-	if f.PasswordIn != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" IN (?)")
-		values = append(values, f.PasswordIn)
+	if f.TIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("tId")+" IN (?)")
+		values = append(values, f.TIDIn)
 	}
 
-	if f.PasswordLike != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" LIKE ?")
-		values = append(values, "%"+strings.Replace(strings.Replace(*f.PasswordLike, "?", "_", -1), "*", "%", -1)+"%")
-	}
-
-	if f.PasswordPrefix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%s%%", *f.PasswordPrefix))
-	}
-
-	if f.PasswordSuffix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("password")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%%%s", *f.PasswordSuffix))
-	}
-
-	if f.PasswordNull != nil {
-		if *f.PasswordNull {
-			conditions = append(conditions, aliasPrefix+SnakeString("password")+" IS NULL"+" OR "+aliasPrefix+SnakeString("password")+" =''")
+	if f.TIDNull != nil {
+		if *f.TIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("tId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("tId")+" =''")
 		} else {
-			conditions = append(conditions, aliasPrefix+SnakeString("password")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("password")+" <> ''")
+			conditions = append(conditions, aliasPrefix+SnakeString("tId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("tId")+" <> ''")
 		}
 	}
 
-	if f.Email != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" = ?")
-		values = append(values, f.Email)
+	if f.TtID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" = ?")
+		values = append(values, f.TtID)
 	}
 
-	if f.EmailNe != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" != ?")
-		values = append(values, f.EmailNe)
+	if f.TtIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" != ?")
+		values = append(values, f.TtIDNe)
 	}
 
-	if f.EmailGt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" > ?")
-		values = append(values, f.EmailGt)
+	if f.TtIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" > ?")
+		values = append(values, f.TtIDGt)
 	}
 
-	if f.EmailLt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" < ?")
-		values = append(values, f.EmailLt)
+	if f.TtIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" < ?")
+		values = append(values, f.TtIDLt)
 	}
 
-	if f.EmailGte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" >= ?")
-		values = append(values, f.EmailGte)
+	if f.TtIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" >= ?")
+		values = append(values, f.TtIDGte)
 	}
 
-	if f.EmailLte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" <= ?")
-		values = append(values, f.EmailLte)
+	if f.TtIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" <= ?")
+		values = append(values, f.TtIDLte)
 	}
 
-	if f.EmailIn != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" IN (?)")
-		values = append(values, f.EmailIn)
+	if f.TtIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" IN (?)")
+		values = append(values, f.TtIDIn)
 	}
 
-	if f.EmailLike != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" LIKE ?")
-		values = append(values, "%"+strings.Replace(strings.Replace(*f.EmailLike, "?", "_", -1), "*", "%", -1)+"%")
-	}
-
-	if f.EmailPrefix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%s%%", *f.EmailPrefix))
-	}
-
-	if f.EmailSuffix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("email")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%%%s", *f.EmailSuffix))
-	}
-
-	if f.EmailNull != nil {
-		if *f.EmailNull {
-			conditions = append(conditions, aliasPrefix+SnakeString("email")+" IS NULL"+" OR "+aliasPrefix+SnakeString("email")+" =''")
+	if f.TtIDNull != nil {
+		if *f.TtIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("ttId")+" =''")
 		} else {
-			conditions = append(conditions, aliasPrefix+SnakeString("email")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("email")+" <> ''")
+			conditions = append(conditions, aliasPrefix+SnakeString("ttId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("ttId")+" <> ''")
 		}
 	}
 
-	if f.Nickname != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" = ?")
-		values = append(values, f.Nickname)
+	if f.IsDelete != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" = ?")
+		values = append(values, f.IsDelete)
 	}
 
-	if f.NicknameNe != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" != ?")
-		values = append(values, f.NicknameNe)
+	if f.IsDeleteNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" != ?")
+		values = append(values, f.IsDeleteNe)
 	}
 
-	if f.NicknameGt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" > ?")
-		values = append(values, f.NicknameGt)
+	if f.IsDeleteGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" > ?")
+		values = append(values, f.IsDeleteGt)
 	}
 
-	if f.NicknameLt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" < ?")
-		values = append(values, f.NicknameLt)
+	if f.IsDeleteLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" < ?")
+		values = append(values, f.IsDeleteLt)
 	}
 
-	if f.NicknameGte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" >= ?")
-		values = append(values, f.NicknameGte)
+	if f.IsDeleteGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" >= ?")
+		values = append(values, f.IsDeleteGte)
 	}
 
-	if f.NicknameLte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" <= ?")
-		values = append(values, f.NicknameLte)
+	if f.IsDeleteLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" <= ?")
+		values = append(values, f.IsDeleteLte)
 	}
 
-	if f.NicknameIn != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" IN (?)")
-		values = append(values, f.NicknameIn)
+	if f.IsDeleteIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IN (?)")
+		values = append(values, f.IsDeleteIn)
 	}
 
-	if f.NicknameLike != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" LIKE ?")
-		values = append(values, "%"+strings.Replace(strings.Replace(*f.NicknameLike, "?", "_", -1), "*", "%", -1)+"%")
-	}
-
-	if f.NicknamePrefix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%s%%", *f.NicknamePrefix))
-	}
-
-	if f.NicknameSuffix != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" LIKE ?")
-		values = append(values, fmt.Sprintf("%%%s", *f.NicknameSuffix))
-	}
-
-	if f.NicknameNull != nil {
-		if *f.NicknameNull {
-			conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" IS NULL"+" OR "+aliasPrefix+SnakeString("nickname")+" =''")
+	if f.IsDeleteNull != nil {
+		if *f.IsDeleteNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IS NULL"+" OR "+aliasPrefix+SnakeString("isDelete")+" =''")
 		} else {
-			conditions = append(conditions, aliasPrefix+SnakeString("nickname")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("nickname")+" <> ''")
+			conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("isDelete")+" <> ''")
 		}
 	}
 
-	if f.Age != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" = ?")
-		values = append(values, f.Age)
+	if f.Weight != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" = ?")
+		values = append(values, f.Weight)
 	}
 
-	if f.AgeNe != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" != ?")
-		values = append(values, f.AgeNe)
+	if f.WeightNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" != ?")
+		values = append(values, f.WeightNe)
 	}
 
-	if f.AgeGt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" > ?")
-		values = append(values, f.AgeGt)
+	if f.WeightGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" > ?")
+		values = append(values, f.WeightGt)
 	}
 
-	if f.AgeLt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" < ?")
-		values = append(values, f.AgeLt)
+	if f.WeightLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" < ?")
+		values = append(values, f.WeightLt)
 	}
 
-	if f.AgeGte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" >= ?")
-		values = append(values, f.AgeGte)
+	if f.WeightGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" >= ?")
+		values = append(values, f.WeightGte)
 	}
 
-	if f.AgeLte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" <= ?")
-		values = append(values, f.AgeLte)
+	if f.WeightLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" <= ?")
+		values = append(values, f.WeightLte)
 	}
 
-	if f.AgeIn != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("age")+" IN (?)")
-		values = append(values, f.AgeIn)
+	if f.WeightIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IN (?)")
+		values = append(values, f.WeightIn)
 	}
 
-	if f.AgeNull != nil {
-		if *f.AgeNull {
-			conditions = append(conditions, aliasPrefix+SnakeString("age")+" IS NULL"+" OR "+aliasPrefix+SnakeString("age")+" =''")
+	if f.WeightNull != nil {
+		if *f.WeightNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IS NULL"+" OR "+aliasPrefix+SnakeString("weight")+" =''")
 		} else {
-			conditions = append(conditions, aliasPrefix+SnakeString("age")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("age")+" <> ''")
+			conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("weight")+" <> ''")
+		}
+	}
+
+	if f.State != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" = ?")
+		values = append(values, f.State)
+	}
+
+	if f.StateNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" != ?")
+		values = append(values, f.StateNe)
+	}
+
+	if f.StateGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" > ?")
+		values = append(values, f.StateGt)
+	}
+
+	if f.StateLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" < ?")
+		values = append(values, f.StateLt)
+	}
+
+	if f.StateGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" >= ?")
+		values = append(values, f.StateGte)
+	}
+
+	if f.StateLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" <= ?")
+		values = append(values, f.StateLte)
+	}
+
+	if f.StateIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" IN (?)")
+		values = append(values, f.StateIn)
+	}
+
+	if f.StateNull != nil {
+		if *f.StateNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("state")+" IS NULL"+" OR "+aliasPrefix+SnakeString("state")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("state")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("state")+" <> ''")
 		}
 	}
 
@@ -749,10 +774,37 @@ func (f *TaskFilterType) ApplyWithAlias(ctx context.Context, alias string, where
 		*joins = append(*joins, js...)
 	}
 
-	if f.User != nil {
-		_alias := alias + "_user"
-		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"user_id")
-		err := f.User.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+	if f.U != nil {
+		_alias := alias + "_u"
+		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"u_id")
+		err := f.U.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Uu != nil {
+		_alias := alias + "_uu"
+		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+"."+"tt_id"+" = "+alias+".id")
+		err := f.Uu.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Uuu != nil {
+		_alias := alias + "_uuu"
+		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"uuu_id")
+		err := f.Uuu.ApplyWithAlias(ctx, _alias, wheres, values, joins)
+		if err != nil {
+			return err
+		}
+	}
+
+	if f.Uuuu != nil {
+		_alias := alias + "_uuuu"
+		*joins = append(*joins, "LEFT JOIN "+"task_uuuu"+" "+_alias+"_jointable"+" ON "+alias+".id = "+_alias+"_jointable"+"."+"tttt_id"+" LEFT JOIN "+TableName("users")+" "+_alias+" ON "+_alias+"_jointable"+"."+"uuuu_id"+" = "+_alias+".id")
+		err := f.Uuuu.ApplyWithAlias(ctx, _alias, wheres, values, joins)
 		if err != nil {
 			return err
 		}
@@ -866,46 +918,218 @@ func (f *TaskFilterType) WhereContent(aliasPrefix string) (conditions []string, 
 		}
 	}
 
-	if f.UserID != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" = ?")
-		values = append(values, f.UserID)
+	if f.UID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" = ?")
+		values = append(values, f.UID)
 	}
 
-	if f.UserIDNe != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" != ?")
-		values = append(values, f.UserIDNe)
+	if f.UIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" != ?")
+		values = append(values, f.UIDNe)
 	}
 
-	if f.UserIDGt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" > ?")
-		values = append(values, f.UserIDGt)
+	if f.UIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" > ?")
+		values = append(values, f.UIDGt)
 	}
 
-	if f.UserIDLt != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" < ?")
-		values = append(values, f.UserIDLt)
+	if f.UIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" < ?")
+		values = append(values, f.UIDLt)
 	}
 
-	if f.UserIDGte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" >= ?")
-		values = append(values, f.UserIDGte)
+	if f.UIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" >= ?")
+		values = append(values, f.UIDGte)
 	}
 
-	if f.UserIDLte != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" <= ?")
-		values = append(values, f.UserIDLte)
+	if f.UIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" <= ?")
+		values = append(values, f.UIDLte)
 	}
 
-	if f.UserIDIn != nil {
-		conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IN (?)")
-		values = append(values, f.UserIDIn)
+	if f.UIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uId")+" IN (?)")
+		values = append(values, f.UIDIn)
 	}
 
-	if f.UserIDNull != nil {
-		if *f.UserIDNull {
-			conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("userId")+" =''")
+	if f.UIDNull != nil {
+		if *f.UIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("uId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("uId")+" =''")
 		} else {
-			conditions = append(conditions, aliasPrefix+SnakeString("userId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("userId")+" <> ''")
+			conditions = append(conditions, aliasPrefix+SnakeString("uId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("uId")+" <> ''")
+		}
+	}
+
+	if f.UuuID != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" = ?")
+		values = append(values, f.UuuID)
+	}
+
+	if f.UuuIDNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" != ?")
+		values = append(values, f.UuuIDNe)
+	}
+
+	if f.UuuIDGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" > ?")
+		values = append(values, f.UuuIDGt)
+	}
+
+	if f.UuuIDLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" < ?")
+		values = append(values, f.UuuIDLt)
+	}
+
+	if f.UuuIDGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" >= ?")
+		values = append(values, f.UuuIDGte)
+	}
+
+	if f.UuuIDLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" <= ?")
+		values = append(values, f.UuuIDLte)
+	}
+
+	if f.UuuIDIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" IN (?)")
+		values = append(values, f.UuuIDIn)
+	}
+
+	if f.UuuIDNull != nil {
+		if *f.UuuIDNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" IS NULL"+" OR "+aliasPrefix+SnakeString("uuuId")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("uuuId")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("uuuId")+" <> ''")
+		}
+	}
+
+	if f.IsDelete != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" = ?")
+		values = append(values, f.IsDelete)
+	}
+
+	if f.IsDeleteNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" != ?")
+		values = append(values, f.IsDeleteNe)
+	}
+
+	if f.IsDeleteGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" > ?")
+		values = append(values, f.IsDeleteGt)
+	}
+
+	if f.IsDeleteLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" < ?")
+		values = append(values, f.IsDeleteLt)
+	}
+
+	if f.IsDeleteGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" >= ?")
+		values = append(values, f.IsDeleteGte)
+	}
+
+	if f.IsDeleteLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" <= ?")
+		values = append(values, f.IsDeleteLte)
+	}
+
+	if f.IsDeleteIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IN (?)")
+		values = append(values, f.IsDeleteIn)
+	}
+
+	if f.IsDeleteNull != nil {
+		if *f.IsDeleteNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IS NULL"+" OR "+aliasPrefix+SnakeString("isDelete")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("isDelete")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("isDelete")+" <> ''")
+		}
+	}
+
+	if f.Weight != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" = ?")
+		values = append(values, f.Weight)
+	}
+
+	if f.WeightNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" != ?")
+		values = append(values, f.WeightNe)
+	}
+
+	if f.WeightGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" > ?")
+		values = append(values, f.WeightGt)
+	}
+
+	if f.WeightLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" < ?")
+		values = append(values, f.WeightLt)
+	}
+
+	if f.WeightGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" >= ?")
+		values = append(values, f.WeightGte)
+	}
+
+	if f.WeightLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" <= ?")
+		values = append(values, f.WeightLte)
+	}
+
+	if f.WeightIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IN (?)")
+		values = append(values, f.WeightIn)
+	}
+
+	if f.WeightNull != nil {
+		if *f.WeightNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IS NULL"+" OR "+aliasPrefix+SnakeString("weight")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("weight")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("weight")+" <> ''")
+		}
+	}
+
+	if f.State != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" = ?")
+		values = append(values, f.State)
+	}
+
+	if f.StateNe != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" != ?")
+		values = append(values, f.StateNe)
+	}
+
+	if f.StateGt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" > ?")
+		values = append(values, f.StateGt)
+	}
+
+	if f.StateLt != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" < ?")
+		values = append(values, f.StateLt)
+	}
+
+	if f.StateGte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" >= ?")
+		values = append(values, f.StateGte)
+	}
+
+	if f.StateLte != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" <= ?")
+		values = append(values, f.StateLte)
+	}
+
+	if f.StateIn != nil {
+		conditions = append(conditions, aliasPrefix+SnakeString("state")+" IN (?)")
+		values = append(values, f.StateIn)
+	}
+
+	if f.StateNull != nil {
+		if *f.StateNull {
+			conditions = append(conditions, aliasPrefix+SnakeString("state")+" IS NULL"+" OR "+aliasPrefix+SnakeString("state")+" =''")
+		} else {
+			conditions = append(conditions, aliasPrefix+SnakeString("state")+" IS NOT NULL"+" OR "+aliasPrefix+SnakeString("state")+" <> ''")
 		}
 	}
 

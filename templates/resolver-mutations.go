@@ -75,23 +75,27 @@ type MutationEvents struct {
 				}
 
 				var {{$rel.Name}}Ids []string
-
+				var create{{$rel.MethodName}} []*{{$rel.TargetType}}
+				var update{{$rel.MethodName}} []*{{$rel.TargetType}}
 				if _, ok := input["{{$rel.Name}}"]; ok {
-					var {{$rel.Name}}Maps []map[string]interface{}
-					for _, v := range input["{{$rel.Name}}"].([]interface{}) {
-						{{$rel.Name}}Maps = append({{$rel.Name}}Maps, v.(map[string]interface{}))
-					}
-
-					for _, v := range {{$rel.Name}}Maps {
-						var {{$rel.Name}} *{{$rel.TargetType}}
-						if v["id"] == nil {
-							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v)
+					for _, v := range changes.{{$rel.MethodName}} {
+						if v.ID == "" {
+							v.ID = uuid.Must(uuid.NewV4()).String()
+							v.CreatedAt = milliTime
+							v.CreatedBy = principalID
+							create{{$rel.MethodName}} = append(create{{$rel.MethodName}}, v)
 						} else {
-							{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, v["id"].(string), v)
+							opts := Query{{$rel.TargetType}}HandlerOptions{
+								ID: &v.ID,
+							}
+							if _, err = r.Handlers.Query{{$rel.TargetType}}(ctx, r, opts); err != nil {
+								tx.Rollback()
+								return nil, err
+							}
+							v.UpdatedAt = &milliTime
+							v.UpdatedBy = principalID
+							update{{$rel.MethodName}} = append(update{{$rel.MethodName}}, v)
 						}
-
-						changes.{{$rel.MethodName}} = append(changes.{{$rel.MethodName}}, {{$rel.Name}})
-						{{$rel.Name}}Ids = append({{$rel.Name}}Ids, {{$rel.Name}}.ID)
 					}
 					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
 					item.{{$rel.MethodName}} = changes.{{$rel.MethodName}}
@@ -104,16 +108,22 @@ type MutationEvents struct {
 				}
 
 			{{else}}
-				if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
-					tx.Rollback()
-					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
-				}
+				{{if $rel.InverseRelationship.IsToOne}}
+					if input["{{$rel.Name}}"] != nil && input["{{$rel.Name}}Id"] != nil {
+						tx.Rollback()
+						return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+					}
+				{{end}}
 
 				if _, ok := input["{{$rel.Name}}"]; ok {
 					var {{$rel.Name}} *{{$rel.TargetType}}
 					{{$rel.Name}}Input := input["{{$rel.Name}}"].(map[string]interface{})
 			
 					if {{$rel.Name}}Input["id"] == nil {
+						{{if and ($rel.IsToOne) $rel.InverseRelationship.IsToOne}}
+							// one to one
+							{{$rel.Name}}Input["{{$rel.InverseRelationshipName}}Id"] = item.ID
+						{{end}}
 						{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input)
 					} else {
 						{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
@@ -125,10 +135,10 @@ type MutationEvents struct {
 					}
 					
 					{{if $rel.InverseRelationship.IsToOne}}
-					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Updates({{$rel.TargetType}}{ {{$rel.UpperRelationshipName}}ID: &item.ID}).Error; err != nil {
-						tx.Rollback()
-						return nil, err
-					}
+					// if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Updates({{$rel.TargetType}}{ {{$rel.UpperRelationshipName}}ID: &item.ID}).Error; err != nil {
+					// 	tx.Rollback()
+					// 	return nil, err
+					// }
 					{{end}}
 
 					event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
@@ -165,8 +175,15 @@ type MutationEvents struct {
 
 		{{range $rel := .Relationships}}
 			{{if $rel.IsToMany}}
-				if len({{$rel.Name}}Ids) > 0 {
-					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id IN(?)", {{$rel.Name}}Ids).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
+				// todo 添加权限验证
+				if len(create{{$rel.MethodName}}) > 0 {
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(create{{$rel.MethodName}}); err != nil {
+						tx.Rollback()
+						return item, err
+					}
+				}
+				if len(update{{$rel.MethodName}}) > 0 {
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(update{{$rel.MethodName}}); err != nil {
 						tx.Rollback()
 						return item, err
 					}
@@ -311,16 +328,18 @@ type MutationEvents struct {
 					tx.Rollback()
 					return nil, fmt.Errorf(fmt.Sprintf("{{$rel.Name}} %s", err.Error()))
 				}
+				
+				{{if not $rel.IsToOne}}
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Clear(); err != nil {
+						tx.Rollback()
+						return nil, err
+					}
 
-				if err := tx.Model(&item).Association("{{$rel.MethodName}}").Clear(); err != nil {
-					tx.Rollback()
-					return nil, err
-				}
-
-				if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
-					tx.Rollback()
-					return nil, err
-				}
+					if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", {{$rel.Name}}.ID).Update("{{$rel.ToSnakeRelationshipName}}_id", item.ID).Error; err != nil {
+						tx.Rollback()
+						return nil, err
+					}
+				{{end}}
 			
 				event.AddOldValue("{{$rel.Name}}", item.{{$rel.MethodName}})
 				event.AddNewValue("{{$rel.Name}}", changes.{{$rel.MethodName}})
@@ -390,13 +409,15 @@ type MutationEvents struct {
         tx.Rollback()
       }
     }()
-
-		var isDelete int64 = 1
+		
+		var status int64 = 1
+		var isDelete int64 = 2
 		if tye == "recovery" {
-			isDelete = 2
+			isDelete = 1
+			status = 2
 		}
 
-		if err = tx.Unscoped().Where("is_delete = ? and id = ?", isDelete, id).First(item).Error; err != nil {
+		if err = tx.Unscoped().Where("is_delete = ? and id = ?", status, id).First(item).Error; err != nil {
 			return err
 		}
 

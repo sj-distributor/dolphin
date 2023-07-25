@@ -10,12 +10,15 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
+	"{{.Config.Package}}/auth"
 
-	jwtgo "github.com/golang-jwt/jwt/v4"
+	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
-func GetHTTPServeMux(r ResolverRoot, db *DB) *http.ServeMux {
-	mux := http.NewServeMux()
+func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
+	mux := mux.NewRouter()
+	mux.Use(auth.Handler)
 
 	executableSchema := NewExecutableSchema(Config{Resolvers: r})
 	gqlHandler := handler.NewDefaultServer(executableSchema)

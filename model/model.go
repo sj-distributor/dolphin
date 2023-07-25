@@ -11,6 +11,10 @@ type Model struct {
 	// Objects []Object
 }
 
+func (m *Model) SecretKey() string {
+	return GetRandomString(32)
+}
+
 var defaultScalars map[string]bool = map[string]bool{
 	"Int":     true,
 	"Float":   true,

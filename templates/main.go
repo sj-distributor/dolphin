@@ -87,6 +87,9 @@ func startServer(enableCors bool, port string) error {
 	db := gen.NewDBFromEnvVars("")
 	defer db.Close()
 
+	// 加载配置文件
+	src.Config()
+
 	eventController, err := gen.NewEventController()
 	if err != nil {
 		return err

@@ -30,7 +30,10 @@ type MutationEvents struct {
 	}
 	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
-
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return item, err
+		}
+	
 		now := time.Now()
 		milliTime := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
@@ -209,7 +212,9 @@ type MutationEvents struct {
 	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
 		newItem := &{{$obj.Name}}{}
-
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return item, err
+		}
 
 		isChange := false
 		now := time.Now()
@@ -463,6 +468,9 @@ type MutationEvents struct {
 	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool,error) {
 		tx := GetTransaction(ctx)
 		var err error = nil
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return false, err
+		}
 
 		if len(id) > 0 {
 			for _, v := range id {
@@ -489,7 +497,10 @@ type MutationEvents struct {
 
 	func Recovery{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string) (bool,error) {
 		var err error = nil
-
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return false, err
+		}
+	
 		var unscoped bool = false
 
 		if len(id) > 0 {

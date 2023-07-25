@@ -202,6 +202,18 @@ func createAuthFile(p string) error {
 		return err
 	}
 
+	if err := templates.WriteTemplate(templates.AuthHandler, path.Join(p, "auth/handler.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth-router.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open-routes.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -243,7 +255,9 @@ func createUtilsFile(p string) error {
 		return err
 	}
 	ensureDir(path.Join(p, "utils"))
-
+	if err := templates.WriteTemplate(templates.ResolverSrcUtils, path.Join(p, "utils/utils.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.Rule, path.Join(p, "utils/rule.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}

@@ -1,7 +1,7 @@
 package auth
 
 import (
-	jwtgo "github.com/golang-jwt/jwt/v4"
+	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
 type JWTClaims struct {

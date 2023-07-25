@@ -29,6 +29,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts)
 	}
 	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error) {
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return nil, err
+		}
+	
 		selection := []ast.Selection{}
 		for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 			selection = append(selection, f.Field)
@@ -86,6 +90,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		return r.Handlers.Query{{$obj.PluralName}}(ctx, r.GeneratedResolver, opts)
 	}
 	func Query{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions) (*{{$obj.Name}}ResultType, error) {
+		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+			return nil, err
+		}
+	
 		query := {{$obj.Name}}QueryFilter{opts.Q}
 
 		var selectionSet *ast.SelectionSet

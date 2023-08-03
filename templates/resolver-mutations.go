@@ -21,16 +21,16 @@ type MutationEvents struct {
 {{range $obj := .Model.ObjectEntities}}
 	func (r *GeneratedMutationResolver) Create{{$obj.Name}}(ctx context.Context, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input)
+		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input, true)
 		if err!=nil{
 			return
 		}
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
-	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
+	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return item, err
 		}
 	
@@ -91,7 +91,7 @@ type MutationEvents struct {
 							opts := Query{{$rel.TargetType}}HandlerOptions{
 								ID: &v.ID,
 							}
-							if _, err = r.Handlers.Query{{$rel.TargetType}}(ctx, r, opts); err != nil {
+							if _, err = r.Handlers.Query{{$rel.TargetType}}(ctx, r, opts, authType); err != nil {
 								tx.Rollback()
 								return nil, err
 							}
@@ -127,9 +127,9 @@ type MutationEvents struct {
 							// one to one
 							{{$rel.Name}}Input["{{$rel.InverseRelationshipName}}Id"] = item.ID
 						{{end}}
-						{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input)
+						{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input, authType)
 					} else {
-						{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
+						{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, authType)
 					}
 
 					if err != nil {
@@ -202,17 +202,17 @@ type MutationEvents struct {
 	}
 	func (r *GeneratedMutationResolver) Update{{$obj.Name}}(ctx context.Context, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input)
+		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input, true)
 		if err!=nil{
 			return
 		}
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
-	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
+	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
 		newItem := &{{$obj.Name}}{}
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return item, err
 		}
 
@@ -292,9 +292,9 @@ type MutationEvents struct {
 						var {{$rel.Name}} *{{$rel.TargetType}}
 						v["{{$rel.ToSnakeRelationshipName}}Id"] = id
 						if v["id"] == nil {
-							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v)
+							{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, v, authType)
 						} else {
-							{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, v["id"].(string), v)
+							{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, v["id"].(string), v, authType)
 						}
 
 						changes.{{$rel.MethodName}} = append(changes.{{$rel.MethodName}}, {{$rel.Name}})
@@ -324,9 +324,9 @@ type MutationEvents struct {
 				{{$rel.Name}}Input := input["{{$rel.Name}}"].(map[string]interface{})
 		
 				if {{$rel.Name}}Input["id"] == nil {
-					{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input)
+					{{$rel.Name}}, err = r.Handlers.Create{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input, authType)
 				} else {
-					{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
+					{{$rel.Name}}, err = r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, authType)
 				}
 
 				if err != nil {
@@ -460,15 +460,15 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Delete{{$obj.PluralName}}(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		done,err:=r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped)
+		done,err:=r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped, true)
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return done,err
 	}
 
-	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool,error) {
+	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool,error) {
 		tx := GetTransaction(ctx)
 		var err error = nil
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return false, err
 		}
 
@@ -490,14 +490,14 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Recovery{{$obj.PluralName}}(ctx context.Context, id []string) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		done,err:=r.Handlers.Recovery{{$obj.PluralName}}(ctx, r.GeneratedResolver, id)
+		done,err:=r.Handlers.Recovery{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, true)
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return done,err
 	}
 
-	func Recovery{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string) (bool,error) {
+	func Recovery{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, authType bool) (bool,error) {
 		var err error = nil
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return false, err
 		}
 	

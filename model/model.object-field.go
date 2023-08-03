@@ -135,6 +135,10 @@ func (o *ObjectField) IsUpdatable() bool {
 	return !(o.Name() == "createdAt" || o.Name() == "updatedAt" || o.Name() == "deletedAt" || o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy")
 }
 
+func (o *ObjectField) IsCreataDocs() bool {
+	return o.IsUpdatable() && !(o.Name() == "isDelete" || o.Name() == "weight" || o.Name() == "state")
+}
+
 // IsReadonlyType ..
 func (o *ObjectField) IsReadonlyType() bool {
 	if o.IsEmbeddedColumn() {
@@ -362,6 +366,199 @@ func (o *ObjectField) ModelTags() string {
 	}
 
 	return str
+}
+
+func (o *ObjectField) GetArgValue(name string) map[string]map[string]string {
+	for _, d := range o.Def.Directives {
+		if d.Name.Value == name && len(d.Arguments) > 0 {
+			argArr := map[string]map[string]string{
+				name: map[string]string{},
+			}
+			for _, child := range d.Arguments {
+				argArr[name][child.Name.Value] = child.Value.GetValue().(string)
+			}
+			return argArr
+		}
+	}
+
+	return map[string]map[string]string{}
+}
+
+var columnMap = map[string]map[string]string{
+	"id": {
+		"comment": "uuid",
+		"type":    "varchar(36)",
+	},
+	"createdAt": {
+		"comment": "创建时间",
+		"type":    "bigint(13)",
+	},
+	"updatedAt": {
+		"comment": "更新时间",
+		"type":    "bigint(13)",
+	},
+	"deletedAt": {
+		"comment": "删除时间",
+		"type":    "bigint(13)",
+	},
+	"deletedBy": {
+		"comment": "删除人",
+		"type":    "varchar(36)",
+	},
+	"updatedBy": {
+		"comment": "更新人",
+		"type":    "varchar(36)",
+	},
+	"createdBy": {
+		"comment": "创建人",
+		"type":    "varchar(36)",
+	},
+	"state": {
+		"comment": "状态：1/正常、2/禁用、3/下架",
+		"type":    "int(2)",
+	},
+	"weight": {
+		"comment": "权重：用来排序",
+		"type":    "int(2)",
+	},
+	"isDelete": {
+		"comment": "是否删除：1/正常、2/删除",
+		"type":    "int(2)",
+	},
+}
+
+// 获取字段说明
+func (o *ObjectField) GetComment() string {
+	column := o.GetArgValue("column")
+	value := column["column"]["gorm"]
+	str := ""
+	if value != "" {
+		str = RegexpReplace(value, `comment '`, `';`)
+	} else {
+		str = columnMap[o.Name()]["comment"]
+	}
+	return str
+}
+
+// 备注说明字段
+func (o *ObjectField) GetRemark() string {
+	str := ""
+
+	column := o.GetArgValue("column")
+	gorm := column["column"]["gorm"]
+
+	if gorm != "" {
+		value := RegexpReplace(gorm, `default:`, `;`)
+		if value != "" {
+			str = "default:" + value
+		}
+	}
+	switch o.Name() {
+	case "id":
+		str = "create方法不是必填"
+	}
+	return str
+}
+
+// 获取字段说明
+func (o *ObjectField) GetType() string {
+	column := o.GetArgValue("column")
+	value := column["column"]["gorm"]
+	str := ""
+
+	if value != "" {
+		str = RegexpReplace(value, `type:`, ` `)
+	} else {
+		str = columnMap[o.Name()]["type"]
+	}
+	return str
+}
+
+// 获取正则验证
+func (o *ObjectField) GetValidator() string {
+	column := o.GetArgValue("validator")
+	value := column["validator"]["type"]
+	str := ""
+	if value != "" {
+		str = value
+	} else {
+		switch o.Name() {
+		case "state":
+			str = "justInt"
+		case "weight":
+			str = "justInt"
+		}
+	}
+	return str
+}
+
+// 获取Arguments
+func (o *ObjectField) Arguments() string {
+	argString := ""
+	for key, child := range o.ArgumentsValue() {
+
+		nullType := child.NonNullType()
+
+		targetType := child.TargetType()
+
+		if child.IsListType() {
+			targetType = "[" + targetType + "]"
+		}
+		if key != len(o.ArgumentsValue())-1 {
+			argString = argString + "$" + child.Name() + ": " + targetType + nullType + ", "
+		} else {
+			argString = argString + "$" + child.Name() + ": " + targetType + nullType
+		}
+	}
+
+	if argString != "" {
+		argString = "(" + argString + ")"
+	}
+
+	return argString
+}
+
+// 获取Input
+func (o *ObjectField) Inputs() string {
+	argString := ""
+
+	for key, child := range o.ArgumentsValue() {
+		if key != len(o.ArgumentsValue())-1 {
+			argString = argString + child.Name() + ": $" + child.Name() + ", "
+		} else {
+			argString = argString + child.Name() + ": $" + child.Name()
+		}
+	}
+
+	if argString != "" {
+		argString = "(" + argString + ")"
+	}
+
+	return argString
+}
+
+// 表名
+func (o *ObjectField) EntityName() string {
+	if len(o.Obj.Def.Directives) > 0 && len(o.Obj.Def.Directives[0].Arguments) > 0 {
+		title := o.Obj.Def.Directives[0].Arguments[0].Value.GetValue()
+		return title.(string)
+	}
+	return o.Name()
+}
+
+// 获取是否默认显示
+func (o *ObjectField) GetDefault() string {
+	res := o.GetArgValue("entity")
+	entity := res["entity"]
+
+	return entity["default"]
+}
+
+// 获取是否默认显示
+func (o *ObjectField) GetTableName() string {
+	res := o.GetArgValue("entity")
+	entity := res["entity"]
+	return entity["title"]
 }
 
 func (f *FilterMappingItem) IsLike() bool {

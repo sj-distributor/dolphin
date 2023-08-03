@@ -12,8 +12,8 @@ import (
 )
 
 // 检测路由是否需要登录
-func CheckRouterAuth(ctx context.Context, authType int) error {
-	if authType == 1 {
+func CheckRouterAuth(ctx context.Context, checkAuth bool) error {
+	if checkAuth == false {
 		return nil
 	}
 

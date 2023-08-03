@@ -26,6 +26,54 @@ type TemplateData struct {
 	RawSchema *string
 }
 
+// 生成前端接口文档
+func WriteInterfaceTemplate(t, filename string, data TemplateData) error {
+	arr := strings.Split(filename, "/")
+	createFile(strings.Replace(filename, "/"+arr[len(arr)-1], "", -1))
+	return WriteInterfaceTemplateRaw(t, filename, data)
+}
+
+func WriteInterfaceTemplateRaw(t, filename string, data interface{}) error {
+	temp, err := template.New(filename).Parse(t)
+	if err != nil {
+		return err
+	}
+
+	// type Inventory struct {
+	//   Material string
+	//   Count    uint
+	// }
+
+	// sweaters := Inventory{"wool", 17}
+	// temp, err := template.New("test").Parse("{{.Count}} items are made of {{.Material}}")
+	// if err != nil {
+	//   return err
+	// }
+
+	var content bytes.Buffer
+	writer := io.Writer(&content)
+
+	err = temp.Execute(writer, &data)
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filename, content.Bytes(), 0777)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func WriterOriginalFile(data interface{}, filename string) error {
+	content := []byte(fmt.Sprintf("%v", data))
+	err := ioutil.WriteFile(filename, content, 0777)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func WriteTemplate(t, filename string, data TemplateData) error {
 	return WriteTemplateRaw(t, filename, data)
 }
@@ -111,4 +159,19 @@ func prompt(text string, key *string, masked bool) string {
 	}
 
 	return ""
+}
+
+// 调用os.MkdirAll递归创建文件夹
+func createFile(filePath string) error {
+	if !isExist(filePath) {
+		err := os.MkdirAll(filePath, os.ModePerm)
+		return err
+	}
+	return nil
+}
+
+// 判断所给路径文件/文件夹是否存在(返回true是存在)
+func isExist(path string) bool {
+	_, err := os.Stat(path)
+	return os.IsExist(err)
 }

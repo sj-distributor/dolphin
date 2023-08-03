@@ -90,6 +90,12 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
+	// 接口文档
+	err = generateInterfaceDocument(p, &m, &c)
+	if err != nil {
+		return err
+	}
+
 	err = generateFiles(p, &m, &c)
 	if err != nil {
 		return err
@@ -149,6 +155,12 @@ func generate(fileDirPath, p string) error {
 	return nil
 }
 
+// 生成前端接口接口文档
+func generateInterfaceDocument(p string, m *model.Model, c *model.Config) error {
+	data := templates.TemplateData{Model: m, Config: c}
+	return templates.WriteInterfaceTemplate(templates.GraphqlApi, path.Join(p, "docs/api.json"), data)
+}
+
 func generateFiles(p string, m *model.Model, c *model.Config) error {
 	data := templates.TemplateData{Model: m, Config: c}
 	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
@@ -202,6 +214,12 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.Validator, path.Join(p, "utils/validator.go"), data); err != nil {
 		return err
 	}
+
+	// html
+	if err := templates.WriterOriginalFile(templates.HandlerHtml, path.Join(p, "gen/html.go")); err != nil {
+		return err
+	}
+
 	return nil
 }
 

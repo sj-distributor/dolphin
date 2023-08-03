@@ -206,11 +206,11 @@ func createAuthFile(p string) error {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth-router.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth_router.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open-routes.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open_routes.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

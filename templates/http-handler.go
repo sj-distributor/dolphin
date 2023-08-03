@@ -25,7 +25,8 @@ func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
 
 	loaders := GetLoaders(db)
 
-	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	// playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	playgroundHandler := HandlerHtml("GraphQL playground", "/graphql")
 	mux.HandleFunc("/automigrate", func(res http.ResponseWriter, req *http.Request) {
 		err := db.AutoMigrate()
 		if err != nil {

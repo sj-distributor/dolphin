@@ -10,14 +10,14 @@ import (
 type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
 	{{range $obj := .Model.ObjectEntities}}
-		Create{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *{{$obj.Name}}, err error)
-		Update{{$obj.Name}} func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error)
-		Delete{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error)
-		Recovery{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, id []string) (bool, error)
-		Query{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error)
-		Query{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions) (*{{$obj.Name}}ResultType, error)
+		Create{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error)
+		Update{{$obj.Name}} func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error)
+		Delete{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool, error)
+		Recovery{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, id []string, authType bool) (bool, error)
+		Query{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions, authType bool) (*{{$obj.Name}}, error)
+		Query{{$obj.PluralName}} func (ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions, authType bool) (*{{$obj.Name}}ResultType, error)
 		{{range $rel := $obj.Relationships}}
-			{{$obj.Name}}{{$rel.MethodName}} func (ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error)
+			{{$obj.Name}}{{$rel.MethodName}} func (ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, authType bool) (res {{$rel.ReturnType}}, err error)
 		{{end}}
 	{{end}}
 }

@@ -20,6 +20,14 @@ func (o *Object) Name() string {
 	return o.Def.Name.Value
 }
 
+func (o *Object) EntityName() string {
+	if len(o.Def.Directives) > 0 && len(o.Def.Directives[0].Arguments) > 0 {
+		title := o.Def.Directives[0].Arguments[0].Value.GetValue()
+		return title.(string)
+	}
+	return o.Name()
+}
+
 func (o *Object) PluralName() string {
 	return inflection.Plural(o.Name())
 }
@@ -28,6 +36,9 @@ func (o *Object) ToLowerPluralName() string {
 }
 func (o *Object) LowerName() string {
 	return strcase.ToLowerCamel(o.Name())
+}
+func (o *Object) ToCamel() string {
+	return strcase.ToCamel(o.Name())
 }
 func (o *Object) ToSnakeName() string {
 	return strcase.ToSnake(o.Name())

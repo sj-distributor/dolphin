@@ -26,10 +26,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			ID: id,
 			Filter: filter,
 		}
-		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts)
+		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts, true)
 	}
-	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error) {
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions, authType bool) (*{{$obj.Name}}, error) {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return nil, err
 		}
 	
@@ -87,10 +87,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			Filter: filter,
 			Rand: rand,
 		}
-		return r.Handlers.Query{{$obj.PluralName}}(ctx, r.GeneratedResolver, opts)
+		return r.Handlers.Query{{$obj.PluralName}}(ctx, r.GeneratedResolver, opts, true)
 	}
-	func Query{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions) (*{{$obj.Name}}ResultType, error) {
-		if err := auth.CheckRouterAuth(ctx, 0); err != nil {
+	func Query{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions, authType bool) (*{{$obj.Name}}ResultType, error) {
+		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return nil, err
 		}
 	
@@ -198,9 +198,9 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 
 		{{range $index, $rel := $obj.Relationships}}
 			func (r *Generated{{$obj.Name}}Resolver) {{$rel.MethodName}}(ctx context.Context, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error) {
-				return r.Handlers.{{$obj.Name}}{{$rel.MethodName}}(ctx, r.GeneratedResolver, obj)
+				return r.Handlers.{{$obj.Name}}{{$rel.MethodName}}(ctx, r.GeneratedResolver, obj, true)
 			}
-			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (items {{$rel.ReturnType}}, err error) {
+			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, authType bool) (items {{$rel.ReturnType}}, err error) {
 				{{if $rel.IsToMany}}
 					{{if $rel.IsManyToMany}}
 						items   = []*{{$rel.TargetType}}{}

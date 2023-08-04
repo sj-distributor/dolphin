@@ -8,20 +8,23 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
+	"github.com/sj-distributor/dolphin-example/auth"
 
-	jwtgo "github.com/golang-jwt/jwt/v4"
+	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
-func GetHTTPServeMux(r ResolverRoot, db *DB) *http.ServeMux {
-	mux := http.NewServeMux()
+func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
+	mux := mux.NewRouter()
+	mux.Use(auth.Handler)
 
 	executableSchema := NewExecutableSchema(Config{Resolvers: r})
 	gqlHandler := handler.NewDefaultServer(executableSchema)
 
 	loaders := GetLoaders(db)
 
-	playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	// playgroundHandler := playground.Handler("GraphQL playground", "/graphql")
+	playgroundHandler := HandlerHtml("GraphQL playground", "/graphql")
 	mux.HandleFunc("/automigrate", func(res http.ResponseWriter, req *http.Request) {
 		err := db.AutoMigrate()
 		if err != nil {

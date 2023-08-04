@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/sj-distributor/dolphin-example/auth"
 	"github.com/sj-distributor/dolphin-example/utils"
 	"gorm.io/gorm/clause"
 )
@@ -18,15 +19,18 @@ type MutationEvents struct {
 
 func (r *GeneratedMutationResolver) CreateUser(ctx context.Context, input map[string]interface{}) (item *User, err error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	item, err = r.Handlers.CreateUser(ctx, r.GeneratedResolver, input)
+	item, err = r.Handlers.CreateUser(ctx, r.GeneratedResolver, input, true)
 	if err != nil {
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return
 }
-func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *User, err error) {
+func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *User, err error) {
 	item = &User{}
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return item, err
+	}
 
 	now := time.Now()
 	milliTime := now.UnixNano() / 1e6
@@ -74,9 +78,13 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		tInput := input["t"].(map[string]interface{})
 
 		if tInput["id"] == nil {
-			t, err = r.Handlers.CreateTask(ctx, r, tInput)
+
+			// one to one
+			tInput["uId"] = item.ID
+
+			t, err = r.Handlers.CreateTask(ctx, r, tInput, authType)
 		} else {
-			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput)
+			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput, authType)
 		}
 
 		if err != nil {
@@ -84,19 +92,14 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 			return nil, fmt.Errorf(fmt.Sprintf("t %s", err.Error()))
 		}
 
-		if err := tx.Model(&Task{}).Where("id = ?", t.ID).Updates(Task{UID: &item.ID}).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
+		// if err := tx.Model(&Task{}).Where("id = ?", t.ID).Updates(Task{ UID: &item.ID}).Error; err != nil {
+		// 	tx.Rollback()
+		// 	return nil, err
+		// }
 
 		event.AddNewValue("t", changes.T)
 		item.T = t
 		item.TID = &t.ID
-	}
-
-	if input["tt"] != nil && input["ttId"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("ttId and tt cannot coexist")
 	}
 
 	if _, ok := input["tt"]; ok {
@@ -104,9 +107,10 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		ttInput := input["tt"].(map[string]interface{})
 
 		if ttInput["id"] == nil {
-			tt, err = r.Handlers.CreateTask(ctx, r, ttInput)
+
+			tt, err = r.Handlers.CreateTask(ctx, r, ttInput, authType)
 		} else {
-			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput)
+			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput, authType)
 		}
 
 		if err != nil {
@@ -125,23 +129,27 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	var tttIds []string
-
+	var createTtt []*Task
+	var updateTtt []*Task
 	if _, ok := input["ttt"]; ok {
-		var tttMaps []map[string]interface{}
-		for _, v := range input["ttt"].([]interface{}) {
-			tttMaps = append(tttMaps, v.(map[string]interface{}))
-		}
-
-		for _, v := range tttMaps {
-			var ttt *Task
-			if v["id"] == nil {
-				ttt, err = r.Handlers.CreateTask(ctx, r, v)
+		for _, v := range changes.Ttt {
+			if v.ID == "" {
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				v.CreatedAt = milliTime
+				v.CreatedBy = principalID
+				createTtt = append(createTtt, v)
 			} else {
-				ttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v)
+				opts := QueryTaskHandlerOptions{
+					ID: &v.ID,
+				}
+				if _, err = r.Handlers.QueryTask(ctx, r, opts, authType); err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				v.UpdatedAt = &milliTime
+				v.UpdatedBy = principalID
+				updateTtt = append(updateTtt, v)
 			}
-
-			changes.Ttt = append(changes.Ttt, ttt)
-			tttIds = append(tttIds, ttt.ID)
 		}
 		event.AddNewValue("ttt", changes.Ttt)
 		item.Ttt = changes.Ttt
@@ -159,23 +167,27 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	var ttttIds []string
-
+	var createTttt []*Task
+	var updateTttt []*Task
 	if _, ok := input["tttt"]; ok {
-		var ttttMaps []map[string]interface{}
-		for _, v := range input["tttt"].([]interface{}) {
-			ttttMaps = append(ttttMaps, v.(map[string]interface{}))
-		}
-
-		for _, v := range ttttMaps {
-			var tttt *Task
-			if v["id"] == nil {
-				tttt, err = r.Handlers.CreateTask(ctx, r, v)
+		for _, v := range changes.Tttt {
+			if v.ID == "" {
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				v.CreatedAt = milliTime
+				v.CreatedBy = principalID
+				createTttt = append(createTttt, v)
 			} else {
-				tttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v)
+				opts := QueryTaskHandlerOptions{
+					ID: &v.ID,
+				}
+				if _, err = r.Handlers.QueryTask(ctx, r, opts, authType); err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				v.UpdatedAt = &milliTime
+				v.UpdatedBy = principalID
+				updateTttt = append(updateTttt, v)
 			}
-
-			changes.Tttt = append(changes.Tttt, tttt)
-			ttttIds = append(ttttIds, tttt.ID)
 		}
 		event.AddNewValue("tttt", changes.Tttt)
 		item.Tttt = changes.Tttt
@@ -237,15 +249,29 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		return item, err
 	}
 
-	if len(tttIds) > 0 {
-		if err := tx.Model(&Task{}).Where("id IN(?)", tttIds).Update("uuu_id", item.ID).Error; err != nil {
+	// todo 添加权限验证
+	if len(createTtt) > 0 {
+		if err := tx.Model(&item).Association("Ttt").Append(createTtt); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+	}
+	if len(updateTtt) > 0 {
+		if err := tx.Model(&item).Association("Ttt").Replace(updateTtt); err != nil {
 			tx.Rollback()
 			return item, err
 		}
 	}
 
-	if len(ttttIds) > 0 {
-		if err := tx.Model(&Task{}).Where("id IN(?)", ttttIds).Update("uuuu_id", item.ID).Error; err != nil {
+	// todo 添加权限验证
+	if len(createTttt) > 0 {
+		if err := tx.Model(&item).Association("Tttt").Append(createTttt); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+	}
+	if len(updateTttt) > 0 {
+		if err := tx.Model(&item).Association("Tttt").Replace(updateTttt); err != nil {
 			tx.Rollback()
 			return item, err
 		}
@@ -259,16 +285,19 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 }
 func (r *GeneratedMutationResolver) UpdateUser(ctx context.Context, id string, input map[string]interface{}) (item *User, err error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	item, err = r.Handlers.UpdateUser(ctx, r.GeneratedResolver, id, input)
+	item, err = r.Handlers.UpdateUser(ctx, r.GeneratedResolver, id, input, true)
 	if err != nil {
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return
 }
-func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *User, err error) {
+func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *User, err error) {
 	item = &User{}
 	newItem := &User{}
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return item, err
+	}
 
 	isChange := false
 	now := time.Now()
@@ -337,24 +366,14 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		tInput := input["t"].(map[string]interface{})
 
 		if tInput["id"] == nil {
-			t, err = r.Handlers.CreateTask(ctx, r, tInput)
+			t, err = r.Handlers.CreateTask(ctx, r, tInput, authType)
 		} else {
-			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput)
+			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput, authType)
 		}
 
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf(fmt.Sprintf("t %s", err.Error()))
-		}
-
-		if err := tx.Model(&item).Association("T").Clear(); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-
-		if err := tx.Model(&Task{}).Where("id = ?", t.ID).Update("u_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return nil, err
 		}
 
 		event.AddOldValue("t", item.T)
@@ -369,24 +388,14 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		ttInput := input["tt"].(map[string]interface{})
 
 		if ttInput["id"] == nil {
-			tt, err = r.Handlers.CreateTask(ctx, r, ttInput)
+			tt, err = r.Handlers.CreateTask(ctx, r, ttInput, authType)
 		} else {
-			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput)
+			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput, authType)
 		}
 
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf(fmt.Sprintf("tt %s", err.Error()))
-		}
-
-		if err := tx.Model(&item).Association("Tt").Clear(); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-
-		if err := tx.Model(&Task{}).Where("id = ?", tt.ID).Update("uu_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return nil, err
 		}
 
 		event.AddOldValue("tt", item.Tt)
@@ -414,9 +423,9 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			var ttt *Task
 			v["uuuId"] = id
 			if v["id"] == nil {
-				ttt, err = r.Handlers.CreateTask(ctx, r, v)
+				ttt, err = r.Handlers.CreateTask(ctx, r, v, authType)
 			} else {
-				ttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v)
+				ttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v, authType)
 			}
 
 			changes.Ttt = append(changes.Ttt, ttt)
@@ -459,9 +468,9 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			var tttt *Task
 			v["uuuuId"] = id
 			if v["id"] == nil {
-				tttt, err = r.Handlers.CreateTask(ctx, r, v)
+				tttt, err = r.Handlers.CreateTask(ctx, r, v, authType)
 			} else {
-				tttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v)
+				tttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v, authType)
 			}
 
 			changes.Tttt = append(changes.Tttt, tttt)
@@ -598,12 +607,14 @@ func DeleteUserFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 		}
 	}()
 
-	var isDelete int64 = 1
+	var status int64 = 1
+	var isDelete int64 = 2
 	if tye == "recovery" {
-		isDelete = 2
+		isDelete = 1
+		status = 2
 	}
 
-	if err = tx.Unscoped().Where("is_delete = ? and id = ?", isDelete, id).First(item).Error; err != nil {
+	if err = tx.Unscoped().Where("is_delete = ? and id = ?", status, id).First(item).Error; err != nil {
 		return err
 	}
 
@@ -641,14 +652,17 @@ func DeleteUserFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 
 func (r *GeneratedMutationResolver) DeleteUsers(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	done, err := r.Handlers.DeleteUsers(ctx, r.GeneratedResolver, id, unscoped)
+	done, err := r.Handlers.DeleteUsers(ctx, r.GeneratedResolver, id, unscoped, true)
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
 
-func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error) {
+func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool, error) {
 	tx := GetTransaction(ctx)
 	var err error = nil
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return false, err
+	}
 
 	if len(id) > 0 {
 		for _, v := range id {
@@ -668,13 +682,16 @@ func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 
 func (r *GeneratedMutationResolver) RecoveryUsers(ctx context.Context, id []string) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	done, err := r.Handlers.RecoveryUsers(ctx, r.GeneratedResolver, id)
+	done, err := r.Handlers.RecoveryUsers(ctx, r.GeneratedResolver, id, true)
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
 
-func RecoveryUsersHandler(ctx context.Context, r *GeneratedResolver, id []string) (bool, error) {
+func RecoveryUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, authType bool) (bool, error) {
 	var err error = nil
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return false, err
+	}
 
 	var unscoped bool = false
 
@@ -695,15 +712,18 @@ func RecoveryUsersHandler(ctx context.Context, r *GeneratedResolver, id []string
 
 func (r *GeneratedMutationResolver) CreateTask(ctx context.Context, input map[string]interface{}) (item *Task, err error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	item, err = r.Handlers.CreateTask(ctx, r.GeneratedResolver, input)
+	item, err = r.Handlers.CreateTask(ctx, r.GeneratedResolver, input, true)
 	if err != nil {
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return
 }
-func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *Task, err error) {
+func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *Task, err error) {
 	item = &Task{}
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return item, err
+	}
 
 	now := time.Now()
 	milliTime := now.UnixNano() / 1e6
@@ -751,9 +771,13 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		uInput := input["u"].(map[string]interface{})
 
 		if uInput["id"] == nil {
-			u, err = r.Handlers.CreateUser(ctx, r, uInput)
+
+			// one to one
+			uInput["tId"] = item.ID
+
+			u, err = r.Handlers.CreateUser(ctx, r, uInput, authType)
 		} else {
-			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput)
+			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput, authType)
 		}
 
 		if err != nil {
@@ -761,10 +785,10 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 			return nil, fmt.Errorf(fmt.Sprintf("u %s", err.Error()))
 		}
 
-		if err := tx.Model(&User{}).Where("id = ?", u.ID).Updates(User{TID: &item.ID}).Error; err != nil {
-			tx.Rollback()
-			return nil, err
-		}
+		// if err := tx.Model(&User{}).Where("id = ?", u.ID).Updates(User{ TID: &item.ID}).Error; err != nil {
+		// 	tx.Rollback()
+		// 	return nil, err
+		// }
 
 		event.AddNewValue("u", changes.U)
 		item.U = u
@@ -777,23 +801,27 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	var uuIds []string
-
+	var createUu []*User
+	var updateUu []*User
 	if _, ok := input["uu"]; ok {
-		var uuMaps []map[string]interface{}
-		for _, v := range input["uu"].([]interface{}) {
-			uuMaps = append(uuMaps, v.(map[string]interface{}))
-		}
-
-		for _, v := range uuMaps {
-			var uu *User
-			if v["id"] == nil {
-				uu, err = r.Handlers.CreateUser(ctx, r, v)
+		for _, v := range changes.Uu {
+			if v.ID == "" {
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				v.CreatedAt = milliTime
+				v.CreatedBy = principalID
+				createUu = append(createUu, v)
 			} else {
-				uu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v)
+				opts := QueryUserHandlerOptions{
+					ID: &v.ID,
+				}
+				if _, err = r.Handlers.QueryUser(ctx, r, opts, authType); err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				v.UpdatedAt = &milliTime
+				v.UpdatedBy = principalID
+				updateUu = append(updateUu, v)
 			}
-
-			changes.Uu = append(changes.Uu, uu)
-			uuIds = append(uuIds, uu.ID)
 		}
 		event.AddNewValue("uu", changes.Uu)
 		item.Uu = changes.Uu
@@ -805,19 +833,15 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		}
 	}
 
-	if input["uuu"] != nil && input["uuuId"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuuId and uuu cannot coexist")
-	}
-
 	if _, ok := input["uuu"]; ok {
 		var uuu *User
 		uuuInput := input["uuu"].(map[string]interface{})
 
 		if uuuInput["id"] == nil {
-			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput)
+
+			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput, authType)
 		} else {
-			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput)
+			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput, authType)
 		}
 
 		if err != nil {
@@ -836,23 +860,27 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	var uuuuIds []string
-
+	var createUuuu []*User
+	var updateUuuu []*User
 	if _, ok := input["uuuu"]; ok {
-		var uuuuMaps []map[string]interface{}
-		for _, v := range input["uuuu"].([]interface{}) {
-			uuuuMaps = append(uuuuMaps, v.(map[string]interface{}))
-		}
-
-		for _, v := range uuuuMaps {
-			var uuuu *User
-			if v["id"] == nil {
-				uuuu, err = r.Handlers.CreateUser(ctx, r, v)
+		for _, v := range changes.Uuuu {
+			if v.ID == "" {
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				v.CreatedAt = milliTime
+				v.CreatedBy = principalID
+				createUuuu = append(createUuuu, v)
 			} else {
-				uuuu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v)
+				opts := QueryUserHandlerOptions{
+					ID: &v.ID,
+				}
+				if _, err = r.Handlers.QueryUser(ctx, r, opts, authType); err != nil {
+					tx.Rollback()
+					return nil, err
+				}
+				v.UpdatedAt = &milliTime
+				v.UpdatedBy = principalID
+				updateUuuu = append(updateUuuu, v)
 			}
-
-			changes.Uuuu = append(changes.Uuuu, uuuu)
-			uuuuIds = append(uuuuIds, uuuu.ID)
 		}
 		event.AddNewValue("uuuu", changes.Uuuu)
 		item.Uuuu = changes.Uuuu
@@ -914,15 +942,29 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		return item, err
 	}
 
-	if len(uuIds) > 0 {
-		if err := tx.Model(&User{}).Where("id IN(?)", uuIds).Update("tt_id", item.ID).Error; err != nil {
+	// todo 添加权限验证
+	if len(createUu) > 0 {
+		if err := tx.Model(&item).Association("Uu").Append(createUu); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+	}
+	if len(updateUu) > 0 {
+		if err := tx.Model(&item).Association("Uu").Replace(updateUu); err != nil {
 			tx.Rollback()
 			return item, err
 		}
 	}
 
-	if len(uuuuIds) > 0 {
-		if err := tx.Model(&User{}).Where("id IN(?)", uuuuIds).Update("tttt_id", item.ID).Error; err != nil {
+	// todo 添加权限验证
+	if len(createUuuu) > 0 {
+		if err := tx.Model(&item).Association("Uuuu").Append(createUuuu); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+	}
+	if len(updateUuuu) > 0 {
+		if err := tx.Model(&item).Association("Uuuu").Replace(updateUuuu); err != nil {
 			tx.Rollback()
 			return item, err
 		}
@@ -936,16 +978,19 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 }
 func (r *GeneratedMutationResolver) UpdateTask(ctx context.Context, id string, input map[string]interface{}) (item *Task, err error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	item, err = r.Handlers.UpdateTask(ctx, r.GeneratedResolver, id, input)
+	item, err = r.Handlers.UpdateTask(ctx, r.GeneratedResolver, id, input, true)
 	if err != nil {
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return
 }
-func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *Task, err error) {
+func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *Task, err error) {
 	item = &Task{}
 	newItem := &Task{}
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return item, err
+	}
 
 	isChange := false
 	now := time.Now()
@@ -1014,24 +1059,14 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		uInput := input["u"].(map[string]interface{})
 
 		if uInput["id"] == nil {
-			u, err = r.Handlers.CreateUser(ctx, r, uInput)
+			u, err = r.Handlers.CreateUser(ctx, r, uInput, authType)
 		} else {
-			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput)
+			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput, authType)
 		}
 
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf(fmt.Sprintf("u %s", err.Error()))
-		}
-
-		if err := tx.Model(&item).Association("U").Clear(); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-
-		if err := tx.Model(&User{}).Where("id = ?", u.ID).Update("t_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return nil, err
 		}
 
 		event.AddOldValue("u", item.U)
@@ -1059,9 +1094,9 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			var uu *User
 			v["ttId"] = id
 			if v["id"] == nil {
-				uu, err = r.Handlers.CreateUser(ctx, r, v)
+				uu, err = r.Handlers.CreateUser(ctx, r, v, authType)
 			} else {
-				uu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v)
+				uu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v, authType)
 			}
 
 			changes.Uu = append(changes.Uu, uu)
@@ -1091,24 +1126,14 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		uuuInput := input["uuu"].(map[string]interface{})
 
 		if uuuInput["id"] == nil {
-			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput)
+			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput, authType)
 		} else {
-			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput)
+			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput, authType)
 		}
 
 		if err != nil {
 			tx.Rollback()
 			return nil, fmt.Errorf(fmt.Sprintf("uuu %s", err.Error()))
-		}
-
-		if err := tx.Model(&item).Association("Uuu").Clear(); err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-
-		if err := tx.Model(&User{}).Where("id = ?", uuu.ID).Update("ttt_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return nil, err
 		}
 
 		event.AddOldValue("uuu", item.Uuu)
@@ -1136,9 +1161,9 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			var uuuu *User
 			v["ttttId"] = id
 			if v["id"] == nil {
-				uuuu, err = r.Handlers.CreateUser(ctx, r, v)
+				uuuu, err = r.Handlers.CreateUser(ctx, r, v, authType)
 			} else {
-				uuuu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v)
+				uuuu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v, authType)
 			}
 
 			changes.Uuuu = append(changes.Uuuu, uuuu)
@@ -1275,12 +1300,14 @@ func DeleteTaskFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 		}
 	}()
 
-	var isDelete int64 = 1
+	var status int64 = 1
+	var isDelete int64 = 2
 	if tye == "recovery" {
-		isDelete = 2
+		isDelete = 1
+		status = 2
 	}
 
-	if err = tx.Unscoped().Where("is_delete = ? and id = ?", isDelete, id).First(item).Error; err != nil {
+	if err = tx.Unscoped().Where("is_delete = ? and id = ?", status, id).First(item).Error; err != nil {
 		return err
 	}
 
@@ -1318,14 +1345,17 @@ func DeleteTaskFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 
 func (r *GeneratedMutationResolver) DeleteTasks(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	done, err := r.Handlers.DeleteTasks(ctx, r.GeneratedResolver, id, unscoped)
+	done, err := r.Handlers.DeleteTasks(ctx, r.GeneratedResolver, id, unscoped, true)
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
 
-func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error) {
+func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool, error) {
 	tx := GetTransaction(ctx)
 	var err error = nil
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return false, err
+	}
 
 	if len(id) > 0 {
 		for _, v := range id {
@@ -1345,13 +1375,16 @@ func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 
 func (r *GeneratedMutationResolver) RecoveryTasks(ctx context.Context, id []string) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	done, err := r.Handlers.RecoveryTasks(ctx, r.GeneratedResolver, id)
+	done, err := r.Handlers.RecoveryTasks(ctx, r.GeneratedResolver, id, true)
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
 
-func RecoveryTasksHandler(ctx context.Context, r *GeneratedResolver, id []string) (bool, error) {
+func RecoveryTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, authType bool) (bool, error) {
 	var err error = nil
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return false, err
+	}
 
 	var unscoped bool = false
 

@@ -3,17 +3,19 @@ module github.com/sj-distributor/dolphin-example
 go 1.19
 
 require (
-	github.com/99designs/gqlgen v0.17.34
+	github.com/99designs/gqlgen v0.17.36
 	github.com/cloudevents/sdk-go v1.2.0
 	github.com/gofrs/uuid v4.3.1+incompatible
 	github.com/golang-jwt/jwt/v4 v4.4.3
+	github.com/golang-jwt/jwt/v5 v5.0.0
+	github.com/gorilla/mux v1.6.2
 	github.com/graph-gophers/dataloader v5.0.0+incompatible
 	github.com/iancoleman/strcase v0.2.0
 	github.com/maiguangyang/cloudevents-aws-transport v0.0.0-20200430035158-c952a06ccf03
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/cors v1.8.3
 	github.com/urfave/cli v1.22.12
-	github.com/vektah/gqlparser/v2 v2.5.4
+	github.com/vektah/gqlparser/v2 v2.5.8
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/driver/sqlite v1.4.4
@@ -22,11 +24,12 @@ require (
 
 require (
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/gorilla/context v1.1.1 // indirect
 	github.com/graphql-go/graphql v0.8.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.3 // indirect
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
-	github.com/sj-distributor/dolphin v0.0.0-20230704230141-f3964b0cf441 // indirect
+	github.com/sj-distributor/dolphin v0.0.0-20230717013826-657b96b7235a // indirect
 	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.2.0 // indirect

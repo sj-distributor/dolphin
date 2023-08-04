@@ -1,0 +1,68 @@
+[
+	{
+		"title": "全局字段",
+		"name": "",
+		"type": 0,
+		"fields": [
+			{ "name": "deletedBy", "desc": "删除人", "type": "varchar(36)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "updatedBy", "desc": "更新人", "type": "varchar(36)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "createdBy", "desc": "创建人", "type": "varchar(36)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "deletedAt", "desc": "删除时间", "type": "bigint(13)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "updatedAt", "desc": "更新时间", "type": "bigint(13)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "createdAt", "desc": "创建时间", "type": "bigint(13)", "required": "false", "validator": "", "remark": "仅供Query使用" },
+			{ "name": "isDelete", "desc": "是否删除：1/正常、2/删除", "type": "int(2)", "required": "false", "validator": "", "remark": "" },
+			{ "name": "weight", "desc": "权重：用来排序", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" },
+			{ "name": "state", "desc": "状态：1/正常、2/禁用、3/下架", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" }
+		]
+	},
+  {
+    "title": "用户管理",
+    "name": "users",
+    "type": 0,
+    "fields": [
+      { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "phone", "desc": "账号：使用手机号码", "type": "varchar(32)", "required": "true", "validator": "phone", "remark": "" },
+			{ "name": "tId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "ttId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			
+			{ "name": "t", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
+			{ "name": "tt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
+			{ "name": "ttt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
+			{ "name": "tttt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" }
+    ],
+    "data": [
+      { "name": "用户管理", "title": "列表", "api": "users", "type": "list", "method": "Query" },
+      { "name": "用户管理", "title": "详情", "api": "user", "type": "detail", "method": "Query" },
+      { "name": "用户管理", "title": "新增", "api": "createUser", "type": "add", "method": "Mutation" },
+      { "name": "用户管理", "title": "修改", "api": "updateUser", "type": "edit", "method": "Mutation" },
+      { "name": "用户管理", "title": "删除", "api": "deleteUsers", "type": "delete", "method": "Mutation" },
+      { "name": "用户管理", "title": "恢复", "api": "recoveryUsers", "type": "recovery", "method": "Mutation" }
+    ]
+  },
+
+  {
+    "title": "任务管理",
+    "name": "tasks",
+    "type": 0,
+    "fields": [
+      { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "title", "desc": "标题", "type": "varchar(64)", "required": "false", "validator": "", "remark": "" },
+			{ "name": "uId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "uuuId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			
+			{ "name": "u", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
+			{ "name": "uu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
+			{ "name": "uuu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
+			{ "name": "uuuu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" }
+    ],
+    "data": [
+      { "name": "任务管理", "title": "列表", "api": "tasks", "type": "list", "method": "Query" },
+      { "name": "任务管理", "title": "详情", "api": "task", "type": "detail", "method": "Query" },
+      { "name": "任务管理", "title": "新增", "api": "createTask", "type": "add", "method": "Mutation" },
+      { "name": "任务管理", "title": "修改", "api": "updateTask", "type": "edit", "method": "Mutation" },
+      { "name": "任务管理", "title": "删除", "api": "deleteTasks", "type": "delete", "method": "Mutation" },
+      { "name": "任务管理", "title": "恢复", "api": "recoveryTasks", "type": "recovery", "method": "Mutation" }
+    ]
+  },
+
+]

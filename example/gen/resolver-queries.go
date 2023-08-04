@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/graph-gophers/dataloader"
+	"github.com/sj-distributor/dolphin-example/auth"
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
@@ -22,9 +23,13 @@ func (r *GeneratedQueryResolver) User(ctx context.Context, id *string, filter *U
 		ID:     id,
 		Filter: filter,
 	}
-	return r.Handlers.QueryUser(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryUser(ctx, r.GeneratedResolver, opts, true)
 }
-func QueryUserHandler(ctx context.Context, r *GeneratedResolver, opts QueryUserHandlerOptions) (*User, error) {
+func QueryUserHandler(ctx context.Context, r *GeneratedResolver, opts QueryUserHandlerOptions, authType bool) (*User, error) {
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return nil, err
+	}
+
 	selection := []ast.Selection{}
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 		selection = append(selection, f.Field)
@@ -78,9 +83,13 @@ func (r *GeneratedQueryResolver) Users(ctx context.Context, current_page *int, p
 		Filter:      filter,
 		Rand:        rand,
 	}
-	return r.Handlers.QueryUsers(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryUsers(ctx, r.GeneratedResolver, opts, true)
 }
-func QueryUsersHandler(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions) (*UserResultType, error) {
+func QueryUsersHandler(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions, authType bool) (*UserResultType, error) {
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return nil, err
+	}
+
 	query := UserQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
@@ -157,9 +166,9 @@ func (r *GeneratedUserResultTypeResolver) PerPage(ctx context.Context, obj *User
 type GeneratedUserResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedUserResolver) T(ctx context.Context, obj *User) (res *Task, err error) {
-	return r.Handlers.UserT(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.UserT(ctx, r.GeneratedResolver, obj, true)
 }
-func UserTHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items *Task, err error) {
+func UserTHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items *Task, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.TID != nil {
@@ -176,9 +185,9 @@ func UserTHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items *
 }
 
 func (r *GeneratedUserResolver) Tt(ctx context.Context, obj *User) (res *Task, err error) {
-	return r.Handlers.UserTt(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.UserTt(ctx, r.GeneratedResolver, obj, true)
 }
-func UserTtHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items *Task, err error) {
+func UserTtHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items *Task, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.TtID != nil {
@@ -195,9 +204,9 @@ func UserTtHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items 
 }
 
 func (r *GeneratedUserResolver) Ttt(ctx context.Context, obj *User) (res []*Task, err error) {
-	return r.Handlers.UserTtt(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.UserTtt(ctx, r.GeneratedResolver, obj, true)
 }
-func UserTttHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items []*Task, err error) {
+func UserTttHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items []*Task, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	item, _ := loaders["TaskUuu"].Load(ctx, dataloader.StringKey(obj.ID))()
@@ -228,9 +237,9 @@ func (r *GeneratedUserResolver) TttIds(ctx context.Context, obj *User) (ids []st
 }
 
 func (r *GeneratedUserResolver) Tttt(ctx context.Context, obj *User) (res []*Task, err error) {
-	return r.Handlers.UserTttt(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.UserTttt(ctx, r.GeneratedResolver, obj, true)
 }
-func UserTtttHandler(ctx context.Context, r *GeneratedResolver, obj *User) (items []*Task, err error) {
+func UserTtttHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items []*Task, err error) {
 
 	items = []*Task{}
 	selects := GetFieldsRequested(ctx, strings.ToLower(TableName("tasks")))
@@ -270,9 +279,13 @@ func (r *GeneratedQueryResolver) Task(ctx context.Context, id *string, filter *T
 		ID:     id,
 		Filter: filter,
 	}
-	return r.Handlers.QueryTask(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryTask(ctx, r.GeneratedResolver, opts, true)
 }
-func QueryTaskHandler(ctx context.Context, r *GeneratedResolver, opts QueryTaskHandlerOptions) (*Task, error) {
+func QueryTaskHandler(ctx context.Context, r *GeneratedResolver, opts QueryTaskHandlerOptions, authType bool) (*Task, error) {
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return nil, err
+	}
+
 	selection := []ast.Selection{}
 	for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 		selection = append(selection, f.Field)
@@ -326,9 +339,13 @@ func (r *GeneratedQueryResolver) Tasks(ctx context.Context, current_page *int, p
 		Filter:      filter,
 		Rand:        rand,
 	}
-	return r.Handlers.QueryTasks(ctx, r.GeneratedResolver, opts)
+	return r.Handlers.QueryTasks(ctx, r.GeneratedResolver, opts, true)
 }
-func QueryTasksHandler(ctx context.Context, r *GeneratedResolver, opts QueryTasksHandlerOptions) (*TaskResultType, error) {
+func QueryTasksHandler(ctx context.Context, r *GeneratedResolver, opts QueryTasksHandlerOptions, authType bool) (*TaskResultType, error) {
+	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
+		return nil, err
+	}
+
 	query := TaskQueryFilter{opts.Q}
 
 	var selectionSet *ast.SelectionSet
@@ -405,9 +422,9 @@ func (r *GeneratedTaskResultTypeResolver) PerPage(ctx context.Context, obj *Task
 type GeneratedTaskResolver struct{ *GeneratedResolver }
 
 func (r *GeneratedTaskResolver) U(ctx context.Context, obj *Task) (res *User, err error) {
-	return r.Handlers.TaskU(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.TaskU(ctx, r.GeneratedResolver, obj, true)
 }
-func TaskUHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items *User, err error) {
+func TaskUHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items *User, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.UID != nil {
@@ -424,9 +441,9 @@ func TaskUHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items *
 }
 
 func (r *GeneratedTaskResolver) Uu(ctx context.Context, obj *Task) (res []*User, err error) {
-	return r.Handlers.TaskUu(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.TaskUu(ctx, r.GeneratedResolver, obj, true)
 }
-func TaskUuHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items []*User, err error) {
+func TaskUuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items []*User, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	item, _ := loaders["UserTt"].Load(ctx, dataloader.StringKey(obj.ID))()
@@ -457,9 +474,9 @@ func (r *GeneratedTaskResolver) UuIds(ctx context.Context, obj *Task) (ids []str
 }
 
 func (r *GeneratedTaskResolver) Uuu(ctx context.Context, obj *Task) (res *User, err error) {
-	return r.Handlers.TaskUuu(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.TaskUuu(ctx, r.GeneratedResolver, obj, true)
 }
-func TaskUuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items *User, err error) {
+func TaskUuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items *User, err error) {
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 	if obj.UuuID != nil {
@@ -476,9 +493,9 @@ func TaskUuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items
 }
 
 func (r *GeneratedTaskResolver) Uuuu(ctx context.Context, obj *Task) (res []*User, err error) {
-	return r.Handlers.TaskUuuu(ctx, r.GeneratedResolver, obj)
+	return r.Handlers.TaskUuuu(ctx, r.GeneratedResolver, obj, true)
 }
-func TaskUuuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task) (items []*User, err error) {
+func TaskUuuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items []*User, err error) {
 
 	items = []*User{}
 	selects := GetFieldsRequested(ctx, strings.ToLower(TableName("users")))

@@ -23,7 +23,9 @@ var GraphqlApi = `[
     "type": 0,
     "fields": [
       {{range $col := $obj.Columns}}{{if $col.IsCreataDocs}}{ "name": "{{$col.Name}}", "desc": "{{$col.GetComment}}", "type": "{{$col.GetType}}", "required": "{{$col.IsRequired}}", "validator": "{{$col.GetValidator}}", "remark": "{{$col.GetRemark}}" },
-			{{end}}{{end}}{{range $rel := $obj.Relationships}}{ "name": "{{$rel.Name}}", "desc": "{{$rel.Target.Name}}连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "{{$rel.LowerName}}实例" }{{end}}
+			{{end}}{{end}}
+			{{- $relComma := "" -}}{{range $rel := $obj.Relationships}}{{$relComma}}
+			{ "name": "{{$rel.Name}}", "desc": "{{$rel.Target.Name}}连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "{{$rel.LowerName}}实例" }{{ $relComma = "," }}{{end}}
     ],
     "data": [
       { "name": "{{$obj.EntityName}}", "title": "列表", "api": "{{$obj.ToLowerPluralName}}", "type": "list", "method": "Query" },

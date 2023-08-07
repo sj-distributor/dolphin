@@ -30,24 +30,7 @@ func CheckRouterAuth(ctx context.Context, checkAuth bool) error {
 
 	colName = strcase.ToCamel(colName)
 
-	index := utils.StrIndexOf(NoAuthRoutes, colName)
-
-	if index != -1 {
-		return nil
-	}
-
-	authorization := ctx.Value("Authorization")
-	if authorization == nil {
-		return fmt.Errorf("invalid authorization")
-	}
-
-	userAgent := ctx.Value("UserAgent")
-	if userAgent == nil {
-		return fmt.Errorf("unauthorized access")
-	}
-
-	// 校验url权限
-	err := USER_JWT_TOKEN.Verify(authorization.(string), userAgent.(string))
+	err := CheckAuthorization(ctx, colName)
 	return err
 }
 
@@ -64,13 +47,8 @@ func CheckAuthorization(ctx context.Context, colName string) error {
 		return errors.New("Invalid Authorization")
 	}
 
-	userAgent := ctx.Value("UserAgent")
-	if userAgent == nil {
-		return errors.New("unauthorized access")
-	}
-
 	// 校验url权限
-	err := USER_JWT_TOKEN.Verify(authorization.(string), userAgent.(string))
+	err := USER_JWT_TOKEN.Verify(authorization.(string))
 	return err
 }
 `

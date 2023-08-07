@@ -35,24 +35,15 @@ func (j *_JWTToken) SetToken(str interface{}) string {
 }
 
 // 驗證JWT有效性
-func (j *_JWTToken) Verify(token, userAgent string) error {
+func (j *_JWTToken) Verify(token string) error {
 	_, err := j.GetTokenContent(token)
 	if err != nil {
 		return err
 	}
 
-	userinfo, err := j.DecryptToken(token)
+	_, err = j.DecryptToken(token)
 	if err != nil {
 		return err
-	}
-
-	if userinfo["role"] == nil {
-		return errors.New("signature is invalid")
-	}
-
-	sign := utils.EncryptPassword(userAgent)
-	if err != nil || sign != userinfo["sign"] {
-		return errors.New("Invalid Authorization")
 	}
 
 	return nil

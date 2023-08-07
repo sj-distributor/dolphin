@@ -12,7 +12,6 @@ type keyType struct {
 }
 
 var UserAgentKey = &keyType{name: "UserAgent"}
-var AuthorizationKey = &keyType{name: "Authorization"}
 
 func Handler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(response http.ResponseWriter, req *http.Request) {
@@ -25,7 +24,7 @@ func Handler(next http.Handler) http.Handler {
 		ctxt := context.WithValue(req.Context(), UserAgentKey, req.Header.Get("User-Agent"))
 
 		if req.Header.Get("Authorization") != "" {
-			ctxt = context.WithValue(ctxt, AuthorizationKey, req.Header.Get("Authorization"))
+			ctxt = context.WithValue(ctxt, "Authorization", req.Header.Get("Authorization"))
 		}
 
 		next.ServeHTTP(response, req.WithContext(ctxt))

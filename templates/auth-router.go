@@ -49,4 +49,28 @@ func CheckRouterAuth(ctx context.Context, checkAuth bool) error {
 	// 校验url权限
 	err := USER_JWT_TOKEN.Verify(authorization.(string), userAgent.(string))
 	return err
-}`
+}
+
+// CheckAuthorization ....
+func CheckAuthorization(ctx context.Context, colName string) error {
+	index := utils.StrIndexOf(NoAuthRoutes, colName)
+
+	if index != -1 {
+		return nil
+	}
+
+	authorization := ctx.Value("Authorization")
+	if authorization == nil {
+		return errors.New("Invalid Authorization")
+	}
+
+	userAgent := ctx.Value("UserAgent")
+	if userAgent == nil {
+		return errors.New("unauthorized access")
+	}
+
+	// 校验url权限
+	err := USER_JWT_TOKEN.Verify(authorization.(string), userAgent.(string))
+	return err
+}
+`

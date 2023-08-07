@@ -434,6 +434,8 @@ func (o *ObjectField) GetComment() string {
 	str := ""
 	if value != "" {
 		str = RegexpReplace(value, `comment '`, `';`)
+	} else if o.Name() != "id" && o.TargetType() == "ID" {
+		str = o.RelationshipName() + "实例Id"
 	} else {
 		str = columnMap[o.Name()]["comment"]
 	}
@@ -468,6 +470,8 @@ func (o *ObjectField) GetType() string {
 
 	if value != "" {
 		str = RegexpReplace(value, `type:`, ` `)
+	} else if o.Name() != "id" && o.TargetType() == "ID" {
+		str = "varchar(36)"
 	} else {
 		str = columnMap[o.Name()]["type"]
 	}

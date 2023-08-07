@@ -57,10 +57,6 @@ var initCmd = cli.Command{
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createUtilsFile(p); err != nil {
-			return cli.NewExitError(err, 1)
-		}
-
 		if err := createMakeFile(p); err != nil {
 			return cli.NewExitError(err, 1)
 		}
@@ -243,30 +239,6 @@ func createEnumsFile(p string) error {
 	ensureDir(path.Join(p, "enums"))
 
 	if err := templates.WriteTemplate(templates.EnumsConst, path.Join(p, "enums/constants.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func createUtilsFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
-	ensureDir(path.Join(p, "utils"))
-	if err := templates.WriteTemplate(templates.ResolverSrcUtils, path.Join(p, "utils/utils.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
-	if err := templates.WriteTemplate(templates.Rule, path.Join(p, "utils/rule.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
-
-	if err := templates.WriteTemplate(templates.Encrypt, path.Join(p, "utils/encrypt.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
-
-	if err := templates.WriteTemplate(templates.Rsa, path.Join(p, "utils/rsa.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

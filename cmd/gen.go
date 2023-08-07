@@ -90,6 +90,10 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
+	if err := createUtilsFile(p); err != nil {
+		return cli.NewExitError(err, 1)
+	}
+
 	// 接口文档
 	err = generateInterfaceDocument(p, &m, &c)
 	if err != nil {
@@ -217,6 +221,30 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 
 	// html
 	if err := templates.WriterOriginalFile(templates.HandlerHtml, path.Join(p, "gen/html.go")); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createUtilsFile(p string) error {
+	c, err := model.LoadConfigFromPath(p)
+	if err != nil {
+		return err
+	}
+	ensureDir(path.Join(p, "utils"))
+	if err := templates.WriteTemplate(templates.ResolverSrcUtils, path.Join(p, "utils/utils.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+	if err := templates.WriteTemplate(templates.Rule, path.Join(p, "utils/rule.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.Encrypt, path.Join(p, "utils/encrypt.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.Rsa, path.Join(p, "utils/rsa.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

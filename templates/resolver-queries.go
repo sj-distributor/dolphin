@@ -202,13 +202,25 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			}
 			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, authType bool) (items {{$rel.ReturnType}}, err error) {
 				{{if $rel.IsToMany}}
+					// 判断是否有详情权限
+					if err := auth.CheckAuthorization(ctx, "{{$rel.MethodName}}"); err != nil {
+						return items, errors.New("{{$rel.MethodName}} " + err.Error())
+					}
 					{{if $rel.IsManyToMany}}
-						items   = []*{{$rel.TargetType}}{}
-						selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}")))
-						wheres  := []string{}
-						values  := []interface{}{}
+						// selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}")))
+						// wheres  := []string{}
+						// values  := []interface{}{}
 						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
-						err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Preload("{{$obj.Name}}").Find(&items).Error
+						// err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Find(&items).Error
+
+						err = r.DB.Query().Preload("{{$rel.MethodName}}").First(&obj).Error
+
+						if err != nil {
+							return items, err
+						}
+					
+						items = obj.{{$rel.MethodName}}
+
 					{{else}}
 						loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 						item, _ := loaders["{{$rel.TargetType}}{{$rel.UpperRelationshipName}}"].Load(ctx, dataloader.StringKey(obj.ID))()
@@ -218,6 +230,11 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 						}
 					{{end}}
 				{{else}}
+					// 判断是否有详情权限
+					if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+						return items, errors.New("{{$rel.TargetType}} " + err.Error())
+					}
+
 					loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
 					if obj.{{$rel.MethodName}}ID != nil {
 						item, _ := loaders["{{$rel.Target.Name}}"].Load(ctx, dataloader.StringKey(*obj.{{$rel.MethodName}}ID))()
@@ -233,20 +250,29 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			}
 			{{if $rel.IsToMany}}
 				func (r *Generated{{$obj.Name}}Resolver) {{$rel.MethodName}}Ids(ctx context.Context, obj *{{$obj.Name}}) (ids []string, err error) {
-					ids = []string{}
-					items := {{$rel.ReturnType}}{}
+					{{if $rel.IsManyToMany}}
+						err = r.DB.Query().Preload("{{$rel.MethodName}}").First(&obj).Error
+						if err != nil {
+							return
+						}
+					
+						for _, item := range obj.{{$rel.MethodName}} {
+							ids = append(ids, item.ID)
+						}
+					{{else}}
+						items := {{$rel.ReturnType}}{}
 
-					loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-					item, _ := loaders["{{$rel.TargetType}}{{$rel.UpperRelationshipName}}"].Load(ctx, dataloader.StringKey(obj.ID))()
-				
-					if item != nil {
-						items = item.({{$rel.ReturnType}})
-					}
+						loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
+						item, _ := loaders["{{$rel.TargetType}}{{$rel.UpperRelationshipName}}"].Load(ctx, dataloader.StringKey(obj.ID))()
+					
+						if item != nil {
+							items = item.({{$rel.ReturnType}})
+						}
 
-					for _, v := range items {
-						ids = append(ids, v.ID)
-					}
-
+						for _, v := range items {
+							ids = append(ids, v.ID)
+						}
+					{{end}}
 					return
 				}
 			{{end}}

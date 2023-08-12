@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/graphql-go/graphql/language/kinds"
+	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
 
 	"github.com/graphql-go/graphql/language/ast"
@@ -29,12 +30,14 @@ func mutationDefinition(m *Model) *ast.ObjectDefinition {
 func createFieldInput(obj Object) *ast.InputValueDefinition {
 	d := createObjectDefinition(obj)
 	return &ast.InputValueDefinition{
-		Kind: kinds.InputValueDefinition,
-		Name: nameNode("input"),
-		Type: nonNull(namedType(d.Name.Value)),
+		Kind:        kinds.InputValueDefinition,
+		Name:        nameNode("input"),
+		Type:        nonNull(namedType(d.Name.Value)),
+		Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationCreate" + strcase.ToCamel(obj.Name()) + "Args"},
 	}
 }
 
+// MutationUpdateUserArgs
 func createFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
 		Kind: kinds.FieldDefinition,
@@ -49,9 +52,10 @@ func createFieldDefinition(obj Object) *ast.FieldDefinition {
 func updateFieldInput(obj Object) *ast.InputValueDefinition {
 	d := updateObjectDefinition(obj)
 	return &ast.InputValueDefinition{
-		Kind: kinds.InputValueDefinition,
-		Name: nameNode("input"),
-		Type: nonNull(namedType(d.Name.Value)),
+		Kind:        kinds.InputValueDefinition,
+		Name:        nameNode("input"),
+		Type:        nonNull(namedType(d.Name.Value)),
+		Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationUpdate" + strcase.ToCamel(obj.Name()) + "Args"},
 	}
 }
 
@@ -83,6 +87,7 @@ func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
 				Name:         nameNode("unscoped"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},
 				Type:         namedType("Boolean"),
+				Description:  &ast.StringValue{Kind: kinds.StringValue, Value: "MutationDelete" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}
@@ -95,9 +100,10 @@ func recoveryFieldDefinition(obj Object) *ast.FieldDefinition {
 		Type: nonNull(namedType("Boolean")),
 		Arguments: []*ast.InputValueDefinition{
 			{
-				Kind: kinds.InputValueDefinition,
-				Name: nameNode("id"),
-				Type: nonNull(listType(nonNull(namedType("ID")))),
+				Kind:        kinds.InputValueDefinition,
+				Name:        nameNode("id"),
+				Type:        nonNull(listType(nonNull(namedType("ID")))),
+				Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationRecovery" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}

@@ -42,9 +42,10 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 				Type: namedType("ID"),
 			},
 			{
-				Kind: kinds.InputValueDefinition,
-				Name: nameNode("filter"),
-				Type: namedType(obj.Name() + "FilterType"),
+				Kind:        kinds.InputValueDefinition,
+				Name:        nameNode("filter"),
+				Type:        namedType(obj.Name() + "FilterType"),
+				Description: &ast.StringValue{Kind: kinds.StringValue, Value: "Query" + inflection.Singular(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}
@@ -90,6 +91,7 @@ func listFieldDefinition(obj Object) *ast.FieldDefinition {
 				Name:         nameNode("rand"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},
 				Type:         namedType("Boolean"),
+				Description:  &ast.StringValue{Kind: kinds.StringValue, Value: "Query" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}

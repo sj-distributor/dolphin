@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/graphql-go/graphql/language/kinds"
+	"github.com/iancoleman/strcase"
 
 	"github.com/graphql-go/graphql/language/ast"
 )
@@ -48,6 +49,9 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 		} else {
 			if name == "UpdateInput" {
 				t = getNullableType(t)
+			}
+			if obj.Field(strcase.ToLowerCamel(col.RelationshipName())).IsRequired() {
+				t = nonNull(t)
 			}
 			fields = append(fields, &ast.InputValueDefinition{
 				Kind:        kinds.InputValueDefinition,

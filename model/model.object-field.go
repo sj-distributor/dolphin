@@ -94,6 +94,10 @@ func (o *ObjectField) IsRelationship() bool {
 	return o.HasDirective("relationship")
 }
 
+func (o *ObjectField) IsRelationshipRequired() bool {
+	return o.Obj.Field(strcase.ToLowerCamel(o.RelationshipName())).IsRequired()
+}
+
 func (o *ObjectField) NeedsQueryResolver() bool {
 	return o.IsEmbedded()
 }
@@ -123,7 +127,7 @@ func (o *ObjectField) HasName(name string) bool {
 
 // IsRelationshipIdentifier ...
 func (o *ObjectField) IsRelationshipIdentifier() bool {
-	return strings.HasSuffix(o.Name(), "Id") || strings.HasSuffix(o.Name(), "Ids")
+	return strings.HasSuffix(o.Name(), "Id")
 }
 
 // IsCreatable ...

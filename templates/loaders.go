@@ -29,11 +29,11 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 						selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
 					}
 
-					if IndexOf(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.Name}}_id") == -1 {
-						selects = append(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.Name}}_id")
+					if IndexOf(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.ToSnakeName}}_id") == -1 {
+						selects = append(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.ToSnakeName}}_id")
 					}
 			
-					res := db.Query().Select(selects).Find(items, "{{$rel.Name}}_id IN (?)", ids)
+					res := db.Query().Select(selects).Find(items, "{{$rel.ToSnakeName}}_id IN (?)", ids)
 					if res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound) {
 						return []*dataloader.Result{
 							{Error: res.Error},

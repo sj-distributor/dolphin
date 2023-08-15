@@ -49,8 +49,7 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 		} else {
 			if name == "UpdateInput" {
 				t = getNullableType(t)
-			}
-			if obj.Field(strcase.ToLowerCamel(col.RelationshipName())).IsRequired() {
+			} else if obj.Field(strcase.ToLowerCamel(col.RelationshipName())).IsRequired() {
 				t = nonNull(t)
 			}
 			fields = append(fields, &ast.InputValueDefinition{

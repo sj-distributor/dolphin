@@ -32,13 +32,15 @@ func (qf *{{$object.Name}}QueryFilter) Apply(ctx context.Context, db *gorm.DB, s
 		return fmt.Errorf("Cannot query with 'q' attribute without items field.")
 	}
 
-	queryParts := strings.Split(*qf.Query, " ")
-	for _, part := range queryParts {
-		ors := []string{}
-		if err := qf.applyQueryWithFields(db, fields, part, TableName("{{$object.TableName}}"), &ors, values, joins); err != nil {
-			return err
+	if *qf.Query != "" {
+		queryParts := strings.Split(*qf.Query, " ")
+		for _, part := range queryParts {
+			ors := []string{}
+			if err := qf.applyQueryWithFields(db, fields, part, TableName("{{$object.TableName}}"), &ors, values, joins); err != nil {
+				return err
+			}
+			*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 		}
-		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 	}
 	return nil
 }

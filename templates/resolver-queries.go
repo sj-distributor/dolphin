@@ -213,7 +213,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
 						// err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Find(&items).Error
 
-						err = r.DB.Query().Preload("{{$rel.MethodName}}").First(&obj).Error
+						err = r.DB.Query().Order("weight, created_at DESC").Preload("{{$rel.MethodName}}").First(&obj).Error
 
 						if err != nil {
 							return items, err
@@ -251,7 +251,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			{{if $rel.IsToMany}}
 				func (r *Generated{{$obj.Name}}Resolver) {{$rel.MethodName}}Ids(ctx context.Context, obj *{{$obj.Name}}) (ids []string, err error) {
 					{{if $rel.IsManyToMany}}
-						err = r.DB.Query().Preload("{{$rel.MethodName}}").First(&obj).Error
+						err = r.DB.Query().Order("weight, created_at DESC").Preload("{{$rel.MethodName}}").First(&obj).Error
 						if err != nil {
 							return
 						}

@@ -33,7 +33,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 						selects = append(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.ToSnakeName}}_id")
 					}
 			
-					res := db.Query().Select(selects).Find(items, "{{$rel.ToSnakeName}}_id IN (?)", ids)
+					res := db.Query().Select(selects).Order("weight, created_at DESC").Find(items, "{{$rel.ToSnakeName}}_id IN (?)", ids)
 					if res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound) {
 						return []*dataloader.Result{
 							{Error: res.Error},
@@ -85,7 +85,7 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 				selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
 			}
 
-			res := db.Query().Select(selects).Find(items, "id IN (?)", ids)
+			res := db.Query().Select(selects).Order("weight, created_at DESC").Find(items, "id IN (?)", ids)
 			if res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound) {
 				return []*dataloader.Result{
 					{Error: res.Error},

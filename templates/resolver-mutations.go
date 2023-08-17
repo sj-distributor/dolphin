@@ -120,7 +120,9 @@ type MutationEvents struct {
 				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
 					new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 					update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
-					for _, v := range changes.{{$rel.MethodName}} {
+					for index, v := range changes.{{$rel.MethodName}} {
+						weight := int64(index + 1)
+						v.Weight = &weight
 						// 判断ID是否为空
 						if !utils.IsEmpty(v.ID) {
 							// 判断是否有Update权限
@@ -358,7 +360,9 @@ type MutationEvents struct {
 				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
 					new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 					update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
-					for _, v := range changes.{{$rel.MethodName}} {
+					for index, v := range changes.{{$rel.MethodName}} {
+						weight := int64(index + 1)
+						v.Weight = &weight
 						// 判断ID是否为空
 						if !utils.IsEmpty(v.ID) {
 							// 判断是否有Update权限

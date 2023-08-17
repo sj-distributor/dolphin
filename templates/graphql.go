@@ -1,5 +1,82 @@
 package templates
 
+var Graphql = `{{range $obj := .Model.Objects}}
+  # {{$obj.EntityName}} {{$obj.Name}} 接口字段
+  fragment {{$obj.Name}}sFields on {{$obj.Name}} {
+    {{range $col := $obj.Columns}}{{$col.Name}}
+    {{end}}
+  }
+
+  # 列表
+  query {{$obj.Name}}s ($currentPage: Int = 1, $perPage: Int = 10, $sort: [{{$obj.Name}}SortType!], $search: String, $filter: {{$obj.Name}}FilterType, $rand: Boolean = false) {
+    {{$obj.ToLowerPluralName}}(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
+      data {
+        {{range $col := $obj.Columns}}{{$col.Name}}
+        {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {
+          ...{{$rel.Target.Name}}sFields
+        }
+        {{end}}
+      }
+      current_page
+      per_page
+      total
+      total_page
+    }
+  }
+
+  # 详情
+  query {{$obj.Name}}Detail ($id: ID, $search: String, $filter: {{$obj.Name}}FilterType) {
+    {{$obj.LowerName}}(id: $id, q: $search, filter: $filter) {
+      {{range $col := $obj.Columns}}{{$col.Name}}
+      {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {
+        ...{{$rel.Target.Name}}sFields
+      }
+      {{end}}
+    }
+  }
+
+  # 新增
+  mutation {{$obj.Name}}Add ($data: {{$obj.Name}}CreateInput!) {
+    create{{$obj.Name}}(input: $data) {
+      id
+    }
+  }
+
+  # 修改
+  mutation {{$obj.Name}}Edit ($id: ID!, $data: {{$obj.Name}}UpdateInput!) {
+    update{{$obj.Name}}(id: $id, input: $data) {
+      id
+    }
+  }
+
+  # 删除
+  mutation {{$obj.Name}}sDelete ($id: [ID!]!) {
+    delete{{$obj.PluralName}}(id: $id)
+  }
+
+  # 恢复删除
+  mutation {{$obj.Name}}sRecovery ($id: [ID!]!) {
+    recovery{{$obj.PluralName}}(id: $id)
+  }
+{{end}}
+{{range $ext := .Model.ObjectExtensions}}{{$obj := $ext.Object}}
+  {{range $col := $obj.Fields}}
+  # {{$col.LowerName}} 接口
+  {{$obj.LowerName}} {{$col.LowerName}}{{$col.Arguments}} {
+    {{$col.Name}}{{$col.Inputs}}{{if $col.IsReadonlyType}} {
+      ...{{$col.TargetType}}sFields{{if $col.TargetObject.HasAnyRelationships}}
+      {{range $rol := $col.TargetObject.Relationships}}
+      {{$rol.Name}} {
+        {{range $rel := $rol.Target.Columns}}{{$rel.Name}}
+        {{end}}{{range $oRel := $rol.Target.Relationships}}{{$oRel.Name}} {
+          ...{{$oRel.Target.Name}}sFields
+        }
+        {{end}}
+      }{{end}}{{end}}
+    }{{end}}
+  }{{end}}{{end}}
+`
+
 var GraphqlApi = `[
 	{
 		"title": "全局字段",

@@ -94,6 +94,12 @@ func generate(fileDirPath, p string) error {
 		return cli.NewExitError(err, 1)
 	}
 
+	// 接口
+	err = generateInterface(p, &m, &c)
+	if err != nil {
+		return err
+	}
+
 	// 接口文档
 	err = generateInterfaceDocument(p, &m, &c)
 	if err != nil {
@@ -157,6 +163,12 @@ func generate(fileDirPath, p string) error {
 	}
 
 	return nil
+}
+
+// 生成前端接口接口
+func generateInterface(p string, m *model.Model, c *model.Config) error {
+	data := templates.TemplateData{Model: m, Config: c}
+	return templates.WriteInterfaceTemplate(templates.Graphql, path.Join(p, "docs/api.gql"), data)
 }
 
 // 生成前端接口接口文档

@@ -477,8 +477,7 @@ type MutationEvents struct {
 			return item, nil
 		}
 
-		newItem.ID = id
-		if err := tx.Model(&newItem).Updates(newItem).Error; err != nil {
+		if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 	  	tx.Rollback()
 	    return item, err
 	  }

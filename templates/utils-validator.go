@@ -112,17 +112,29 @@ func CheckMinAndMax(mapData map[string]interface{}, field reflect.Value) error {
 // CheckRuleValue ...
 func CheckRuleValue(mapData map[string]interface{}, field reflect.Value) error {
 	if mapData["type"] != nil {
-		value := field.Interface()
-		rl := Rule[mapData["type"].(string)] // Rule 为正则规则
-		if rl["rgx"] == nil {
+		kind := field.Kind()
+		rl, ok := Rule[mapData["type"].(string)] // Rule 为正则规则
+		if !ok || rl["rgx"] == nil {
 			return fmt.Errorf("type " + mapData["type"].(string) + " is empty")
 		}
-		newValue := field.String()
-		if field.Kind() == reflect.Ptr && value.(*string) != nil {
-			newValue = string(*value.(*string))
+
+		var newValue string
+		if kind == reflect.Ptr {
+			if !field.IsNil() {
+				elem := field.Elem()
+				if elem.Kind() == reflect.String {
+					newValue = elem.String()
+				} else if elem.Kind() == reflect.Int || elem.Kind() == reflect.Int64 {
+					newValue = fmt.Sprintf("%d", elem.Int())
+				}
+			}
+		} else if kind == reflect.String {
+			newValue = field.String()
+		} else if kind == reflect.Int || kind == reflect.Int64 {
+			newValue = fmt.Sprintf("%d", field.Int())
 		}
 
-		if isVerify := regexp.MustCompile(rl["rgx"].(string)).MatchString(newValue); !isVerify {
+		if !regexp.MustCompile(rl["rgx"].(string)).MatchString(newValue) {
 			return fmt.Errorf(rl["msg"].(string))
 		}
 	}

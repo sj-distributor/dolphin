@@ -41,6 +41,12 @@ func (o *ObjectField) MethodName() string {
 	return templates.ToGo(name)
 }
 
+func (o *ObjectField) RelationshipTypeName() string {
+	field := strings.Replace(o.MethodName(), "sID", "", -1)
+	field = strings.Replace(field, "ID", "", -1)
+	return field
+}
+
 func (o *ObjectField) RelationshipName() string {
 	return strings.Replace(o.MethodName(), "ID", "", -1)
 }

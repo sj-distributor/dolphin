@@ -68,6 +68,8 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 					return results
 				}
 				loaders["{{$object.Name}}{{$rel.MethodName}}"] = dataloader.NewBatchedLoader({{$object.TableName}}{{$rel.MethodName}}BatchFn, dataloader.WithClearCacheOnBatch())
+				loaders["{{$object.Name}}Ids"] = dataloader.NewBatchedLoader({{$object.TableName}}{{$rel.MethodName}}BatchFn, dataloader.WithClearCacheOnBatch())
+
 			{{end}}
 		{{end}}
 

@@ -82,6 +82,14 @@ func (o *ObjectRelationship) Preload() bool {
 	return val
 }
 
+func (o *ObjectRelationship) IsMaster() bool {
+	value, ok := o.ValueForRelationshipDirectiveAttribute("master")
+	if ok && value == "yes" {
+		return true
+	}
+	return false
+}
+
 func (o *ObjectRelationship) IsDelete() bool {
 	value, ok := o.ValueForRelationshipDirectiveAttribute("delete")
 	if ok && value == "yes" {

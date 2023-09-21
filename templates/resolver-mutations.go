@@ -514,6 +514,14 @@ type MutationEvents struct {
         tx.Rollback()
       }
     }()
+
+		{{range $rel := .Relationships}}
+			{{if $rel.IsMaster}}
+				if err := tx.Where("is_delete = ? and {{$rel.ToSnakeRelationshipName}}_id = ?", 1, id).First(&{{$rel.TargetType}}{}).Error; err == nil {
+					return fmt.Errorf("{{$rel.TargetType}} exists, cannot be deleted")
+				}
+			{{end}}
+		{{end}}
 		
 		var status int64 = 1
 		var isDelete int64 = 2

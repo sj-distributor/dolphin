@@ -166,6 +166,11 @@ func Struct(field reflect.Value, tag reflect.StructTag) error {
 			}
 		}
 
+		// 不允许修改字段
+		if mapData["edit"] != nil && mapData["edit"] == "no" {
+			return fmt.Errorf(title + " editing not allowed")
+		}
+
 		// 正则验证
 		if err := CheckRuleValue(mapData, field); err != nil {
 			return fmt.Errorf(title + " " + err.Error())

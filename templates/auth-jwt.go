@@ -72,7 +72,8 @@ func (j *_JWTToken) GetTokenContent(token string) (interface{}, error) {
 		return nil, errors.New("Invalid Authorization")
 	}
 
-	claims, err := j.ParseToken(token[7:], []byte(j.SecretKey))
+	tokenStr := strings.Replace(token, "Bearer ", "", 1)
+	claims, err := j.ParseToken(tokenStr, []byte(j.SecretKey))
 
 	return claims["content"], err
 }

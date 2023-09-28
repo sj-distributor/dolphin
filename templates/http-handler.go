@@ -38,7 +38,9 @@ func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
 		claims, _ := getJWTClaims(req)
 		var principalID *string
 		if claims != nil {
-			principalID = &(*claims).Subject
+			// principalID = &(*claims).Subject
+			id := claims["id"].(string)
+			principalID = &id
 		}
 		ctx := context.WithValue(req.Context(), KeyJWTClaims, claims)
 		if principalID != nil {
@@ -62,17 +64,21 @@ type JWTClaims struct {
 	jwtgo.RegisteredClaims
 }
 
-func getJWTClaims(req *http.Request) (*JWTClaims, error) {
-	var p *JWTClaims
+func getJWTClaims(req *http.Request) (res map[string]interface{}, err error) {
+	// var p *JWTClaims
+	res = map[string]interface{}{}
 
 	tokenStr := strings.Replace(req.Header.Get("Authorization"), "Bearer ", "", 1)
+
 	if tokenStr == "" {
-		return p, nil
+		return
 	}
 
-	p = &JWTClaims{}
-	jwtgo.ParseWithClaims(tokenStr, p, nil)
-	return p, nil
+	res, err = auth.USER_JWT_TOKEN.DecryptToken(tokenStr)
+
+	// p = &JWTClaims{}
+	// jwtgo.ParseWithClaims(tokenStr, p, nil)
+	return res, err
 }
 
 var MySecret = []byte("cr6ffSvnPwHwVNgQiQMxtrBtcNRa9NuK")

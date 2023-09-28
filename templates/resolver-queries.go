@@ -263,8 +263,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 						items := {{$rel.ReturnType}}{}
 
 						loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-						// UpperRelationshipName
-						item, _ := loaders["{{$rel.TargetType}}Ids"].Load(ctx, dataloader.StringKey(obj.ID))()
+						item, _ := loaders["{{$rel.UpperRelationshipName}}And{{$rel.TargetType}}Ids"].Load(ctx, dataloader.StringKey(obj.ID))()
 					
 						if item != nil {
 							items = item.({{$rel.ReturnType}})

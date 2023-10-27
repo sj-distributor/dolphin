@@ -39,8 +39,10 @@ func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
 		var principalID *string
 		if claims != nil {
 			// principalID = &(*claims).Subject
-			id := claims["id"].(string)
-			principalID = &id
+			if claims["id"] != nil {
+				id := claims["id"].(string)
+				principalID = &id
+			}
 		}
 		ctx := context.WithValue(req.Context(), KeyJWTClaims, claims)
 		if principalID != nil {

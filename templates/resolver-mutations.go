@@ -312,11 +312,6 @@ type MutationEvents struct {
 
 		{{range $rel := .Relationships}}
 			{{if $rel.IsToMany}}
-				if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
-					tx.Rollback()
-					return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
-				}
-
 				if ids, ok := input["{{$rel.Name}}Ids"]; ok && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
 					items := []*{{$rel.TargetType}}{}
 					itemIds := []string{}

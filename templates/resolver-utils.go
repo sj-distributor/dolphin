@@ -111,7 +111,13 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 		switch sel := sel.(type) {
 		case *ast.Field:
 			fieldName := ""
-			if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
+			// && !strings.Contains(sel.Name, "Ids")
+			if strings.Contains(sel.Name, "Ids") && sel.Definition.Type.Name() != "ID" {
+				fieldName = SnakeString(sel.Name)
+				if alias != "" {
+					fieldName = alias + "." + SnakeString(sel.Name)
+				}
+			} else if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
 				if len(sel.SelectionSet) == 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) != -1 {
 					fieldName = SnakeString(sel.Name)
 					if alias != "" {
@@ -127,10 +133,9 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 						}
 					}
 				}
-
-				if fieldName != "" && IndexOf(fields, fieldName) == -1 {
-					fields = append(fields, fieldName)
-				}
+			}
+			if fieldName != "" && IndexOf(fields, fieldName) == -1 {
+				fields = append(fields, fieldName)
 			}
 		}
 	}

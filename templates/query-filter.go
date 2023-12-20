@@ -73,24 +73,24 @@ func (qf *{{$object.Name}}QueryFilter) applyQueryWithFields(db *gorm.DB, fields 
 	{{end}}
 
 	{{range $rel := $object.Relationships}}
-	if fs, ok := fieldsMap["{{$rel.Name}}"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_{{$rel.Name}}"
-		*joins = append(*joins,{{$rel.JoinString}})
+	// if fs, ok := fieldsMap["{{$rel.Name}}"]; ok {
+	// 	_fields := []*ast.Field{}
+	// 	_alias := alias + "_{{$rel.Name}}"
+	// 	*joins = append(*joins,{{$rel.JoinString}})
 
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := {{$rel.Target.Name}}QueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
+	// 	for _, f := range fs {
+	// 		for _, s := range f.SelectionSet {
+	// 			if f, ok := s.(*ast.Field); ok {
+	// 				_fields = append(_fields, f)
+	// 			}
+	// 		}
+	// 	}
+	// 	q := {{$rel.Target.Name}}QueryFilter{qf.Query}
+	// 	err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 	{{end}}
 
 	return nil

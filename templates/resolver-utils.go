@@ -78,14 +78,23 @@ func FinishMutationContext(ctx context.Context, r *GeneratedResolver) (err error
 	return
 }
 
+// GetTransaction ...
 func GetTransaction(ctx context.Context) *gorm.DB {
 	return ctx.Value(KeyMutationTransaction).(*gorm.DB)
 }
 
+// RollbackMutationContext ...
+func RollbackMutationContext(ctx context.Context, r *GeneratedResolver) error {
+	tx := GetTransaction(ctx)
+	return tx.Rollback().Error
+}
+
+// GetMutationEventStore ...
 func GetMutationEventStore(ctx context.Context) *MutationEvents {
 	return ctx.Value(KeyMutationEvents).(*MutationEvents)
 }
 
+// AddMutationEvent ...
 func AddMutationEvent(ctx context.Context, e Event) {
 	s := GetMutationEventStore(ctx)
 	s.Events = append(s.Events, e)

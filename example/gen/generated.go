@@ -6463,7 +6463,7 @@ func (ec *executionContext) unmarshalInputTaskCreateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "completed", "dueDate", "userId", "isDelete", "weight", "state"}
+	fieldsInOrder := [...]string{"title", "completed", "dueDate", "user", "userId", "isDelete", "weight", "state"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -6491,6 +6491,13 @@ func (ec *executionContext) unmarshalInputTaskCreateInput(ctx context.Context, o
 				return it, err
 			}
 			it["dueDate"] = data
+		case "user":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
+			data, err := ec.unmarshalOUserRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserRelationship(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it["user"] = data
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -7579,7 +7586,7 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"title", "completed", "dueDate", "userId", "isDelete", "weight", "state"}
+	fieldsInOrder := [...]string{"title", "completed", "dueDate", "user", "userId", "isDelete", "weight", "state"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7607,6 +7614,13 @@ func (ec *executionContext) unmarshalInputTaskUpdateInput(ctx context.Context, o
 				return it, err
 			}
 			it["dueDate"] = data
+		case "user":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("user"))
+			data, err := ec.unmarshalOUserRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserRelationship(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it["user"] = data
 		case "userId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("userId"))
 			data, err := ec.unmarshalOID2ᚖstring(ctx, v)
@@ -7648,7 +7662,7 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"phone", "password", "email", "nickname", "age", "lastName", "isDelete", "weight", "state", "tasksIds"}
+	fieldsInOrder := [...]string{"phone", "password", "email", "nickname", "age", "lastName", "tasks", "isDelete", "weight", "state", "tasksIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -7697,6 +7711,13 @@ func (ec *executionContext) unmarshalInputUserCreateInput(ctx context.Context, o
 				return it, err
 			}
 			it["lastName"] = data
+		case "tasks":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasks"))
+			data, err := ec.unmarshalOTaskRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskRelationship(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it["tasks"] = data
 		case "isDelete":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDelete"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
@@ -9016,7 +9037,7 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"phone", "password", "email", "nickname", "age", "lastName", "isDelete", "weight", "state", "tasksIds"}
+	fieldsInOrder := [...]string{"phone", "password", "email", "nickname", "age", "lastName", "tasks", "isDelete", "weight", "state", "tasksIds"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9065,6 +9086,13 @@ func (ec *executionContext) unmarshalInputUserUpdateInput(ctx context.Context, o
 				return it, err
 			}
 			it["lastName"] = data
+		case "tasks":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tasks"))
+			data, err := ec.unmarshalOTaskRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskRelationship(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it["tasks"] = data
 		case "isDelete":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isDelete"))
 			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
@@ -11178,6 +11206,34 @@ func (ec *executionContext) unmarshalOTaskFilterType2ᚖgithubᚗcomᚋsjᚑdist
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalOTaskRelationship2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskRelationship(ctx context.Context, v interface{}) ([]*TaskRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*TaskRelationship, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOTaskRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskRelationship(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalOTaskRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskRelationship(ctx context.Context, v interface{}) (*TaskRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputTaskRelationship(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOTaskResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskResultType(ctx context.Context, sel ast.SelectionSet, v *TaskResultType) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -11299,6 +11355,14 @@ func (ec *executionContext) unmarshalOUserFilterType2ᚖgithubᚗcomᚋsjᚑdist
 		return nil, nil
 	}
 	res, err := ec.unmarshalInputUserFilterType(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalOUserRelationship2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserRelationship(ctx context.Context, v interface{}) (*UserRelationship, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputUserRelationship(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 

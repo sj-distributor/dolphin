@@ -34,21 +34,18 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 			t = getNullableType(t)
 		}
 
-		// 跳过
 		if col.IsRelationship() {
-			continue
+			if col.IsListType() {
+				t = namedType("[" + col.TargetObject().Name() + "Relationship" + "]")
+			} else {
+				t = namedType(col.TargetObject().Name() + "Relationship")
+			}
 
-			// if col.IsListType() {
-			// 	t = namedType("[" + col.TargetObject().Name() + "Relationship" + "]")
-			// } else {
-			// 	t = namedType(col.TargetObject().Name() + "Relationship")
-			// }
-
-			// fields = append(fields, &ast.InputValueDefinition{
-			// 	Kind: kinds.InputValueDefinition,
-			// 	Name: nameNode(col.Name()),
-			// 	Type: t,
-			// })
+			fields = append(fields, &ast.InputValueDefinition{
+				Kind: kinds.InputValueDefinition,
+				Name: nameNode(col.Name()),
+				Type: t,
+			})
 		} else {
 			if name == "UpdateInput" {
 				t = getNullableType(t)

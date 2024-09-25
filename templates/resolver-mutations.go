@@ -23,6 +23,7 @@ type MutationEvents struct {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input, true)
 		if err!=nil{
+			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return
 		}
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -35,28 +36,22 @@ type MutationEvents struct {
 		}
 	
 		now := time.Now()
-		milliTime := now.UnixNano() / 1e6
+		timestampMillis := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
 
 		tx := GetTransaction(ctx)
-		defer func() {
-			if r := recover(); r != nil {
-				tx.Rollback()
-			}
-		}()
 
 		event := NewEvent(EventMetadata{
 			Type:        EventTypeCreated,
 			Entity:      "{{$obj.Name}}",
 			EntityID:    item.ID,
-			Date:        milliTime,
+			Date:        timestampMillis,
 			PrincipalID: principalID,
 		})
 
 		var changes {{$obj.Name}}Changes
 		err = ApplyChanges(input, &changes)
 		if err != nil {
-			tx.Rollback()
 			return
 		}
 
@@ -66,8 +61,138 @@ type MutationEvents struct {
 		}
 
 		item.ID        = uuid.Must(uuid.NewV4()).String()
-		item.CreatedAt = milliTime
+		item.CreatedAt = timestampMillis
 		item.CreatedBy = principalID
+
+		{{range $rel := .Relationships}}
+			{{if $rel.IsToMany}}
+				if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
+					return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
+				}
+
+				if ids, ok := input["{{$rel.Name}}Ids"]; ok && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
+					items := []*{{$rel.TargetType}}{}
+					itemIds := []string{}
+					findIds := []string{}
+			
+					for _, v := range ids.([]interface{}) {
+						itemIds = append(itemIds, v.(string))
+					}
+			
+					if len(itemIds) > 0 {
+						// 判断是否有详情权限
+						if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+						}
+			
+						if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+							return item, err
+						}
+			
+						for _, v := range items {
+							findIds = append(findIds, v.ID)
+						}
+					}
+			
+					if len(findIds) > 0 {
+						differenceIds := utils.Difference(itemIds, findIds)
+						if len(differenceIds) > 0 {
+							return item, fmt.Errorf("{{$rel.Name}}Ids " + strings.Join(differenceIds, ",") + " not found")
+						}
+					}
+			
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(items); err != nil {
+						return item, err
+					}
+
+					// item.{{$rel.TargetType}}s = items
+					event.AddNewValue("{{$rel.Name}}", items)
+				}
+
+				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
+					new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
+					update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
+					for index, v := range changes.{{$rel.MethodName}} {
+						weight := int64(index + 1)
+						v.Weight = &weight
+						// 判断ID是否为空
+						if !utils.IsEmpty(v.ID) {
+							// 判断是否有Update权限
+							if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+							}
+			
+							// 判断是否有详情权限
+							if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+							}
+			
+							{{$rel.Name}}Input := utils.StructToMap(*v)
+							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, true)
+							if err != nil {
+								return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+							}
+			
+							update{{$rel.MethodName}} = append(update{{$rel.MethodName}}, v)
+						} else {
+							// 判断是否有Create权限
+							if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+							}
+							v.ID = uuid.Must(uuid.NewV4()).String()
+							new{{$rel.MethodName}} = append(new{{$rel.MethodName}}, v)
+						}
+					}
+					
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
+						return item, err
+					}
+
+					event.AddNewValue("{{$rel.Name}}", append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...))
+				}
+			{{else}}
+				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
+					v := changes.{{$rel.MethodName}}
+
+					// 判断ID是否为空
+					if !utils.IsEmpty(v.ID) {
+						// 判断是否有Update权限
+						if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+						}
+		
+						// 判断是否有详情权限
+						if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+						}
+		
+						{{$rel.Name}}Input := utils.StructToMap(*v)
+						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input, true)
+						if err != nil {
+							return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+						}
+
+						if err := tx.Unscoped().Model(&{{$obj.Name}}{}).Where("{{$rel.Name}}_id = ?", {{$rel.Name}}.ID).Updates(map[string]interface{}{"{{$rel.Name}}_id": nil}).Error; err != nil {
+							return nil, err
+						}
+		
+					} else {
+						// 判断是否有Create权限
+						if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+						}
+						v.ID = uuid.Must(uuid.NewV4()).String()
+					}
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
+						return item, err
+					}
+					item.{{$rel.MethodName}}ID = &v.ID
+					item.{{$rel.MethodName}} = v
+					event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
+					event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
+				}
+			{{end}}
+		{{end}}
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsCreatable}}
@@ -88,7 +213,6 @@ type MutationEvents struct {
 		}
 		
 	  if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
-	  	tx.Rollback()
 	    return item, err
 	  }
 
@@ -102,6 +226,7 @@ type MutationEvents struct {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input, true)
 		if err!=nil{
+			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return
 		}
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -116,28 +241,22 @@ type MutationEvents struct {
 
 		isChange := false
 		now := time.Now()
-		milliTime := now.UnixNano() / 1e6
+		timestampMillis := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
 
 		tx := GetTransaction(ctx)
-    defer func() {
-      if r := recover(); r != nil {
-        tx.Rollback()
-      }
-    }()
 
 		event := NewEvent(EventMetadata{
 			Type:        EventTypeUpdated,
 			Entity:      "{{$obj.Name}}",
 			EntityID:    id,
-			Date:        milliTime,
+			Date:        timestampMillis,
 			PrincipalID: principalID,
 		})
 
 		var changes {{$obj.Name}}Changes
 		err = ApplyChanges(input, &changes)
 		if err != nil {
-			tx.Rollback()
 			return
 		}
 
@@ -146,6 +265,18 @@ type MutationEvents struct {
 			return nil, err
 		}
 
+		{{range $rel := .Relationships}}
+			{{if $rel.IsToMany}}
+				if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
+					return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
+				}
+			{{else}}
+				if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Id"]) {
+					return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+				}
+			{{end}}
+		{{end}}
+
 		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}"), item, &id); err != nil {
 			return nil, err
 		}
@@ -153,6 +284,136 @@ type MutationEvents struct {
 		if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 			newItem.UpdatedBy = principalID
 		}
+
+		{{range $rel := .Relationships}}
+			{{if $rel.IsToMany}}
+				if ids, ok := input["{{$rel.Name}}Ids"]; ok && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
+					items := []*{{$rel.TargetType}}{}
+					itemIds := []string{}
+					findIds := []string{}
+			
+					for _, v := range ids.([]interface{}) {
+						itemIds = append(itemIds, v.(string))
+					}
+			
+					if len(itemIds) > 0 {
+						// 判断是否有详情权限
+						if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+						}
+			
+						if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+							return item, err
+						}
+			
+						for _, v := range items {
+							findIds = append(findIds, v.ID)
+						}
+					}
+			
+					if len(findIds) > 0 {						
+						differenceIds := utils.Difference(itemIds, findIds)
+						if len(differenceIds) > 0 {
+							return item, fmt.Errorf("{{$rel.Name}}Ids " + strings.Join(differenceIds, ",") + " not found")
+						}
+					}
+			
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(items); err != nil {
+						return item, err
+					}
+
+					// item.{{$rel.TargetType}}s = items
+					event.AddNewValue("{{$rel.Name}}", items)
+				}
+
+				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
+					new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
+					update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
+					for index, v := range changes.{{$rel.MethodName}} {
+						weight := int64(index + 1)
+						v.Weight = &weight
+						// 判断ID是否为空
+						if !utils.IsEmpty(v.ID) {
+							// 判断是否有Update权限
+							if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+							}
+			
+							// 判断是否有详情权限
+							if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+							}
+			
+							{{$rel.Name}}Input := utils.StructToMap(*v)
+							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, true)
+							if err != nil {
+								return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+							}
+			
+							update{{$rel.MethodName}} = append(update{{$rel.MethodName}}, v)
+						} else {
+							// 判断是否有Create权限
+							if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+								return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+							}
+							v.ID = uuid.Must(uuid.NewV4()).String()
+							new{{$rel.MethodName}} = append(new{{$rel.MethodName}}, v)
+						}
+					}
+
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
+						return item, err
+					}
+
+					event.AddNewValue("{{$rel.Name}}", append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...))
+				}
+			{{else}}
+				if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
+					v := changes.{{$rel.MethodName}}
+
+					// 判断ID是否为空
+					if !utils.IsEmpty(v.ID) {
+						// 判断是否有Update权限
+						if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+						}
+		
+						// 判断是否有详情权限
+						if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+						}
+		
+						{{$rel.Name}}Input := utils.StructToMap(*v)
+						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input, true)
+						if err != nil {
+							return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+						}
+
+						if err := tx.Unscoped().Model(&{{$obj.Name}}{}).Where("{{$rel.Name}}_id = ?", {{$rel.Name}}.ID).Updates(map[string]interface{}{"{{$rel.Name}}_id": nil}).Error; err != nil {
+							return nil, err
+						}
+
+					} else {
+						// 判断是否有Create权限
+						if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+							return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+						}
+						v.ID = uuid.Must(uuid.NewV4()).String()
+					}
+
+					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
+						return item, err
+					}
+					item.{{$rel.MethodName}}ID = &v.ID
+					newItem.{{$rel.MethodName}}ID = &v.ID
+					item.{{$rel.MethodName}} = v
+					newItem.{{$rel.MethodName}} = v
+					isChange = true
+					event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
+					event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
+				}
+			{{end}}
+		{{end}}
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
@@ -179,7 +440,6 @@ type MutationEvents struct {
 		}
 
 		if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
-	  	tx.Rollback()
 	    return item, err
 	  }
 		
@@ -190,7 +450,6 @@ type MutationEvents struct {
 	        items := []{{$rel.TargetType}}{}
 	        tx.Find(&items, "id IN (?)", ids)
 	        if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(items); err != nil {
-						tx.Rollback()
 						return item, err
 					}
       	}
@@ -210,11 +469,6 @@ type MutationEvents struct {
 		item := &{{$obj.Name}}{}
 		now := time.Now()
 		tx := GetTransaction(ctx)
-    defer func() {
-      if r := recover(); r != nil {
-        tx.Rollback()
-      }
-    }()
 
 		{{range $rel := .Relationships}}
 			{{if $rel.IsMaster}}
@@ -271,6 +525,7 @@ type MutationEvents struct {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 		done,err := r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped, true)
 		if err != nil {
+			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return done, err
 		}
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -278,7 +533,6 @@ type MutationEvents struct {
 	}
 
 	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool,error) {
-		tx := GetTransaction(ctx)
 		var err error = nil
 		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 			return false, err
@@ -294,7 +548,6 @@ type MutationEvents struct {
 		}
 
 		if err != nil {
-			tx.Rollback()
 			return false, err
 		}
 		return true, err

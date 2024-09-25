@@ -2,7 +2,9 @@ package gen
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -21,6 +23,7 @@ func (r *GeneratedMutationResolver) CreateUser(ctx context.Context, input map[st
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	item, err = r.Handlers.CreateUser(ctx, r.GeneratedResolver, input, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -33,28 +36,22 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	now := time.Now()
-	milliTime := now.UnixNano() / 1e6
+	timestampMillis := now.UnixNano() / 1e6
 	principalID := GetPrincipalIDFromContext(ctx)
 
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	event := NewEvent(EventMetadata{
 		Type:        EventTypeCreated,
 		Entity:      "User",
 		EntityID:    item.ID,
-		Date:        milliTime,
+		Date:        timestampMillis,
 		PrincipalID: principalID,
 	})
 
 	var changes UserChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
-		tx.Rollback()
 		return
 	}
 
@@ -64,8 +61,93 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	item.ID = uuid.Must(uuid.NewV4()).String()
-	item.CreatedAt = milliTime
+	item.CreatedAt = timestampMillis
 	item.CreatedBy = principalID
+
+	if !utils.IsNil(input["tasks"]) && !utils.IsNil(input["tasksIds"]) {
+		return nil, fmt.Errorf("tasksIds and tasks cannot coexist")
+	}
+
+	if ids, ok := input["tasksIds"]; ok && !utils.IsNil(input["tasksIds"]) {
+		items := []*Task{}
+		itemIds := []string{}
+		findIds := []string{}
+
+		for _, v := range ids.([]interface{}) {
+			itemIds = append(itemIds, v.(string))
+		}
+
+		if len(itemIds) > 0 {
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+				return item, errors.New("Task Detail " + err.Error())
+			}
+
+			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+				return item, err
+			}
+
+			for _, v := range items {
+				findIds = append(findIds, v.ID)
+			}
+		}
+
+		if len(findIds) > 0 {
+			differenceIds := utils.Difference(itemIds, findIds)
+			if len(differenceIds) > 0 {
+				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
+			}
+		}
+
+		if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
+			return item, err
+		}
+
+		// item.Tasks = items
+		event.AddNewValue("tasks", items)
+	}
+
+	if _, ok := input["tasks"]; ok && !utils.IsNil(input["tasks"]) {
+		newTasks := []*Task{}
+		updateTasks := []*Task{}
+		for index, v := range changes.Tasks {
+			weight := int64(index + 1)
+			v.Weight = &weight
+			// 判断ID是否为空
+			if !utils.IsEmpty(v.ID) {
+				// 判断是否有Update权限
+				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+					return item, errors.New("UpdateTask " + err.Error())
+				}
+
+				// 判断是否有详情权限
+				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+					return item, errors.New("Task Detail " + err.Error())
+				}
+
+				tasksInput := utils.StructToMap(*v)
+				_, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput, true)
+				if err != nil {
+					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+				}
+
+				updateTasks = append(updateTasks, v)
+			} else {
+				// 判断是否有Create权限
+				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+					return item, errors.New("CreateTask " + err.Error())
+				}
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				newTasks = append(newTasks, v)
+			}
+		}
+
+		if err := tx.Model(&item).Association("Tasks").Replace(append(updateTasks, newTasks...)); err != nil {
+			return item, err
+		}
+
+		event.AddNewValue("tasks", append(updateTasks, newTasks...))
+	}
 
 	if _, ok := input["phone"]; ok && (item.Phone != changes.Phone) {
 		item.Phone = changes.Phone
@@ -117,7 +199,6 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
-		tx.Rollback()
 		return item, err
 	}
 
@@ -131,6 +212,7 @@ func (r *GeneratedMutationResolver) UpdateUser(ctx context.Context, id string, i
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	item, err = r.Handlers.UpdateUser(ctx, r.GeneratedResolver, id, input, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -145,28 +227,22 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	isChange := false
 	now := time.Now()
-	milliTime := now.UnixNano() / 1e6
+	timestampMillis := now.UnixNano() / 1e6
 	principalID := GetPrincipalIDFromContext(ctx)
 
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	event := NewEvent(EventMetadata{
 		Type:        EventTypeUpdated,
 		Entity:      "User",
 		EntityID:    id,
-		Date:        milliTime,
+		Date:        timestampMillis,
 		PrincipalID: principalID,
 	})
 
 	var changes UserChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
-		tx.Rollback()
 		return
 	}
 
@@ -175,12 +251,97 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
+	if !utils.IsNil(input["tasks"]) && !utils.IsNil(input["tasksIds"]) {
+		return nil, fmt.Errorf("tasksIds and tasks cannot coexist")
+	}
+
 	if err = GetItem(ctx, tx, TableName("users"), item, &id); err != nil {
 		return nil, err
 	}
 
 	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
+	}
+
+	if ids, ok := input["tasksIds"]; ok && !utils.IsNil(input["tasksIds"]) {
+		items := []*Task{}
+		itemIds := []string{}
+		findIds := []string{}
+
+		for _, v := range ids.([]interface{}) {
+			itemIds = append(itemIds, v.(string))
+		}
+
+		if len(itemIds) > 0 {
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+				return item, errors.New("Task Detail " + err.Error())
+			}
+
+			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+				return item, err
+			}
+
+			for _, v := range items {
+				findIds = append(findIds, v.ID)
+			}
+		}
+
+		if len(findIds) > 0 {
+			differenceIds := utils.Difference(itemIds, findIds)
+			if len(differenceIds) > 0 {
+				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
+			}
+		}
+
+		if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
+			return item, err
+		}
+
+		// item.Tasks = items
+		event.AddNewValue("tasks", items)
+	}
+
+	if _, ok := input["tasks"]; ok && !utils.IsNil(input["tasks"]) {
+		newTasks := []*Task{}
+		updateTasks := []*Task{}
+		for index, v := range changes.Tasks {
+			weight := int64(index + 1)
+			v.Weight = &weight
+			// 判断ID是否为空
+			if !utils.IsEmpty(v.ID) {
+				// 判断是否有Update权限
+				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+					return item, errors.New("UpdateTask " + err.Error())
+				}
+
+				// 判断是否有详情权限
+				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+					return item, errors.New("Task Detail " + err.Error())
+				}
+
+				tasksInput := utils.StructToMap(*v)
+				_, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput, true)
+				if err != nil {
+					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+				}
+
+				updateTasks = append(updateTasks, v)
+			} else {
+				// 判断是否有Create权限
+				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+					return item, errors.New("CreateTask " + err.Error())
+				}
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				newTasks = append(newTasks, v)
+			}
+		}
+
+		if err := tx.Model(&item).Association("Tasks").Replace(append(updateTasks, newTasks...)); err != nil {
+			return item, err
+		}
+
+		event.AddNewValue("tasks", append(updateTasks, newTasks...))
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -272,7 +433,6 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
-		tx.Rollback()
 		return item, err
 	}
 
@@ -281,7 +441,6 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			items := []Task{}
 			tx.Find(&items, "id IN (?)", ids)
 			if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
-				tx.Rollback()
 				return item, err
 			}
 		}
@@ -299,11 +458,6 @@ func DeleteUserFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 	item := &User{}
 	now := time.Now()
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	var status int64 = 1
 	var isDelete int64 = 2
@@ -352,6 +506,7 @@ func (r *GeneratedMutationResolver) DeleteUsers(ctx context.Context, id []string
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.DeleteUsers(ctx, r.GeneratedResolver, id, unscoped, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return done, err
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -359,7 +514,6 @@ func (r *GeneratedMutationResolver) DeleteUsers(ctx context.Context, id []string
 }
 
 func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool, error) {
-	tx := GetTransaction(ctx)
 	var err error = nil
 	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 		return false, err
@@ -375,7 +529,6 @@ func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 	}
 
 	if err != nil {
-		tx.Rollback()
 		return false, err
 	}
 	return true, err
@@ -418,6 +571,7 @@ func (r *GeneratedMutationResolver) CreateTask(ctx context.Context, input map[st
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	item, err = r.Handlers.CreateTask(ctx, r.GeneratedResolver, input, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -430,28 +584,22 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	now := time.Now()
-	milliTime := now.UnixNano() / 1e6
+	timestampMillis := now.UnixNano() / 1e6
 	principalID := GetPrincipalIDFromContext(ctx)
 
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	event := NewEvent(EventMetadata{
 		Type:        EventTypeCreated,
 		Entity:      "Task",
 		EntityID:    item.ID,
-		Date:        milliTime,
+		Date:        timestampMillis,
 		PrincipalID: principalID,
 	})
 
 	var changes TaskChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
-		tx.Rollback()
 		return
 	}
 
@@ -461,8 +609,49 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	item.ID = uuid.Must(uuid.NewV4()).String()
-	item.CreatedAt = milliTime
+	item.CreatedAt = timestampMillis
 	item.CreatedBy = principalID
+
+	if _, ok := input["user"]; ok && !utils.IsNil(input["user"]) {
+		v := changes.User
+
+		// 判断ID是否为空
+		if !utils.IsEmpty(v.ID) {
+			// 判断是否有Update权限
+			if err := auth.CheckAuthorization(ctx, "UpdateUser"); err != nil {
+				return item, errors.New("UpdateUser " + err.Error())
+			}
+
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "User"); err != nil {
+				return item, errors.New("User Detail " + err.Error())
+			}
+
+			userInput := utils.StructToMap(*v)
+			user, err := r.Handlers.UpdateUser(ctx, r, v.ID, userInput, true)
+			if err != nil {
+				return item, errors.New("User ID " + v.ID + " " + err.Error())
+			}
+
+			if err := tx.Unscoped().Model(&Task{}).Where("user_id = ?", user.ID).Updates(map[string]interface{}{"user_id": nil}).Error; err != nil {
+				return nil, err
+			}
+
+		} else {
+			// 判断是否有Create权限
+			if err := auth.CheckAuthorization(ctx, "CreateUser"); err != nil {
+				return item, errors.New("CreateUser " + err.Error())
+			}
+			v.ID = uuid.Must(uuid.NewV4()).String()
+		}
+		if err := tx.Model(&item).Association("User").Append(v); err != nil {
+			return item, err
+		}
+		item.UserID = &v.ID
+		item.User = v
+		event.AddNewValue("user", item.User)
+		event.AddNewValue("userId", item.UserID)
+	}
 
 	if _, ok := input["title"]; ok && (item.Title != changes.Title) && (item.Title == nil || changes.Title == nil || *item.Title != *changes.Title) {
 		item.Title = changes.Title
@@ -508,7 +697,6 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	}
 
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
-		tx.Rollback()
 		return item, err
 	}
 
@@ -522,6 +710,7 @@ func (r *GeneratedMutationResolver) UpdateTask(ctx context.Context, id string, i
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	item, err = r.Handlers.UpdateTask(ctx, r.GeneratedResolver, id, input, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -536,28 +725,22 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	isChange := false
 	now := time.Now()
-	milliTime := now.UnixNano() / 1e6
+	timestampMillis := now.UnixNano() / 1e6
 	principalID := GetPrincipalIDFromContext(ctx)
 
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	event := NewEvent(EventMetadata{
 		Type:        EventTypeUpdated,
 		Entity:      "Task",
 		EntityID:    id,
-		Date:        milliTime,
+		Date:        timestampMillis,
 		PrincipalID: principalID,
 	})
 
 	var changes TaskChanges
 	err = ApplyChanges(input, &changes)
 	if err != nil {
-		tx.Rollback()
 		return
 	}
 
@@ -566,12 +749,61 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
+	if !utils.IsNil(input["user"]) && !utils.IsNil(input["userId"]) {
+		return nil, fmt.Errorf("userId and user cannot coexist")
+	}
+
 	if err = GetItem(ctx, tx, TableName("tasks"), item, &id); err != nil {
 		return nil, err
 	}
 
 	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
 		newItem.UpdatedBy = principalID
+	}
+
+	if _, ok := input["user"]; ok && !utils.IsNil(input["user"]) {
+		v := changes.User
+
+		// 判断ID是否为空
+		if !utils.IsEmpty(v.ID) {
+			// 判断是否有Update权限
+			if err := auth.CheckAuthorization(ctx, "UpdateUser"); err != nil {
+				return item, errors.New("UpdateUser " + err.Error())
+			}
+
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "User"); err != nil {
+				return item, errors.New("User Detail " + err.Error())
+			}
+
+			userInput := utils.StructToMap(*v)
+			user, err := r.Handlers.UpdateUser(ctx, r, v.ID, userInput, true)
+			if err != nil {
+				return item, errors.New("User ID " + v.ID + " " + err.Error())
+			}
+
+			if err := tx.Unscoped().Model(&Task{}).Where("user_id = ?", user.ID).Updates(map[string]interface{}{"user_id": nil}).Error; err != nil {
+				return nil, err
+			}
+
+		} else {
+			// 判断是否有Create权限
+			if err := auth.CheckAuthorization(ctx, "CreateUser"); err != nil {
+				return item, errors.New("CreateUser " + err.Error())
+			}
+			v.ID = uuid.Must(uuid.NewV4()).String()
+		}
+
+		if err := tx.Model(&item).Association("User").Append(v); err != nil {
+			return item, err
+		}
+		item.UserID = &v.ID
+		newItem.UserID = &v.ID
+		item.User = v
+		newItem.User = v
+		isChange = true
+		event.AddNewValue("user", item.User)
+		event.AddNewValue("userId", item.UserID)
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -651,7 +883,6 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 	}
 
 	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
-		tx.Rollback()
 		return item, err
 	}
 
@@ -667,11 +898,6 @@ func DeleteTaskFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 	item := &Task{}
 	now := time.Now()
 	tx := GetTransaction(ctx)
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
 
 	var status int64 = 1
 	var isDelete int64 = 2
@@ -720,6 +946,7 @@ func (r *GeneratedMutationResolver) DeleteTasks(ctx context.Context, id []string
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.DeleteTasks(ctx, r.GeneratedResolver, id, unscoped, true)
 	if err != nil {
+		RollbackMutationContext(ctx, r.GeneratedResolver)
 		return done, err
 	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
@@ -727,7 +954,6 @@ func (r *GeneratedMutationResolver) DeleteTasks(ctx context.Context, id []string
 }
 
 func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool, error) {
-	tx := GetTransaction(ctx)
 	var err error = nil
 	if err := auth.CheckRouterAuth(ctx, authType); err != nil {
 		return false, err
@@ -743,7 +969,6 @@ func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 	}
 
 	if err != nil {
-		tx.Rollback()
 		return false, err
 	}
 	return true, err

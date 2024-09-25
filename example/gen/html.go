@@ -12,20 +12,20 @@ var page = template.Must(template.New("graphiql").Parse(`<!DOCTYPE html>
     <title>{{.title}}</title>
     <link
 		rel="stylesheet"
-		href="https://cdn.bootcdn.net/ajax/libs/graphiql/2.4.1/graphiql.min.css"
+		href="https://cdnjs.webstatic.cn/ajax/libs/graphiql/3.7.1/graphiql.min.css"
 	/>
   </head>
   <body style="margin: 0;">
     <div id="graphiql" style="height: 100vh;"></div>
 
 	<script
-		src="https://cdn.bootcdn.net/ajax/libs/react/18.2.0/umd/react.production.min.js"
+		src="https://cdnjs.webstatic.cn/ajax/libs/react/18.3.1/umd/react.production.min.js"
 	></script>
 	<script
-		src="https://cdn.bootcdn.net/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+		src="https://cdnjs.webstatic.cn/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"
 	></script>
 	<script
-		src="https://cdn.bootcdn.net/ajax/libs/graphiql/2.4.1/graphiql.min.js"
+		src="https://cdnjs.webstatic.cn/ajax/libs/graphiql/3.7.1/graphiql.js"
 	></script>
 
     <script>

@@ -153,7 +153,6 @@ input UserCreateInput {
   nickname: String
   age: Int
   lastName: String
-  tasks: [TaskRelationship]
   isDelete: Int
   weight: Int
   state: Int
@@ -167,7 +166,6 @@ input UserUpdateInput {
   nickname: String
   age: Int
   lastName: String
-  tasks: [TaskRelationship]
   isDelete: Int
   weight: Int
   state: Int
@@ -369,7 +367,6 @@ input TaskCreateInput {
   title: String
   completed: Boolean
   dueDate: Time
-  user: UserRelationship
   userId: ID
   isDelete: Int
   weight: Int
@@ -380,7 +377,6 @@ input TaskUpdateInput {
   title: String
   completed: Boolean
   dueDate: Time
-  user: UserRelationship
   userId: ID
   isDelete: Int
   weight: Int

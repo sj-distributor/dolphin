@@ -6,5 +6,5 @@ import (
 
 func Config() {
 	auth.USER_JWT_TOKEN.TokenExpTime = 30 // 天数
-	auth.USER_JWT_TOKEN.SecretKey = "zgubWf2HlzYvTodPDYVWiYoFtQj3D71T"
+	auth.USER_JWT_TOKEN.SecretKey = "QDwSJaaLIXYvuQeZfzI5Zvmn58kHJkRV"
 }

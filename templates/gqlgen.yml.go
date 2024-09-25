@@ -3,17 +3,33 @@ package templates
 var GQLGen = `# Generated with dolphin
 {{$config:=.Config}}
 schema:
-  - schema.graphql
+  - gen/*.graphqls
+
+# Where should the generated server code go?
 exec:
-  filename: generated.go
+  filename: gen/generated.go
   package: gen
+
+# Uncomment to enable federation
+# federation:
+#   filename: gen/federation.go
+#   package: gen
+#   version: 2
+#   options
+#     computed_requires: true
+
+# Where should any generated models go?
 model:
-  filename: models_gen.go
+  filename: gen/models_gen.go
   package: gen
-resolver:
-  filename: resolver.go
-  type: Resolver
-  package: gen
+
+# Where should the resolver implementations go?
+# resolver:
+  # layout: follow-schema
+  # dir: gen
+  # package: gen
+  # filename_template: "{name}.resolvers.go"
+
 autobind:
   - "{{.Config.Package}}/gen"
 

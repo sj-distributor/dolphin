@@ -29,13 +29,15 @@ func (qf *UserQueryFilter) Apply(ctx context.Context, db *gorm.DB, selectionSet 
 		return fmt.Errorf("Cannot query with 'q' attribute without items field.")
 	}
 
-	queryParts := strings.Split(*qf.Query, " ")
-	for _, part := range queryParts {
-		ors := []string{}
-		if err := qf.applyQueryWithFields(db, fields, part, TableName("users"), &ors, values, joins); err != nil {
-			return err
+	if *qf.Query != "" {
+		queryParts := strings.Split(*qf.Query, " ")
+		for _, part := range queryParts {
+			ors := []string{}
+			if err := qf.applyQueryWithFields(db, fields, part, TableName("users"), &ors, values, joins); err != nil {
+				return err
+			}
+			*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 		}
-		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 	}
 	return nil
 }
@@ -53,6 +55,50 @@ func (qf *UserQueryFilter) applyQueryWithFields(db *gorm.DB, fields []*ast.Field
 	if _, ok := fieldsMap["phone"]; ok {
 
 		column := alias + "." + SnakeString("phone")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "%"+query+"%")
+	}
+
+	if _, ok := fieldsMap["password"]; ok {
+
+		column := alias + "." + SnakeString("password")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "%"+query+"%")
+	}
+
+	if _, ok := fieldsMap["email"]; ok {
+
+		column := alias + "." + SnakeString("email")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "%"+query+"%")
+	}
+
+	if _, ok := fieldsMap["nickname"]; ok {
+
+		column := alias + "." + SnakeString("nickname")
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "%"+query+"%")
+	}
+
+	if _, ok := fieldsMap["age"]; ok {
+
+		cast := "TEXT"
+		if db.Name() == "mysql" {
+			cast = "CHAR"
+		}
+		column := fmt.Sprintf("CAST(%s"+SnakeString("age")+" AS %s)", alias+".", cast)
+
+		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
+		*values = append(*values, query+"%", "%"+query+"%")
+	}
+
+	if _, ok := fieldsMap["lastName"]; ok {
+
+		column := alias + "." + SnakeString("lastName")
 
 		*ors = append(*ors, fmt.Sprintf("%[1]s LIKE ? OR %[1]s LIKE ?", column))
 		*values = append(*values, query+"%", "%"+query+"%")
@@ -130,81 +176,24 @@ func (qf *UserQueryFilter) applyQueryWithFields(db *gorm.DB, fields []*ast.Field
 		*values = append(*values, query+"%", "%"+query+"%")
 	}
 
-	if fs, ok := fieldsMap["t"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_t"
-		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"t_id")
+	// if fs, ok := fieldsMap["tasks"]; ok {
+	// 	_fields := []*ast.Field{}
+	// 	_alias := alias + "_tasks"
+	// 	*joins = append(*joins,"LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+"."+"user_id"+" = "+alias+".id")
 
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := TaskQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["tt"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_tt"
-		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"tt_id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := TaskQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["ttt"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_ttt"
-		*joins = append(*joins, "LEFT JOIN "+"tasks"+" "+_alias+" ON "+_alias+"."+"uuu_id"+" = "+alias+".id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := TaskQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["tttt"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_tttt"
-		*joins = append(*joins, "LEFT JOIN "+"task_uuuu"+" "+_alias+"_jointable"+" ON "+alias+".id = "+_alias+"_jointable"+"."+"uuuu_id"+" LEFT JOIN "+TableName("tasks")+" "+_alias+" ON "+_alias+"_jointable"+"."+"tttt_id"+" = "+_alias+".id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := TaskQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
+	// 	for _, f := range fs {
+	// 		for _, s := range f.SelectionSet {
+	// 			if f, ok := s.(*ast.Field); ok {
+	// 				_fields = append(_fields, f)
+	// 			}
+	// 		}
+	// 	}
+	// 	q := TaskQueryFilter{qf.Query}
+	// 	err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }
@@ -229,13 +218,15 @@ func (qf *TaskQueryFilter) Apply(ctx context.Context, db *gorm.DB, selectionSet 
 		return fmt.Errorf("Cannot query with 'q' attribute without items field.")
 	}
 
-	queryParts := strings.Split(*qf.Query, " ")
-	for _, part := range queryParts {
-		ors := []string{}
-		if err := qf.applyQueryWithFields(db, fields, part, TableName("tasks"), &ors, values, joins); err != nil {
-			return err
+	if *qf.Query != "" {
+		queryParts := strings.Split(*qf.Query, " ")
+		for _, part := range queryParts {
+			ors := []string{}
+			if err := qf.applyQueryWithFields(db, fields, part, TableName("tasks"), &ors, values, joins); err != nil {
+				return err
+			}
+			*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 		}
-		*wheres = append(*wheres, "("+strings.Join(ors, " OR ")+")")
 	}
 	return nil
 }
@@ -330,81 +321,24 @@ func (qf *TaskQueryFilter) applyQueryWithFields(db *gorm.DB, fields []*ast.Field
 		*values = append(*values, query+"%", "%"+query+"%")
 	}
 
-	if fs, ok := fieldsMap["u"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_u"
-		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"u_id")
+	// if fs, ok := fieldsMap["user"]; ok {
+	// 	_fields := []*ast.Field{}
+	// 	_alias := alias + "_user"
+	// 	*joins = append(*joins,"LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"user_id")
 
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := UserQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["uu"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_uu"
-		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+"."+"tt_id"+" = "+alias+".id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := UserQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["uuu"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_uuu"
-		*joins = append(*joins, "LEFT JOIN "+"users"+" "+_alias+" ON "+_alias+".id = "+alias+"."+"uuu_id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := UserQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
-
-	if fs, ok := fieldsMap["uuuu"]; ok {
-		_fields := []*ast.Field{}
-		_alias := alias + "_uuuu"
-		*joins = append(*joins, "LEFT JOIN "+"task_uuuu"+" "+_alias+"_jointable"+" ON "+alias+".id = "+_alias+"_jointable"+"."+"tttt_id"+" LEFT JOIN "+TableName("users")+" "+_alias+" ON "+_alias+"_jointable"+"."+"uuuu_id"+" = "+_alias+".id")
-
-		for _, f := range fs {
-			for _, s := range f.SelectionSet {
-				if f, ok := s.(*ast.Field); ok {
-					_fields = append(_fields, f)
-				}
-			}
-		}
-		q := UserQueryFilter{qf.Query}
-		err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
-		if err != nil {
-			return err
-		}
-	}
+	// 	for _, f := range fs {
+	// 		for _, s := range f.SelectionSet {
+	// 			if f, ok := s.(*ast.Field); ok {
+	// 				_fields = append(_fields, f)
+	// 			}
+	// 		}
+	// 	}
+	// 	q := UserQueryFilter{qf.Query}
+	// 	err := q.applyQueryWithFields(db, _fields, query, _alias, ors, values, joins)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	return nil
 }

@@ -2,7 +2,9 @@ package gen
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -68,135 +70,93 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
-	if input["t"] != nil && input["tId"] != nil {
+	if !utils.IsNil(input["tasks"]) && !utils.IsNil(input["tasksIds"]) {
 		tx.Rollback()
-		return nil, fmt.Errorf("tId and t cannot coexist")
+		return nil, fmt.Errorf("tasksIds and tasks cannot coexist")
 	}
 
-	if _, ok := input["t"]; ok {
-		var t *Task
-		tInput := input["t"].(map[string]interface{})
+	if ids, ok := input["tasksIds"]; ok && !utils.IsNil(input["tasksIds"]) {
+		items := []*Task{}
+		itemIds := []string{}
+		findIds := []string{}
 
-		if tInput["id"] == nil {
-
-			// one to one
-			tInput["uId"] = item.ID
-
-			t, err = r.Handlers.CreateTask(ctx, r, tInput, authType)
-		} else {
-			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput, authType)
+		for _, v := range ids.([]interface{}) {
+			itemIds = append(itemIds, v.(string))
 		}
 
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("t %s", err.Error()))
-		}
+		if len(itemIds) > 0 {
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+				return item, errors.New("Task Detail " + err.Error())
+			}
 
-		// if err := tx.Model(&Task{}).Where("id = ?", t.ID).Updates(Task{ UID: &item.ID}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, err
-		// }
+			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+				return item, err
+			}
 
-		event.AddNewValue("t", changes.T)
-		item.T = t
-		item.TID = &t.ID
-	}
-
-	if _, ok := input["tt"]; ok {
-		var tt *Task
-		ttInput := input["tt"].(map[string]interface{})
-
-		if ttInput["id"] == nil {
-
-			tt, err = r.Handlers.CreateTask(ctx, r, ttInput, authType)
-		} else {
-			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("tt %s", err.Error()))
-		}
-
-		event.AddNewValue("tt", changes.Tt)
-		item.Tt = tt
-		item.TtID = &tt.ID
-	}
-
-	if input["ttt"] != nil && input["tttIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("tttIds and ttt cannot coexist")
-	}
-
-	var tttIds []string
-	var createTtt []*Task
-	var updateTtt []*Task
-	if _, ok := input["ttt"]; ok {
-		for _, v := range changes.Ttt {
-			if v.ID == "" {
-				v.ID = uuid.Must(uuid.NewV4()).String()
-				v.CreatedAt = milliTime
-				v.CreatedBy = principalID
-				createTtt = append(createTtt, v)
-			} else {
-				opts := QueryTaskHandlerOptions{
-					ID: &v.ID,
-				}
-				if _, err = r.Handlers.QueryTask(ctx, r, opts, authType); err != nil {
-					tx.Rollback()
-					return nil, err
-				}
-				v.UpdatedAt = &milliTime
-				v.UpdatedBy = principalID
-				updateTtt = append(updateTtt, v)
+			for _, v := range items {
+				findIds = append(findIds, v.ID)
 			}
 		}
-		event.AddNewValue("ttt", changes.Ttt)
-		item.Ttt = changes.Ttt
-	}
 
-	if ids, exists := input["tttIds"]; exists {
-		for _, v := range ids.([]interface{}) {
-			tttIds = append(tttIds, v.(string))
-		}
-	}
-
-	if input["tttt"] != nil && input["ttttIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("ttttIds and tttt cannot coexist")
-	}
-
-	var ttttIds []string
-	var createTttt []*Task
-	var updateTttt []*Task
-	if _, ok := input["tttt"]; ok {
-		for _, v := range changes.Tttt {
-			if v.ID == "" {
-				v.ID = uuid.Must(uuid.NewV4()).String()
-				v.CreatedAt = milliTime
-				v.CreatedBy = principalID
-				createTttt = append(createTttt, v)
-			} else {
-				opts := QueryTaskHandlerOptions{
-					ID: &v.ID,
-				}
-				if _, err = r.Handlers.QueryTask(ctx, r, opts, authType); err != nil {
-					tx.Rollback()
-					return nil, err
-				}
-				v.UpdatedAt = &milliTime
-				v.UpdatedBy = principalID
-				updateTttt = append(updateTttt, v)
+		if len(findIds) > 0 {
+			differenceIds := utils.Difference(itemIds, findIds)
+			if len(differenceIds) > 0 {
+				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
 			}
 		}
-		event.AddNewValue("tttt", changes.Tttt)
-		item.Tttt = changes.Tttt
+
+		if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+
+		// item.Tasks = items
+		event.AddNewValue("tasks", items)
 	}
 
-	if ids, exists := input["ttttIds"]; exists {
-		for _, v := range ids.([]interface{}) {
-			ttttIds = append(ttttIds, v.(string))
+	if _, ok := input["tasks"]; ok && !utils.IsNil(input["tasks"]) {
+		newTasks := []*Task{}
+		updateTasks := []*Task{}
+		for index, v := range changes.Tasks {
+			weight := int64(index + 1)
+			v.Weight = &weight
+			// 判断ID是否为空
+			if !utils.IsEmpty(v.ID) {
+				// 判断是否有Update权限
+				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+					return item, errors.New("UpdateTask " + err.Error())
+				}
+
+				// 判断是否有详情权限
+				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+					return item, errors.New("Task Detail " + err.Error())
+				}
+
+				tasksInput := utils.StructToMap(*v)
+				_, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput, true)
+				if err != nil {
+					tx.Rollback()
+					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+				}
+
+				updateTasks = append(updateTasks, v)
+			} else {
+				// 判断是否有Create权限
+				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+					return item, errors.New("CreateTask " + err.Error())
+				}
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				newTasks = append(newTasks, v)
+			}
 		}
+
+		if err := tx.Model(&item).Association("Tasks").Replace(append(updateTasks, newTasks...)); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+
+		event.AddNewValue("tasks", append(updateTasks, newTasks...))
 	}
 
 	if _, ok := input["phone"]; ok && (item.Phone != changes.Phone) {
@@ -204,24 +164,29 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		event.AddNewValue("phone", changes.Phone)
 	}
 
-	if _, ok := input["tId"]; ok && (item.TID != changes.TID) && (item.TID == nil || changes.TID == nil || *item.TID != *changes.TID) {
-
-		// if err := tx.Select("id").Where("id", input["tId"]).First(&T{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("tId " + err.Error())
-		// }
-		item.TID = changes.TID
-		event.AddNewValue("tId", changes.TID)
+	if _, ok := input["password"]; ok && (item.Password != changes.Password) {
+		item.Password = changes.Password
+		event.AddNewValue("password", changes.Password)
 	}
 
-	if _, ok := input["ttId"]; ok && (item.TtID != changes.TtID) && (item.TtID == nil || changes.TtID == nil || *item.TtID != *changes.TtID) {
+	if _, ok := input["email"]; ok && (item.Email != changes.Email) && (item.Email == nil || changes.Email == nil || *item.Email != *changes.Email) {
+		item.Email = changes.Email
+		event.AddNewValue("email", changes.Email)
+	}
 
-		// if err := tx.Select("id").Where("id", input["ttId"]).First(&Tt{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("ttId " + err.Error())
-		// }
-		item.TtID = changes.TtID
-		event.AddNewValue("ttId", changes.TtID)
+	if _, ok := input["nickname"]; ok && (item.Nickname != changes.Nickname) && (item.Nickname == nil || changes.Nickname == nil || *item.Nickname != *changes.Nickname) {
+		item.Nickname = changes.Nickname
+		event.AddNewValue("nickname", changes.Nickname)
+	}
+
+	if _, ok := input["age"]; ok && (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) {
+		item.Age = changes.Age
+		event.AddNewValue("age", changes.Age)
+	}
+
+	if _, ok := input["lastName"]; ok && (item.LastName != changes.LastName) && (item.LastName == nil || changes.LastName == nil || *item.LastName != *changes.LastName) {
+		item.LastName = changes.LastName
+		event.AddNewValue("lastName", changes.LastName)
 	}
 
 	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
@@ -247,34 +212,6 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 		tx.Rollback()
 		return item, err
-	}
-
-	// todo 添加权限验证
-	if len(createTtt) > 0 {
-		if err := tx.Model(&item).Association("Ttt").Append(createTtt); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-	if len(updateTtt) > 0 {
-		if err := tx.Model(&item).Association("Ttt").Replace(updateTtt); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-
-	// todo 添加权限验证
-	if len(createTttt) > 0 {
-		if err := tx.Model(&item).Association("Tttt").Append(createTttt); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-	if len(updateTttt) > 0 {
-		if err := tx.Model(&item).Association("Tttt").Replace(updateTttt); err != nil {
-			tx.Rollback()
-			return item, err
-		}
 	}
 
 	if len(event.Changes) > 0 {
@@ -332,24 +269,9 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	if input["t"] != nil && input["tId"] != nil {
+	if !utils.IsNil(input["tasks"]) && !utils.IsNil(input["tasksIds"]) {
 		tx.Rollback()
-		return nil, fmt.Errorf("tId and t cannot coexist")
-	}
-
-	if input["tt"] != nil && input["ttId"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("ttId and tt cannot coexist")
-	}
-
-	if input["ttt"] != nil && input["tttIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("tttIds and ttt cannot coexist")
-	}
-
-	if input["tttt"] != nil && input["ttttIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("ttttIds and tttt cannot coexist")
+		return nil, fmt.Errorf("tasksIds and tasks cannot coexist")
 	}
 
 	if err = GetItem(ctx, tx, TableName("users"), item, &id); err != nil {
@@ -361,138 +283,88 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		newItem.UpdatedBy = principalID
 	}
 
-	if _, ok := input["t"]; ok {
-		var t *Task
-		tInput := input["t"].(map[string]interface{})
+	if ids, ok := input["tasksIds"]; ok && !utils.IsNil(input["tasksIds"]) {
+		items := []*Task{}
+		itemIds := []string{}
+		findIds := []string{}
 
-		if tInput["id"] == nil {
-			t, err = r.Handlers.CreateTask(ctx, r, tInput, authType)
-		} else {
-			t, err = r.Handlers.UpdateTask(ctx, r, tInput["id"].(string), tInput, authType)
+		for _, v := range ids.([]interface{}) {
+			itemIds = append(itemIds, v.(string))
 		}
 
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("t %s", err.Error()))
-		}
-
-		event.AddOldValue("t", item.T)
-		event.AddNewValue("t", changes.T)
-		item.T = t
-		newItem.TID = &t.ID
-		isChange = true
-	}
-
-	if _, ok := input["tt"]; ok {
-		var tt *Task
-		ttInput := input["tt"].(map[string]interface{})
-
-		if ttInput["id"] == nil {
-			tt, err = r.Handlers.CreateTask(ctx, r, ttInput, authType)
-		} else {
-			tt, err = r.Handlers.UpdateTask(ctx, r, ttInput["id"].(string), ttInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("tt %s", err.Error()))
-		}
-
-		event.AddOldValue("tt", item.Tt)
-		event.AddNewValue("tt", changes.Tt)
-		item.Tt = tt
-		newItem.TtID = &tt.ID
-		isChange = true
-	}
-
-	var tttIds []string
-
-	if _, ok := input["ttt"]; ok {
-		if err := tx.Unscoped().Model(&Task{}).Where("uuu_id = ?", id).Update("uuu_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-
-		var tttMaps []map[string]interface{}
-		for _, v := range input["ttt"].([]interface{}) {
-			vMaps := v.(map[string]interface{})
-			tttMaps = append(tttMaps, vMaps)
-		}
-
-		for _, v := range tttMaps {
-			var ttt *Task
-			v["uuuId"] = id
-			if v["id"] == nil {
-				ttt, err = r.Handlers.CreateTask(ctx, r, v, authType)
-			} else {
-				ttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v, authType)
+		if len(itemIds) > 0 {
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+				return item, errors.New("Task Detail " + err.Error())
 			}
 
-			changes.Ttt = append(changes.Ttt, ttt)
-		}
-
-		event.AddNewValue("ttt", changes.Ttt)
-		item.Ttt = changes.Ttt
-		newItem.Ttt = changes.Ttt
-	}
-
-	if ids, exists := input["tttIds"]; exists {
-		if err := tx.Unscoped().Model(&Task{}).Where("uuu_id = ?", id).Update("uuu_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-		for _, v := range ids.([]interface{}) {
-			tttIds = append(tttIds, v.(string))
-		}
-
-		if len(tttIds) > 0 {
-			isChange = true
-		}
-	}
-
-	var ttttIds []string
-
-	if _, ok := input["tttt"]; ok {
-		if err := tx.Unscoped().Model(&Task{}).Where("uuuu_id = ?", id).Update("uuuu_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-
-		var ttttMaps []map[string]interface{}
-		for _, v := range input["tttt"].([]interface{}) {
-			vMaps := v.(map[string]interface{})
-			ttttMaps = append(ttttMaps, vMaps)
-		}
-
-		for _, v := range ttttMaps {
-			var tttt *Task
-			v["uuuuId"] = id
-			if v["id"] == nil {
-				tttt, err = r.Handlers.CreateTask(ctx, r, v, authType)
-			} else {
-				tttt, err = r.Handlers.UpdateTask(ctx, r, v["id"].(string), v, authType)
+			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
+				return item, err
 			}
 
-			changes.Tttt = append(changes.Tttt, tttt)
+			for _, v := range items {
+				findIds = append(findIds, v.ID)
+			}
 		}
 
-		event.AddNewValue("tttt", changes.Tttt)
-		item.Tttt = changes.Tttt
-		newItem.Tttt = changes.Tttt
-	}
+		if len(findIds) > 0 {
+			differenceIds := utils.Difference(itemIds, findIds)
+			if len(differenceIds) > 0 {
+				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
+			}
+		}
 
-	if ids, exists := input["ttttIds"]; exists {
-		if err := tx.Unscoped().Model(&Task{}).Where("uuuu_id = ?", id).Update("uuuu_id", "").Error; err != nil {
+		if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
 			tx.Rollback()
 			return item, err
 		}
-		for _, v := range ids.([]interface{}) {
-			ttttIds = append(ttttIds, v.(string))
+
+		// item.Tasks = items
+		event.AddNewValue("tasks", items)
+	}
+
+	if _, ok := input["tasks"]; ok && !utils.IsNil(input["tasks"]) {
+		newTasks := []*Task{}
+		updateTasks := []*Task{}
+		for index, v := range changes.Tasks {
+			weight := int64(index + 1)
+			v.Weight = &weight
+			// 判断ID是否为空
+			if !utils.IsEmpty(v.ID) {
+				// 判断是否有Update权限
+				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+					return item, errors.New("UpdateTask " + err.Error())
+				}
+
+				// 判断是否有详情权限
+				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+					return item, errors.New("Task Detail " + err.Error())
+				}
+
+				tasksInput := utils.StructToMap(*v)
+				_, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput, true)
+				if err != nil {
+					tx.Rollback()
+					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+				}
+
+				updateTasks = append(updateTasks, v)
+			} else {
+				// 判断是否有Create权限
+				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+					return item, errors.New("CreateTask " + err.Error())
+				}
+				v.ID = uuid.Must(uuid.NewV4()).String()
+				newTasks = append(newTasks, v)
+			}
 		}
 
-		if len(ttttIds) > 0 {
-			isChange = true
+		if err := tx.Model(&item).Association("Tasks").Replace(append(updateTasks, newTasks...)); err != nil {
+			tx.Rollback()
+			return item, err
 		}
+
+		event.AddNewValue("tasks", append(updateTasks, newTasks...))
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -511,29 +383,43 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		isChange = true
 	}
 
-	if _, ok := input["tId"]; ok && (item.TID != changes.TID) && (item.TID == nil || changes.TID == nil || *item.TID != *changes.TID) {
-
-		// if err := tx.Select("id").Where("id", input["tId"]).First(&T{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("tId " + err.Error())
-		// }
-		event.AddOldValue("tId", item.TID)
-		event.AddNewValue("tId", changes.TID)
-		item.TID = changes.TID
-		newItem.TID = changes.TID
+	if _, ok := input["password"]; ok && (item.Password != changes.Password) {
+		event.AddOldValue("password", item.Password)
+		event.AddNewValue("password", changes.Password)
+		item.Password = changes.Password
+		newItem.Password = changes.Password
 		isChange = true
 	}
 
-	if _, ok := input["ttId"]; ok && (item.TtID != changes.TtID) && (item.TtID == nil || changes.TtID == nil || *item.TtID != *changes.TtID) {
+	if _, ok := input["email"]; ok && (item.Email != changes.Email) && (item.Email == nil || changes.Email == nil || *item.Email != *changes.Email) {
+		event.AddOldValue("email", item.Email)
+		event.AddNewValue("email", changes.Email)
+		item.Email = changes.Email
+		newItem.Email = changes.Email
+		isChange = true
+	}
 
-		// if err := tx.Select("id").Where("id", input["ttId"]).First(&Tt{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("ttId " + err.Error())
-		// }
-		event.AddOldValue("ttId", item.TtID)
-		event.AddNewValue("ttId", changes.TtID)
-		item.TtID = changes.TtID
-		newItem.TtID = changes.TtID
+	if _, ok := input["nickname"]; ok && (item.Nickname != changes.Nickname) && (item.Nickname == nil || changes.Nickname == nil || *item.Nickname != *changes.Nickname) {
+		event.AddOldValue("nickname", item.Nickname)
+		event.AddNewValue("nickname", changes.Nickname)
+		item.Nickname = changes.Nickname
+		newItem.Nickname = changes.Nickname
+		isChange = true
+	}
+
+	if _, ok := input["age"]; ok && (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) {
+		event.AddOldValue("age", item.Age)
+		event.AddNewValue("age", changes.Age)
+		item.Age = changes.Age
+		newItem.Age = changes.Age
+		isChange = true
+	}
+
+	if _, ok := input["lastName"]; ok && (item.LastName != changes.LastName) && (item.LastName == nil || changes.LastName == nil || *item.LastName != *changes.LastName) {
+		event.AddOldValue("lastName", item.LastName)
+		event.AddNewValue("lastName", changes.LastName)
+		item.LastName = changes.LastName
+		newItem.LastName = changes.LastName
 		isChange = true
 	}
 
@@ -570,22 +456,19 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return item, nil
 	}
 
-	if err := tx.Model(&newItem).Where("id = ?", id).Omit(clause.Associations).Updates(newItem).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
 	}
 
-	if len(tttIds) > 0 {
-		if err := tx.Model(&Task{}).Where("id IN(?)", tttIds).Update("uuu_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-
-	if len(ttttIds) > 0 {
-		if err := tx.Model(&Task{}).Where("id IN(?)", ttttIds).Update("uuuu_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return item, err
+	if ids, exists := input["tasksIds"]; exists {
+		if len(ids.([]interface{})) > 0 {
+			items := []Task{}
+			tx.Find(&items, "id IN (?)", ids)
+			if err := tx.Model(&item).Association("Tasks").Replace(items); err != nil {
+				tx.Rollback()
+				return item, err
+			}
 		}
 	}
 
@@ -634,7 +517,7 @@ func DeleteUserFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 			return err
 		}
 	} else {
-		if unscoped != nil && *unscoped == true {
+		if unscoped != nil && *unscoped {
 			if err := tx.Unscoped().Model(&item).Delete(item).Error; err != nil {
 				return err
 			}
@@ -653,6 +536,9 @@ func DeleteUserFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 func (r *GeneratedMutationResolver) DeleteUsers(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.DeleteUsers(ctx, r.GeneratedResolver, id, unscoped, true)
+	if err != nil {
+		return done, err
+	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
@@ -683,6 +569,9 @@ func DeleteUsersHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 func (r *GeneratedMutationResolver) RecoveryUsers(ctx context.Context, id []string) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.RecoveryUsers(ctx, r.GeneratedResolver, id, true)
+	if err != nil {
+		return done, err
+	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
@@ -761,135 +650,48 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	item.CreatedAt = milliTime
 	item.CreatedBy = principalID
 
-	if input["u"] != nil && input["uId"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uId and u cannot coexist")
-	}
+	if _, ok := input["user"]; ok && !utils.IsNil(input["user"]) {
+		v := changes.User
 
-	if _, ok := input["u"]; ok {
-		var u *User
-		uInput := input["u"].(map[string]interface{})
-
-		if uInput["id"] == nil {
-
-			// one to one
-			uInput["tId"] = item.ID
-
-			u, err = r.Handlers.CreateUser(ctx, r, uInput, authType)
-		} else {
-			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("u %s", err.Error()))
-		}
-
-		// if err := tx.Model(&User{}).Where("id = ?", u.ID).Updates(User{ TID: &item.ID}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, err
-		// }
-
-		event.AddNewValue("u", changes.U)
-		item.U = u
-		item.UID = &u.ID
-	}
-
-	if input["uu"] != nil && input["uuIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuIds and uu cannot coexist")
-	}
-
-	var uuIds []string
-	var createUu []*User
-	var updateUu []*User
-	if _, ok := input["uu"]; ok {
-		for _, v := range changes.Uu {
-			if v.ID == "" {
-				v.ID = uuid.Must(uuid.NewV4()).String()
-				v.CreatedAt = milliTime
-				v.CreatedBy = principalID
-				createUu = append(createUu, v)
-			} else {
-				opts := QueryUserHandlerOptions{
-					ID: &v.ID,
-				}
-				if _, err = r.Handlers.QueryUser(ctx, r, opts, authType); err != nil {
-					tx.Rollback()
-					return nil, err
-				}
-				v.UpdatedAt = &milliTime
-				v.UpdatedBy = principalID
-				updateUu = append(updateUu, v)
+		// 判断ID是否为空
+		if !utils.IsEmpty(v.ID) {
+			// 判断是否有Update权限
+			if err := auth.CheckAuthorization(ctx, "UpdateUser"); err != nil {
+				return item, errors.New("UpdateUser " + err.Error())
 			}
-		}
-		event.AddNewValue("uu", changes.Uu)
-		item.Uu = changes.Uu
-	}
 
-	if ids, exists := input["uuIds"]; exists {
-		for _, v := range ids.([]interface{}) {
-			uuIds = append(uuIds, v.(string))
-		}
-	}
-
-	if _, ok := input["uuu"]; ok {
-		var uuu *User
-		uuuInput := input["uuu"].(map[string]interface{})
-
-		if uuuInput["id"] == nil {
-
-			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput, authType)
-		} else {
-			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("uuu %s", err.Error()))
-		}
-
-		event.AddNewValue("uuu", changes.Uuu)
-		item.Uuu = uuu
-		item.UuuID = &uuu.ID
-	}
-
-	if input["uuuu"] != nil && input["uuuuIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuuuIds and uuuu cannot coexist")
-	}
-
-	var uuuuIds []string
-	var createUuuu []*User
-	var updateUuuu []*User
-	if _, ok := input["uuuu"]; ok {
-		for _, v := range changes.Uuuu {
-			if v.ID == "" {
-				v.ID = uuid.Must(uuid.NewV4()).String()
-				v.CreatedAt = milliTime
-				v.CreatedBy = principalID
-				createUuuu = append(createUuuu, v)
-			} else {
-				opts := QueryUserHandlerOptions{
-					ID: &v.ID,
-				}
-				if _, err = r.Handlers.QueryUser(ctx, r, opts, authType); err != nil {
-					tx.Rollback()
-					return nil, err
-				}
-				v.UpdatedAt = &milliTime
-				v.UpdatedBy = principalID
-				updateUuuu = append(updateUuuu, v)
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "User"); err != nil {
+				return item, errors.New("User Detail " + err.Error())
 			}
-		}
-		event.AddNewValue("uuuu", changes.Uuuu)
-		item.Uuuu = changes.Uuuu
-	}
 
-	if ids, exists := input["uuuuIds"]; exists {
-		for _, v := range ids.([]interface{}) {
-			uuuuIds = append(uuuuIds, v.(string))
+			userInput := utils.StructToMap(*v)
+			user, err := r.Handlers.UpdateUser(ctx, r, v.ID, userInput, true)
+			if err != nil {
+				tx.Rollback()
+				return item, errors.New("User ID " + v.ID + " " + err.Error())
+			}
+
+			if err := tx.Unscoped().Model(&Task{}).Where("user_id = ?", user.ID).Updates(map[string]interface{}{"user_id": nil}).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+
+		} else {
+			// 判断是否有Create权限
+			if err := auth.CheckAuthorization(ctx, "CreateUser"); err != nil {
+				return item, errors.New("CreateUser " + err.Error())
+			}
+			v.ID = uuid.Must(uuid.NewV4()).String()
 		}
+		if err := tx.Model(&item).Association("User").Append(v); err != nil {
+			tx.Rollback()
+			return item, err
+		}
+		item.UserID = &v.ID
+		item.User = v
+		event.AddNewValue("user", item.User)
+		event.AddNewValue("userId", item.UserID)
 	}
 
 	if _, ok := input["title"]; ok && (item.Title != changes.Title) && (item.Title == nil || changes.Title == nil || *item.Title != *changes.Title) {
@@ -897,24 +699,24 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		event.AddNewValue("title", changes.Title)
 	}
 
-	if _, ok := input["uId"]; ok && (item.UID != changes.UID) && (item.UID == nil || changes.UID == nil || *item.UID != *changes.UID) {
-
-		// if err := tx.Select("id").Where("id", input["uId"]).First(&U{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("uId " + err.Error())
-		// }
-		item.UID = changes.UID
-		event.AddNewValue("uId", changes.UID)
+	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
+		item.Completed = changes.Completed
+		event.AddNewValue("completed", changes.Completed)
 	}
 
-	if _, ok := input["uuuId"]; ok && (item.UuuID != changes.UuuID) && (item.UuuID == nil || changes.UuuID == nil || *item.UuuID != *changes.UuuID) {
+	if _, ok := input["dueDate"]; ok && (item.DueDate != changes.DueDate) && (item.DueDate == nil || changes.DueDate == nil || *item.DueDate != *changes.DueDate) {
+		item.DueDate = changes.DueDate
+		event.AddNewValue("dueDate", changes.DueDate)
+	}
 
-		// if err := tx.Select("id").Where("id", input["uuuId"]).First(&Uuu{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("uuuId " + err.Error())
-		// }
-		item.UuuID = changes.UuuID
-		event.AddNewValue("uuuId", changes.UuuID)
+	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) {
+
+		if err := tx.Select("id").Where("id", input["userId"]).First(&User{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("userId " + err.Error())
+		}
+		item.UserID = changes.UserID
+		event.AddNewValue("userId", changes.UserID)
 	}
 
 	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
@@ -940,34 +742,6 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 	if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 		tx.Rollback()
 		return item, err
-	}
-
-	// todo 添加权限验证
-	if len(createUu) > 0 {
-		if err := tx.Model(&item).Association("Uu").Append(createUu); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-	if len(updateUu) > 0 {
-		if err := tx.Model(&item).Association("Uu").Replace(updateUu); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-
-	// todo 添加权限验证
-	if len(createUuuu) > 0 {
-		if err := tx.Model(&item).Association("Uuuu").Append(createUuuu); err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-	if len(updateUuuu) > 0 {
-		if err := tx.Model(&item).Association("Uuuu").Replace(updateUuuu); err != nil {
-			tx.Rollback()
-			return item, err
-		}
 	}
 
 	if len(event.Changes) > 0 {
@@ -1025,24 +799,9 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	if input["u"] != nil && input["uId"] != nil {
+	if !utils.IsNil(input["user"]) && !utils.IsNil(input["userId"]) {
 		tx.Rollback()
-		return nil, fmt.Errorf("uId and u cannot coexist")
-	}
-
-	if input["uu"] != nil && input["uuIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuIds and uu cannot coexist")
-	}
-
-	if input["uuu"] != nil && input["uuuId"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuuId and uuu cannot coexist")
-	}
-
-	if input["uuuu"] != nil && input["uuuuIds"] != nil {
-		tx.Rollback()
-		return nil, fmt.Errorf("uuuuIds and uuuu cannot coexist")
+		return nil, fmt.Errorf("userId and user cannot coexist")
 	}
 
 	if err = GetItem(ctx, tx, TableName("tasks"), item, &id); err != nil {
@@ -1054,138 +813,52 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		newItem.UpdatedBy = principalID
 	}
 
-	if _, ok := input["u"]; ok {
-		var u *User
-		uInput := input["u"].(map[string]interface{})
+	if _, ok := input["user"]; ok && !utils.IsNil(input["user"]) {
+		v := changes.User
 
-		if uInput["id"] == nil {
-			u, err = r.Handlers.CreateUser(ctx, r, uInput, authType)
-		} else {
-			u, err = r.Handlers.UpdateUser(ctx, r, uInput["id"].(string), uInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("u %s", err.Error()))
-		}
-
-		event.AddOldValue("u", item.U)
-		event.AddNewValue("u", changes.U)
-		item.U = u
-		newItem.UID = &u.ID
-		isChange = true
-	}
-
-	var uuIds []string
-
-	if _, ok := input["uu"]; ok {
-		if err := tx.Unscoped().Model(&User{}).Where("tt_id = ?", id).Update("tt_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-
-		var uuMaps []map[string]interface{}
-		for _, v := range input["uu"].([]interface{}) {
-			vMaps := v.(map[string]interface{})
-			uuMaps = append(uuMaps, vMaps)
-		}
-
-		for _, v := range uuMaps {
-			var uu *User
-			v["ttId"] = id
-			if v["id"] == nil {
-				uu, err = r.Handlers.CreateUser(ctx, r, v, authType)
-			} else {
-				uu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v, authType)
+		// 判断ID是否为空
+		if !utils.IsEmpty(v.ID) {
+			// 判断是否有Update权限
+			if err := auth.CheckAuthorization(ctx, "UpdateUser"); err != nil {
+				return item, errors.New("UpdateUser " + err.Error())
 			}
 
-			changes.Uu = append(changes.Uu, uu)
-		}
-
-		event.AddNewValue("uu", changes.Uu)
-		item.Uu = changes.Uu
-		newItem.Uu = changes.Uu
-	}
-
-	if ids, exists := input["uuIds"]; exists {
-		if err := tx.Unscoped().Model(&User{}).Where("tt_id = ?", id).Update("tt_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-		for _, v := range ids.([]interface{}) {
-			uuIds = append(uuIds, v.(string))
-		}
-
-		if len(uuIds) > 0 {
-			isChange = true
-		}
-	}
-
-	if _, ok := input["uuu"]; ok {
-		var uuu *User
-		uuuInput := input["uuu"].(map[string]interface{})
-
-		if uuuInput["id"] == nil {
-			uuu, err = r.Handlers.CreateUser(ctx, r, uuuInput, authType)
-		} else {
-			uuu, err = r.Handlers.UpdateUser(ctx, r, uuuInput["id"].(string), uuuInput, authType)
-		}
-
-		if err != nil {
-			tx.Rollback()
-			return nil, fmt.Errorf(fmt.Sprintf("uuu %s", err.Error()))
-		}
-
-		event.AddOldValue("uuu", item.Uuu)
-		event.AddNewValue("uuu", changes.Uuu)
-		item.Uuu = uuu
-		newItem.UuuID = &uuu.ID
-		isChange = true
-	}
-
-	var uuuuIds []string
-
-	if _, ok := input["uuuu"]; ok {
-		if err := tx.Unscoped().Model(&User{}).Where("tttt_id = ?", id).Update("tttt_id", "").Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-
-		var uuuuMaps []map[string]interface{}
-		for _, v := range input["uuuu"].([]interface{}) {
-			vMaps := v.(map[string]interface{})
-			uuuuMaps = append(uuuuMaps, vMaps)
-		}
-
-		for _, v := range uuuuMaps {
-			var uuuu *User
-			v["ttttId"] = id
-			if v["id"] == nil {
-				uuuu, err = r.Handlers.CreateUser(ctx, r, v, authType)
-			} else {
-				uuuu, err = r.Handlers.UpdateUser(ctx, r, v["id"].(string), v, authType)
+			// 判断是否有详情权限
+			if err := auth.CheckAuthorization(ctx, "User"); err != nil {
+				return item, errors.New("User Detail " + err.Error())
 			}
 
-			changes.Uuuu = append(changes.Uuuu, uuuu)
+			userInput := utils.StructToMap(*v)
+			user, err := r.Handlers.UpdateUser(ctx, r, v.ID, userInput, true)
+			if err != nil {
+				tx.Rollback()
+				return item, errors.New("User ID " + v.ID + " " + err.Error())
+			}
+
+			if err := tx.Unscoped().Model(&Task{}).Where("user_id = ?", user.ID).Updates(map[string]interface{}{"user_id": nil}).Error; err != nil {
+				tx.Rollback()
+				return nil, err
+			}
+
+		} else {
+			// 判断是否有Create权限
+			if err := auth.CheckAuthorization(ctx, "CreateUser"); err != nil {
+				return item, errors.New("CreateUser " + err.Error())
+			}
+			v.ID = uuid.Must(uuid.NewV4()).String()
 		}
 
-		event.AddNewValue("uuuu", changes.Uuuu)
-		item.Uuuu = changes.Uuuu
-		newItem.Uuuu = changes.Uuuu
-	}
-
-	if ids, exists := input["uuuuIds"]; exists {
-		if err := tx.Unscoped().Model(&User{}).Where("tttt_id = ?", id).Update("tttt_id", "").Error; err != nil {
+		if err := tx.Model(&item).Association("User").Append(v); err != nil {
 			tx.Rollback()
 			return item, err
 		}
-		for _, v := range ids.([]interface{}) {
-			uuuuIds = append(uuuuIds, v.(string))
-		}
-
-		if len(uuuuIds) > 0 {
-			isChange = true
-		}
+		item.UserID = &v.ID
+		newItem.UserID = &v.ID
+		item.User = v
+		newItem.User = v
+		isChange = true
+		event.AddNewValue("user", item.User)
+		event.AddNewValue("userId", item.UserID)
 	}
 
 	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
@@ -1204,29 +877,32 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		isChange = true
 	}
 
-	if _, ok := input["uId"]; ok && (item.UID != changes.UID) && (item.UID == nil || changes.UID == nil || *item.UID != *changes.UID) {
-
-		// if err := tx.Select("id").Where("id", input["uId"]).First(&U{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("uId " + err.Error())
-		// }
-		event.AddOldValue("uId", item.UID)
-		event.AddNewValue("uId", changes.UID)
-		item.UID = changes.UID
-		newItem.UID = changes.UID
+	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
+		event.AddOldValue("completed", item.Completed)
+		event.AddNewValue("completed", changes.Completed)
+		item.Completed = changes.Completed
+		newItem.Completed = changes.Completed
 		isChange = true
 	}
 
-	if _, ok := input["uuuId"]; ok && (item.UuuID != changes.UuuID) && (item.UuuID == nil || changes.UuuID == nil || *item.UuuID != *changes.UuuID) {
+	if _, ok := input["dueDate"]; ok && (item.DueDate != changes.DueDate) && (item.DueDate == nil || changes.DueDate == nil || *item.DueDate != *changes.DueDate) {
+		event.AddOldValue("dueDate", item.DueDate)
+		event.AddNewValue("dueDate", changes.DueDate)
+		item.DueDate = changes.DueDate
+		newItem.DueDate = changes.DueDate
+		isChange = true
+	}
 
-		// if err := tx.Select("id").Where("id", input["uuuId"]).First(&Uuu{}).Error; err != nil {
-		// 	tx.Rollback()
-		// 	return nil, fmt.Errorf("uuuId " + err.Error())
-		// }
-		event.AddOldValue("uuuId", item.UuuID)
-		event.AddNewValue("uuuId", changes.UuuID)
-		item.UuuID = changes.UuuID
-		newItem.UuuID = changes.UuuID
+	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) {
+
+		if err := tx.Select("id").Where("id", input["userId"]).First(&User{}).Error; err != nil {
+			tx.Rollback()
+			return nil, fmt.Errorf("userId " + err.Error())
+		}
+		event.AddOldValue("userId", item.UserID)
+		event.AddNewValue("userId", changes.UserID)
+		item.UserID = changes.UserID
+		newItem.UserID = changes.UserID
 		isChange = true
 	}
 
@@ -1263,23 +939,9 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return item, nil
 	}
 
-	if err := tx.Model(&newItem).Where("id = ?", id).Omit(clause.Associations).Updates(newItem).Error; err != nil {
+	if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
 		tx.Rollback()
 		return item, err
-	}
-
-	if len(uuIds) > 0 {
-		if err := tx.Model(&User{}).Where("id IN(?)", uuIds).Update("tt_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
-	}
-
-	if len(uuuuIds) > 0 {
-		if err := tx.Model(&User{}).Where("id IN(?)", uuuuIds).Update("tttt_id", item.ID).Error; err != nil {
-			tx.Rollback()
-			return item, err
-		}
 	}
 
 	if len(event.Changes) > 0 {
@@ -1327,7 +989,7 @@ func DeleteTaskFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 			return err
 		}
 	} else {
-		if unscoped != nil && *unscoped == true {
+		if unscoped != nil && *unscoped {
 			if err := tx.Unscoped().Model(&item).Delete(item).Error; err != nil {
 				return err
 			}
@@ -1346,6 +1008,9 @@ func DeleteTaskFunc(ctx context.Context, r *GeneratedResolver, id string, tye st
 func (r *GeneratedMutationResolver) DeleteTasks(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.DeleteTasks(ctx, r.GeneratedResolver, id, unscoped, true)
+	if err != nil {
+		return done, err
+	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }
@@ -1376,6 +1041,9 @@ func DeleteTasksHandler(ctx context.Context, r *GeneratedResolver, id []string, 
 func (r *GeneratedMutationResolver) RecoveryTasks(ctx context.Context, id []string) (bool, error) {
 	ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
 	done, err := r.Handlers.RecoveryTasks(ctx, r.GeneratedResolver, id, true)
+	if err != nil {
+		return done, err
+	}
 	err = FinishMutationContext(ctx, r.GeneratedResolver)
 	return done, err
 }

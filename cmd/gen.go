@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/sj-distributor/dolphin/templates"
+	"github.com/sj-distributor/dolphin/tools"
 	"github.com/urfave/cli"
 )
 
@@ -21,20 +21,8 @@ var genCmd = cli.Command{
 	Name:  "generate",
 	Usage: "generate contents",
 	Action: func(ctx *cli.Context) error {
-		if err := generate("*.graphql", "."); err != nil {
-			if err := DownDolphinPackage(); err != nil {
-				return cli.NewExitError(err, 1)
-			}
-			return cli.NewExitError(err, 1)
-		}
-
-		return DownDolphinPackage()
+		return generate("*.graphql", ".")
 	},
-}
-
-func DownDolphinPackage() error {
-	cmd := exec.Command("sh", "-c", "go get -d github.com/sj-distributor/dolphin")
-	return cmd.Run()
 }
 
 func generate(fileDirPath, p string) error {
@@ -133,7 +121,7 @@ func generate(fileDirPath, p string) error {
 
 	schema = "# This schema is generated, please don't update it manually\n\n" + schema
 
-	if err := ioutil.WriteFile(path.Join(p, "gen/schema.graphql"), []byte(schema), 0644); err != nil {
+	if err := ioutil.WriteFile(path.Join(p, "gen/schema.graphqls"), []byte(schema), 0644); err != nil {
 		return err
 	}
 
@@ -157,8 +145,7 @@ func generate(fileDirPath, p string) error {
 
 	fmt.Printf("Running gqlgen generator in %s ...\n", path.Join(p, "gen"))
 
-	cmd := exec.Command("sh", "-c", "go get github.com/99designs/gqlgen && go generate ./...")
-	if err := cmd.Run(); err != nil {
+	if err := tools.RunInteractiveInDir("go mod tidy && go run github.com/99designs/gqlgen", path.Join(p, "gen")); err != nil {
 		return err
 	}
 
@@ -179,10 +166,10 @@ func generateInterfaceDocument(p string, m *model.Model, c *model.Config) error 
 
 func generateFiles(p string, m *model.Model, c *model.Config) error {
 	data := templates.TemplateData{Model: m, Config: c}
-	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
+	if err := templates.WriteTemplate(templates.GQLGen, path.Join(p, "gqlgen.yml"), data); err != nil {
 		return err
 	}
-	if err := templates.WriteTemplate(templates.GQLGen, path.Join(p, "gen/gqlgen.yml"), data); err != nil {
+	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
 		return err
 	}
 	if err := templates.WriteTemplate(templates.Model, path.Join(p, "gen/models.go"), data); err != nil {

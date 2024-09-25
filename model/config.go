@@ -1,12 +1,14 @@
 package model
 
 import (
-	"io/ioutil"
+	"os"
 	"path"
 	"time"
 
 	"github.com/ghodss/yaml"
 )
+
+var YmlFileName = "dolphin.yml"
 
 type Config struct {
 	Package    string `json:"package"`
@@ -23,7 +25,7 @@ func LoadConfig() (c Config, err error) {
 
 func LoadConfigFromPath(p string) (c Config, err error) {
 
-	configSource, err := ioutil.ReadFile(path.Join(p, "dolphin.yml"))
+	configSource, err := os.ReadFile(path.Join(p, YmlFileName))
 	if err != nil {
 		return
 	}

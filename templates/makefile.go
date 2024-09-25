@@ -27,7 +27,7 @@ generate:
 	GO111MODULE=on go run github.com/sj-distributor/dolphin
 
 migrate:
-	DATABASE_URL=$(DATABASE) PORT=$(PORT) go run *.go migrate
+	DATABASE_URL=$(DATABASE) PORT=$(PORT) go run main.go migrate
 
 start:
 	DATABASE_URL=$(DATABASE) PORT=$(PORT) DEBUG="true" go run ./main.go start --cors

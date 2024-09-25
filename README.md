@@ -27,14 +27,15 @@
 
 ### 快速上手（执行过前面4步的，可从第5步开始）
 
-1. `mkdir dolphin-test && cd dolphin-test`
-2. `go mod init github.com/sj-distributor/dolphin-test`
-3. `go get -d github.com/sj-distributor/dolphin`
-4. `go run github.com/sj-distributor/dolphin init`
-5. 修改 `model` 目录下的`graphql`的文件（可选）
-6. 生成代码：`make generate`
-7. 同步表：`make migrate`
-8. 运行：`make start`
+1. `mkdir example && cd example`
+2. `go mod init github.com/sj-distributor/dolphin-example`
+3. `printf '//go:build tools\npackage tools\nimport (_ "github.com/sj-distributor/dolphin"\n _ "github.com/99designs/gqlgen"\n _ "github.com/99designs/gqlgen/graphql/introspection")' | gofmt > tools.go`
+4. `go mod tidy`
+5. `go run github.com/sj-distributor/dolphin init`
+6. 修改 `model` 目录下的`graphql`的文件（可选）
+7. 生成代码：`make generate`
+8. 同步表：`make migrate`
+9. 运行：`make start`
 
 #### 可在 `makefile` 文件扩展 `make` 命令
 

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"os"
-	"os/exec"
 
 	"github.com/urfave/cli"
 )
@@ -27,8 +26,4 @@ func Execute() {
 		panic(err)
 	}
 
-	cmd := exec.Command("sh", "-c", "go get -d github.com/sj-distributor/dolphin")
-	if err := cmd.Run(); err != nil {
-		panic(err)
-	}
 }

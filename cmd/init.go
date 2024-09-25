@@ -25,7 +25,7 @@ var initCmd = cli.Command{
 
 		fmt.Printf("Initializing project in %s\n", p)
 
-		if !fileExists(path.Join(p, "dolphin.yml")) {
+		if !fileExists(path.Join(p, model.YmlFileName)) {
 			if err := createConfigFile(p, ctx.Args().First()); err != nil {
 				return cli.NewExitError(err, 1)
 			}
@@ -110,7 +110,7 @@ func createConfigFile(p, isAuto string) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path.Join(p, "dolphin.yml"), content, 0644)
+	err = os.WriteFile(path.Join(p, model.YmlFileName), content, 0644)
 	return err
 }
 

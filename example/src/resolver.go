@@ -9,11 +9,15 @@ import (
 func New(db *gen.DB, ec *gen.EventController) *Resolver {
 	resolver := NewResolver(db, ec)
 
-	// resolver.Handlers.CreateUser = func(ctx context.Context, r *gen.GeneratedMutationResolver, input map[string]interface{}) (item *gen.Company, err error) {
+	// resolver.Handlers.CreateUser = func(ctx context.Context, r *gen.GeneratedResolver, input map[string]interface{}) (item *gen.User, err error) {
 	// 	return gen.CreateUserHandler(ctx, r, input)
 	// }
-	// resolver.Handlers.Todo = func(ctx context.Context, id string) (*gen.Todo, error) {
-	// 	return &gen.Todo{ID: id, Title: "user_ " + id}, nil
+
+	// resolver.Handlers.QueryUsers = func(ctx context.Context, r *gen.GeneratedResolver, opts gen.QueryUsersHandlerOptions) (*gen.UserResultType, error) {
+	// 	user, err := gen.QueryUserHandler(ctx, r, "userId")
+	// 	fmt.Println(user, err)
+
+	// 	return gen.QueryUsersHandler(ctx, r, opts)
 	// }
 
 	// events
@@ -22,8 +26,3 @@ func New(db *gen.DB, ec *gen.EventController) *Resolver {
 	}
 	return resolver
 }
-
-// You can extend QueryResolver for adding custom fields in schema
-// func (r *QueryResolver) Hello(ctx context.Context) (string, error) {
-// 	return "world", nil
-// }

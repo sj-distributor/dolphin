@@ -22,13 +22,13 @@
     "fields": [
       { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
 			{ "name": "phone", "desc": "账号：使用手机号码", "type": "varchar(32)", "required": "true", "validator": "phone", "remark": "" },
-			{ "name": "tId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			{ "name": "ttId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "password", "desc": "登录密码", "type": "varchar(64)", "required": "true", "validator": "password", "remark": "" },
+			{ "name": "email", "desc": "用户邮箱地址", "type": "varchar(64)", "required": "false", "validator": "email", "remark": "default:null" },
+			{ "name": "nickname", "desc": "昵称", "type": "varchar(64)", "required": "false", "validator": "", "remark": "" },
+			{ "name": "age", "desc": "年龄", "type": "int(3)", "required": "false", "validator": "int", "remark": "default:1" },
+			{ "name": "lastName", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
 			
-			{ "name": "t", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
-			{ "name": "tt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
-			{ "name": "ttt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
-			{ "name": "tttt", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" }
+			{ "name": "tasks", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" }
     ],
     "data": [
       { "name": "用户管理", "title": "列表", "api": "users", "type": "list", "method": "Query" },
@@ -46,14 +46,12 @@
     "type": 0,
     "fields": [
       { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
-			{ "name": "title", "desc": "标题", "type": "varchar(64)", "required": "false", "validator": "", "remark": "" },
-			{ "name": "uId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			{ "name": "uuuId", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "title", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "completed", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "dueDate", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "userId", "desc": "User实例Id", "type": "varchar(36)", "required": "false", "validator": "", "remark": "" },
 			
-			{ "name": "u", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
-			{ "name": "uu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
-			{ "name": "uuu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
-			{ "name": "uuuu", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" }
+			{ "name": "user", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" }
     ],
     "data": [
       { "name": "任务管理", "title": "列表", "api": "tasks", "type": "list", "method": "Query" },

@@ -15,13 +15,7 @@ type ResolutionHandlers struct {
 	QueryUser     func(ctx context.Context, r *GeneratedResolver, opts QueryUserHandlerOptions, authType bool) (*User, error)
 	QueryUsers    func(ctx context.Context, r *GeneratedResolver, opts QueryUsersHandlerOptions, authType bool) (*UserResultType, error)
 
-	UserT func(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (res *Task, err error)
-
-	UserTt func(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (res *Task, err error)
-
-	UserTtt func(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (res []*Task, err error)
-
-	UserTttt func(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (res []*Task, err error)
+	UserTasks func(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (res []*Task, err error)
 
 	CreateTask    func(ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *Task, err error)
 	UpdateTask    func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *Task, err error)
@@ -30,13 +24,7 @@ type ResolutionHandlers struct {
 	QueryTask     func(ctx context.Context, r *GeneratedResolver, opts QueryTaskHandlerOptions, authType bool) (*Task, error)
 	QueryTasks    func(ctx context.Context, r *GeneratedResolver, opts QueryTasksHandlerOptions, authType bool) (*TaskResultType, error)
 
-	TaskU func(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (res *User, err error)
-
-	TaskUu func(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (res []*User, err error)
-
-	TaskUuu func(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (res *User, err error)
-
-	TaskUuuu func(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (res []*User, err error)
+	TaskUser func(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (res *User, err error)
 }
 
 func DefaultResolutionHandlers() ResolutionHandlers {
@@ -50,13 +38,7 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 		QueryUser:     QueryUserHandler,
 		QueryUsers:    QueryUsersHandler,
 
-		UserT: UserTHandler,
-
-		UserTt: UserTtHandler,
-
-		UserTtt: UserTttHandler,
-
-		UserTttt: UserTtttHandler,
+		UserTasks: UserTasksHandler,
 
 		CreateTask:    CreateTaskHandler,
 		UpdateTask:    UpdateTaskHandler,
@@ -65,13 +47,7 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 		QueryTask:     QueryTaskHandler,
 		QueryTasks:    QueryTasksHandler,
 
-		TaskU: TaskUHandler,
-
-		TaskUu: TaskUuHandler,
-
-		TaskUuu: TaskUuuHandler,
-
-		TaskUuuu: TaskUuuuHandler,
+		TaskUser: TaskUserHandler,
 	}
 	return handlers
 }

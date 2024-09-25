@@ -1,0 +1,202 @@
+
+  # 用户管理 User 接口字段
+  fragment UsersFields on User {
+    id
+    phone
+    password
+    email
+    nickname
+    age
+    lastName
+    isDelete
+    weight
+    state
+    deletedBy
+    updatedBy
+    createdBy
+    deletedAt
+    updatedAt
+    createdAt
+    
+  }
+
+  # 列表
+  query Users ($currentPage: Int = 1, $perPage: Int = 10, $sort: [UserSortType!], $search: String, $filter: UserFilterType, $rand: Boolean = false) {
+    users(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
+      data {
+        id
+        phone
+        password
+        email
+        nickname
+        age
+        lastName
+        isDelete
+        weight
+        state
+        deletedBy
+        updatedBy
+        createdBy
+        deletedAt
+        updatedAt
+        createdAt
+        tasks {
+          ...TasksFields
+        }
+        
+      }
+      current_page
+      per_page
+      total
+      total_page
+    }
+  }
+
+  # 详情
+  query UserDetail ($id: ID, $search: String, $filter: UserFilterType) {
+    user(id: $id, q: $search, filter: $filter) {
+      id
+      phone
+      password
+      email
+      nickname
+      age
+      lastName
+      isDelete
+      weight
+      state
+      deletedBy
+      updatedBy
+      createdBy
+      deletedAt
+      updatedAt
+      createdAt
+      tasks {
+        ...TasksFields
+      }
+      
+    }
+  }
+
+  # 新增
+  mutation UserAdd ($data: UserCreateInput!) {
+    createUser(input: $data) {
+      id
+    }
+  }
+
+  # 修改
+  mutation UserEdit ($id: ID!, $data: UserUpdateInput!) {
+    updateUser(id: $id, input: $data) {
+      id
+    }
+  }
+
+  # 删除
+  mutation UsersDelete ($id: [ID!]!) {
+    deleteUsers(id: $id)
+  }
+
+  # 恢复删除
+  mutation UsersRecovery ($id: [ID!]!) {
+    recoveryUsers(id: $id)
+  }
+
+  # 任务管理 Task 接口字段
+  fragment TasksFields on Task {
+    id
+    title
+    completed
+    dueDate
+    userId
+    isDelete
+    weight
+    state
+    deletedBy
+    updatedBy
+    createdBy
+    deletedAt
+    updatedAt
+    createdAt
+    
+  }
+
+  # 列表
+  query Tasks ($currentPage: Int = 1, $perPage: Int = 10, $sort: [TaskSortType!], $search: String, $filter: TaskFilterType, $rand: Boolean = false) {
+    tasks(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
+      data {
+        id
+        title
+        completed
+        dueDate
+        userId
+        isDelete
+        weight
+        state
+        deletedBy
+        updatedBy
+        createdBy
+        deletedAt
+        updatedAt
+        createdAt
+        user {
+          ...UsersFields
+        }
+        
+      }
+      current_page
+      per_page
+      total
+      total_page
+    }
+  }
+
+  # 详情
+  query TaskDetail ($id: ID, $search: String, $filter: TaskFilterType) {
+    task(id: $id, q: $search, filter: $filter) {
+      id
+      title
+      completed
+      dueDate
+      userId
+      isDelete
+      weight
+      state
+      deletedBy
+      updatedBy
+      createdBy
+      deletedAt
+      updatedAt
+      createdAt
+      user {
+        ...UsersFields
+      }
+      
+    }
+  }
+
+  # 新增
+  mutation TaskAdd ($data: TaskCreateInput!) {
+    createTask(input: $data) {
+      id
+    }
+  }
+
+  # 修改
+  mutation TaskEdit ($id: ID!, $data: TaskUpdateInput!) {
+    updateTask(id: $id, input: $data) {
+      id
+    }
+  }
+
+  # 删除
+  mutation TasksDelete ($id: [ID!]!) {
+    deleteTasks(id: $id)
+  }
+
+  # 恢复删除
+  mutation TasksRecovery ($id: [ID!]!) {
+    recoveryTasks(id: $id)
+  }
+
+

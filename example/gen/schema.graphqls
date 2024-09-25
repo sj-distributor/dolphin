@@ -14,21 +14,85 @@ schema {
 }
 
 type Query {
-  user(id: ID, filter: UserFilterType): User
-  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
-  task(id: ID, filter: TaskFilterType): Task
-  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType
+  user(
+    id: ID
+    
+    """QueryUserArgs"""
+    filter: UserFilterType
+  ): User
+  users(
+    current_page: Int = 1
+    per_page: Int = 10
+    q: String
+    sort: [UserSortType!]
+    filter: UserFilterType
+    
+    """QueryUsersArgs"""
+    rand: Boolean = false
+  ): UserResultType
+  task(
+    id: ID
+    
+    """QueryTaskArgs"""
+    filter: TaskFilterType
+  ): Task
+  tasks(
+    current_page: Int = 1
+    per_page: Int = 10
+    q: String
+    sort: [TaskSortType!]
+    filter: TaskFilterType
+    
+    """QueryTasksArgs"""
+    rand: Boolean = false
+  ): TaskResultType
 }
 
 type Mutation {
-  createUser(input: UserCreateInput!): User!
-  updateUser(id: ID!, input: UserUpdateInput!): User!
-  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean!
-  recoveryUsers(id: [ID!]!): Boolean!
-  createTask(input: TaskCreateInput!): Task!
-  updateTask(id: ID!, input: TaskUpdateInput!): Task!
-  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean!
-  recoveryTasks(id: [ID!]!): Boolean!
+  createUser(
+    
+    """MutationCreateUserArgs"""
+    input: UserCreateInput!
+  ): User!
+  updateUser(
+    id: ID!
+    
+    """MutationUpdateUserArgs"""
+    input: UserUpdateInput!
+  ): User!
+  deleteUsers(
+    id: [ID!]!
+    
+    """MutationDeleteUsersArgs"""
+    unscoped: Boolean = false
+  ): Boolean!
+  recoveryUsers(
+    
+    """MutationRecoveryUsersArgs"""
+    id: [ID!]!
+  ): Boolean!
+  createTask(
+    
+    """MutationCreateTaskArgs"""
+    input: TaskCreateInput!
+  ): Task!
+  updateTask(
+    id: ID!
+    
+    """MutationUpdateTaskArgs"""
+    input: TaskUpdateInput!
+  ): Task!
+  deleteTasks(
+    id: [ID!]!
+    
+    """MutationDeleteTasksArgs"""
+    unscoped: Boolean = false
+  ): Boolean!
+  recoveryTasks(
+    
+    """MutationRecoveryTasksArgs"""
+    id: [ID!]!
+  ): Boolean!
 }
 
 enum ObjectSortType {
@@ -46,12 +110,12 @@ input FileField {
 type User {
   id: ID!
   phone: String!
-  t: Task!
-  tt: Task!
-  ttt: [Task]
-  tttt: [Task]
-  tId: ID
-  ttId: ID
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  lastName: String
+  tasks: [Task!]!
   isDelete: Int
   weight: Int
   state: Int
@@ -61,19 +125,16 @@ type User {
   deletedAt: Int
   updatedAt: Int
   createdAt: Int!
-  tttIds: [ID!]
-  ttttIds: [ID!]
+  tasksIds: [ID!]
 }
 
 type Task {
   id: ID!
   title: String
-  u: User!
-  uu: [User]
-  uuu: User!
-  uuuu: [User]
-  uId: ID
-  uuuId: ID
+  completed: Boolean
+  dueDate: Time
+  user: User
+  userId: ID
   isDelete: Int
   weight: Int
   state: Int
@@ -83,45 +144,44 @@ type Task {
   deletedAt: Int
   updatedAt: Int
   createdAt: Int!
-  uuIds: [ID!]
-  uuuuIds: [ID!]
 }
 
 input UserCreateInput {
   phone: String!
-  t: TaskRelationship
-  tt: TaskRelationship
-  ttt: [TaskRelationship]
-  tttt: [TaskRelationship]
-  tId: ID
-  ttId: ID
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  lastName: String
+  tasks: [TaskRelationship]
   isDelete: Int
   weight: Int
   state: Int
-  tttIds: [ID!]
-  ttttIds: [ID!]
+  tasksIds: [ID!]
 }
 
 input UserUpdateInput {
   phone: String
-  t: TaskRelationship
-  tt: TaskRelationship
-  ttt: [TaskRelationship]
-  tttt: [TaskRelationship]
-  tId: ID
-  ttId: ID
+  password: String
+  email: String
+  nickname: String
+  age: Int
+  lastName: String
+  tasks: [TaskRelationship]
   isDelete: Int
   weight: Int
   state: Int
-  tttIds: [ID!]
-  ttttIds: [ID!]
+  tasksIds: [ID!]
 }
 
 input UserSortType {
   id: ObjectSortType
   phone: ObjectSortType
-  tId: ObjectSortType
-  ttId: ObjectSortType
+  password: ObjectSortType
+  email: ObjectSortType
+  nickname: ObjectSortType
+  age: ObjectSortType
+  lastName: ObjectSortType
   isDelete: ObjectSortType
   weight: ObjectSortType
   state: ObjectSortType
@@ -131,12 +191,8 @@ input UserSortType {
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  tttIds: ObjectSortType
-  ttttIds: ObjectSortType
-  t: TaskSortType
-  tt: TaskSortType
-  ttt: TaskSortType
-  tttt: TaskSortType
+  tasksIds: ObjectSortType
+  tasks: TaskSortType
 }
 
 input UserFilterType {
@@ -161,22 +217,58 @@ input UserFilterType {
   phone_prefix: String
   phone_suffix: String
   phone_null: Boolean
-  tId: ID
-  tId_ne: ID
-  tId_gt: ID
-  tId_lt: ID
-  tId_gte: ID
-  tId_lte: ID
-  tId_in: [ID!]
-  tId_null: Boolean
-  ttId: ID
-  ttId_ne: ID
-  ttId_gt: ID
-  ttId_lt: ID
-  ttId_gte: ID
-  ttId_lte: ID
-  ttId_in: [ID!]
-  ttId_null: Boolean
+  password: String
+  password_ne: String
+  password_gt: String
+  password_lt: String
+  password_gte: String
+  password_lte: String
+  password_in: [String!]
+  password_like: String
+  password_prefix: String
+  password_suffix: String
+  password_null: Boolean
+  email: String
+  email_ne: String
+  email_gt: String
+  email_lt: String
+  email_gte: String
+  email_lte: String
+  email_in: [String!]
+  email_like: String
+  email_prefix: String
+  email_suffix: String
+  email_null: Boolean
+  nickname: String
+  nickname_ne: String
+  nickname_gt: String
+  nickname_lt: String
+  nickname_gte: String
+  nickname_lte: String
+  nickname_in: [String!]
+  nickname_like: String
+  nickname_prefix: String
+  nickname_suffix: String
+  nickname_null: Boolean
+  age: Int
+  age_ne: Int
+  age_gt: Int
+  age_lt: Int
+  age_gte: Int
+  age_lte: Int
+  age_in: [Int!]
+  age_null: Boolean
+  lastName: String
+  lastName_ne: String
+  lastName_gt: String
+  lastName_lt: String
+  lastName_gte: String
+  lastName_lte: String
+  lastName_in: [String!]
+  lastName_like: String
+  lastName_prefix: String
+  lastName_suffix: String
+  lastName_null: Boolean
   isDelete: Int
   isDelete_ne: Int
   isDelete_gt: Int
@@ -249,17 +341,17 @@ input UserFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  t: TaskFilterType
-  tt: TaskFilterType
-  ttt: TaskFilterType
-  tttt: TaskFilterType
+  tasks: TaskFilterType
 }
 
 input UserRelationship {
   id: ID
   phone: String!
-  tId: ID
-  ttId: ID
+  password: String!
+  email: String
+  nickname: String
+  age: Int
+  lastName: String
   isDelete: Int
   weight: Int
   state: Int
@@ -275,39 +367,32 @@ type UserResultType {
 
 input TaskCreateInput {
   title: String
-  u: UserRelationship
-  uu: [UserRelationship]
-  uuu: UserRelationship
-  uuuu: [UserRelationship]
-  uId: ID
-  uuuId: ID
+  completed: Boolean
+  dueDate: Time
+  user: UserRelationship
+  userId: ID
   isDelete: Int
   weight: Int
   state: Int
-  uuIds: [ID!]
-  uuuuIds: [ID!]
 }
 
 input TaskUpdateInput {
   title: String
-  u: UserRelationship
-  uu: [UserRelationship]
-  uuu: UserRelationship
-  uuuu: [UserRelationship]
-  uId: ID
-  uuuId: ID
+  completed: Boolean
+  dueDate: Time
+  user: UserRelationship
+  userId: ID
   isDelete: Int
   weight: Int
   state: Int
-  uuIds: [ID!]
-  uuuuIds: [ID!]
 }
 
 input TaskSortType {
   id: ObjectSortType
   title: ObjectSortType
-  uId: ObjectSortType
-  uuuId: ObjectSortType
+  completed: ObjectSortType
+  dueDate: ObjectSortType
+  userId: ObjectSortType
   isDelete: ObjectSortType
   weight: ObjectSortType
   state: ObjectSortType
@@ -317,12 +402,7 @@ input TaskSortType {
   deletedAt: ObjectSortType
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
-  uuIds: ObjectSortType
-  uuuuIds: ObjectSortType
-  u: UserSortType
-  uu: UserSortType
-  uuu: UserSortType
-  uuuu: UserSortType
+  user: UserSortType
 }
 
 input TaskFilterType {
@@ -347,22 +427,30 @@ input TaskFilterType {
   title_prefix: String
   title_suffix: String
   title_null: Boolean
-  uId: ID
-  uId_ne: ID
-  uId_gt: ID
-  uId_lt: ID
-  uId_gte: ID
-  uId_lte: ID
-  uId_in: [ID!]
-  uId_null: Boolean
-  uuuId: ID
-  uuuId_ne: ID
-  uuuId_gt: ID
-  uuuId_lt: ID
-  uuuId_gte: ID
-  uuuId_lte: ID
-  uuuId_in: [ID!]
-  uuuId_null: Boolean
+  completed: Boolean
+  completed_ne: Boolean
+  completed_gt: Boolean
+  completed_lt: Boolean
+  completed_gte: Boolean
+  completed_lte: Boolean
+  completed_in: [Boolean!]
+  completed_null: Boolean
+  dueDate: Time
+  dueDate_ne: Time
+  dueDate_gt: Time
+  dueDate_lt: Time
+  dueDate_gte: Time
+  dueDate_lte: Time
+  dueDate_in: [Time!]
+  dueDate_null: Boolean
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
+  userId_null: Boolean
   isDelete: Int
   isDelete_ne: Int
   isDelete_gt: Int
@@ -435,17 +523,15 @@ input TaskFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
-  u: UserFilterType
-  uu: UserFilterType
-  uuu: UserFilterType
-  uuuu: UserFilterType
+  user: UserFilterType
 }
 
 input TaskRelationship {
   id: ID
   title: String
-  uId: ID
-  uuuId: ID
+  completed: Boolean
+  dueDate: Time
+  userId: ID
   isDelete: Int
   weight: Int
   state: Int

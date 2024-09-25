@@ -91,7 +91,12 @@ func AddMutationEvent(ctx context.Context, e Event) {
 
 // GetFieldsRequested ...
 func GetFieldsRequested(ctx context.Context, alias string) []string {
+	// result := graphql.CollectAllFields(ctx)
 	reqCtx := graphql.GetOperationContext(ctx)
+
+	// if IndexOf(result, alias) != -1 || alias != reqCtx.OperationName {
+	// 	return []string{alias + ".*"}
+	// }
 	fieldSelections := graphql.GetFieldContext(ctx).Field.Selections
 	return recurseSelectionSets(reqCtx, []string{}, fieldSelections, alias)
 }
@@ -104,7 +109,13 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 		switch sel := sel.(type) {
 		case *ast.Field:
 			fieldName := ""
-			if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
+			// && !strings.Contains(sel.Name, "Ids")
+			if strings.Contains(sel.Name, "Ids") && sel.Definition.Type.Name() != "ID" {
+				fieldName = SnakeString(sel.Name)
+				if alias != "" {
+					fieldName = alias + "." + SnakeString(sel.Name)
+				}
+			} else if !strings.HasPrefix(sel.Name, "__") && !strings.Contains(sel.Name, "Ids") {
 				if len(sel.SelectionSet) == 0 && IndexOf(goTypeMap, sel.Definition.Type.Name()) != -1 {
 					fieldName = SnakeString(sel.Name)
 					if alias != "" {
@@ -120,10 +131,9 @@ func recurseSelectionSets(reqCtx *graphql.OperationContext, fields []string, sel
 						}
 					}
 				}
-
-				if fieldName != "" && IndexOf(fields, fieldName) == -1 {
-					fields = append(fields, fieldName)
-				}
+			}
+			if fieldName != "" && IndexOf(fields, fieldName) == -1 {
+				fields = append(fields, fieldName)
 			}
 		}
 	}

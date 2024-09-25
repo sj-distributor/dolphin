@@ -2,8 +2,8 @@ package gen
 
 import (
 	"context"
+	"errors"
 	"math"
-	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/graph-gophers/dataloader"
@@ -165,51 +165,18 @@ func (r *GeneratedUserResultTypeResolver) PerPage(ctx context.Context, obj *User
 
 type GeneratedUserResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedUserResolver) T(ctx context.Context, obj *User) (res *Task, err error) {
-	return r.Handlers.UserT(ctx, r.GeneratedResolver, obj, true)
+func (r *GeneratedUserResolver) Tasks(ctx context.Context, obj *User) (res []*Task, err error) {
+	return r.Handlers.UserTasks(ctx, r.GeneratedResolver, obj, true)
 }
-func UserTHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items *Task, err error) {
+func UserTasksHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items []*Task, err error) {
 
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.TID != nil {
-		item, _ := loaders["Task"].Load(ctx, dataloader.StringKey(*obj.TID))()
-		items, _ = item.(*Task)
-
-		if items == nil {
-			items = &Task{}
-		}
-
+	// 判断是否有详情权限
+	if err := auth.CheckAuthorization(ctx, "Tasks"); err != nil {
+		return items, errors.New("Tasks " + err.Error())
 	}
 
-	return
-}
-
-func (r *GeneratedUserResolver) Tt(ctx context.Context, obj *User) (res *Task, err error) {
-	return r.Handlers.UserTt(ctx, r.GeneratedResolver, obj, true)
-}
-func UserTtHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items *Task, err error) {
-
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.TtID != nil {
-		item, _ := loaders["Task"].Load(ctx, dataloader.StringKey(*obj.TtID))()
-		items, _ = item.(*Task)
-
-		if items == nil {
-			items = &Task{}
-		}
-
-	}
-
-	return
-}
-
-func (r *GeneratedUserResolver) Ttt(ctx context.Context, obj *User) (res []*Task, err error) {
-	return r.Handlers.UserTtt(ctx, r.GeneratedResolver, obj, true)
-}
-func UserTttHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items []*Task, err error) {
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["TaskUuu"].Load(ctx, dataloader.StringKey(obj.ID))()
+	item, _ := loaders["TaskUser"].Load(ctx, dataloader.StringKey(obj.ID))()
 	items = []*Task{}
 	if item != nil {
 		items = item.([]*Task)
@@ -218,45 +185,12 @@ func UserTttHandler(ctx context.Context, r *GeneratedResolver, obj *User, authTy
 	return
 }
 
-func (r *GeneratedUserResolver) TttIds(ctx context.Context, obj *User) (ids []string, err error) {
-	ids = []string{}
+func (r *GeneratedUserResolver) TasksIds(ctx context.Context, obj *User) (ids []string, err error) {
+
 	items := []*Task{}
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["TaskUuu"].Load(ctx, dataloader.StringKey(obj.ID))()
-
-	if item != nil {
-		items = item.([]*Task)
-	}
-
-	for _, v := range items {
-		ids = append(ids, v.ID)
-	}
-
-	return
-}
-
-func (r *GeneratedUserResolver) Tttt(ctx context.Context, obj *User) (res []*Task, err error) {
-	return r.Handlers.UserTttt(ctx, r.GeneratedResolver, obj, true)
-}
-func UserTtttHandler(ctx context.Context, r *GeneratedResolver, obj *User, authType bool) (items []*Task, err error) {
-
-	items = []*Task{}
-	selects := GetFieldsRequested(ctx, strings.ToLower(TableName("tasks")))
-	wheres := []string{}
-	values := []interface{}{}
-	// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "Tttt").Error
-	err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&Task{}).Preload("User").Find(&items).Error
-
-	return
-}
-
-func (r *GeneratedUserResolver) TtttIds(ctx context.Context, obj *User) (ids []string, err error) {
-	ids = []string{}
-	items := []*Task{}
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["TaskUuuu"].Load(ctx, dataloader.StringKey(obj.ID))()
+	item, _ := loaders["UserAndTaskIds"].Load(ctx, dataloader.StringKey(obj.ID))()
 
 	if item != nil {
 		items = item.([]*Task)
@@ -421,105 +355,21 @@ func (r *GeneratedTaskResultTypeResolver) PerPage(ctx context.Context, obj *Task
 
 type GeneratedTaskResolver struct{ *GeneratedResolver }
 
-func (r *GeneratedTaskResolver) U(ctx context.Context, obj *Task) (res *User, err error) {
-	return r.Handlers.TaskU(ctx, r.GeneratedResolver, obj, true)
+func (r *GeneratedTaskResolver) User(ctx context.Context, obj *Task) (res *User, err error) {
+	return r.Handlers.TaskUser(ctx, r.GeneratedResolver, obj, true)
 }
-func TaskUHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items *User, err error) {
+func TaskUserHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items *User, err error) {
+
+	// 判断是否有详情权限
+	if err := auth.CheckAuthorization(ctx, "User"); err != nil {
+		return items, errors.New("User " + err.Error())
+	}
 
 	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.UID != nil {
-		item, _ := loaders["User"].Load(ctx, dataloader.StringKey(*obj.UID))()
+	if obj.UserID != nil {
+		item, _ := loaders["User"].Load(ctx, dataloader.StringKey(*obj.UserID))()
 		items, _ = item.(*User)
 
-		if items == nil {
-			items = &User{}
-		}
-
-	}
-
-	return
-}
-
-func (r *GeneratedTaskResolver) Uu(ctx context.Context, obj *Task) (res []*User, err error) {
-	return r.Handlers.TaskUu(ctx, r.GeneratedResolver, obj, true)
-}
-func TaskUuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items []*User, err error) {
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["UserTt"].Load(ctx, dataloader.StringKey(obj.ID))()
-	items = []*User{}
-	if item != nil {
-		items = item.([]*User)
-	}
-
-	return
-}
-
-func (r *GeneratedTaskResolver) UuIds(ctx context.Context, obj *Task) (ids []string, err error) {
-	ids = []string{}
-	items := []*User{}
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["UserTt"].Load(ctx, dataloader.StringKey(obj.ID))()
-
-	if item != nil {
-		items = item.([]*User)
-	}
-
-	for _, v := range items {
-		ids = append(ids, v.ID)
-	}
-
-	return
-}
-
-func (r *GeneratedTaskResolver) Uuu(ctx context.Context, obj *Task) (res *User, err error) {
-	return r.Handlers.TaskUuu(ctx, r.GeneratedResolver, obj, true)
-}
-func TaskUuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items *User, err error) {
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	if obj.UuuID != nil {
-		item, _ := loaders["User"].Load(ctx, dataloader.StringKey(*obj.UuuID))()
-		items, _ = item.(*User)
-
-		if items == nil {
-			items = &User{}
-		}
-
-	}
-
-	return
-}
-
-func (r *GeneratedTaskResolver) Uuuu(ctx context.Context, obj *Task) (res []*User, err error) {
-	return r.Handlers.TaskUuuu(ctx, r.GeneratedResolver, obj, true)
-}
-func TaskUuuuHandler(ctx context.Context, r *GeneratedResolver, obj *Task, authType bool) (items []*User, err error) {
-
-	items = []*User{}
-	selects := GetFieldsRequested(ctx, strings.ToLower(TableName("users")))
-	wheres := []string{}
-	values := []interface{}{}
-	// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "Uuuu").Error
-	err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&User{}).Preload("Task").Find(&items).Error
-
-	return
-}
-
-func (r *GeneratedTaskResolver) UuuuIds(ctx context.Context, obj *Task) (ids []string, err error) {
-	ids = []string{}
-	items := []*User{}
-
-	loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-	item, _ := loaders["UserTttt"].Load(ctx, dataloader.StringKey(obj.ID))()
-
-	if item != nil {
-		items = item.([]*User)
-	}
-
-	for _, v := range items {
-		ids = append(ids, v.ID)
 	}
 
 	return

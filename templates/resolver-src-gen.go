@@ -23,6 +23,10 @@ type QueryResolver struct {
 	*gen.GeneratedQueryResolver
 }
 
+type SubscriptionResolver struct {
+	*gen.GeneratedSubscriptionResolver
+}
+
 func (r *Resolver) Mutation() gen.MutationResolver {
 	return &MutationResolver{&gen.GeneratedMutationResolver{GeneratedResolver: r.GeneratedResolver}}
 }
@@ -30,6 +34,9 @@ func (r *Resolver) Query() gen.QueryResolver {
 	return &QueryResolver{&gen.GeneratedQueryResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
+func (r *Resolver) Subscription() gen.SubscriptionResolver {
+	return &SubscriptionResolver{&gen.GeneratedSubscriptionResolver{GeneratedResolver: r.GeneratedResolver}}
+}
 
 {{range $obj := .Model.ObjectEntities}}
 	type {{$obj.Name}}ResultTypeResolver struct {

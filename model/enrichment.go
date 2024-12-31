@@ -118,6 +118,17 @@ func schemaDefinition(m *Model) *ast.SchemaDefinition {
 					},
 				},
 			},
+			{
+				Operation: "subscription",
+				Kind:      kinds.OperationTypeDefinition,
+				Type: &ast.Named{
+					Kind: kinds.Named,
+					Name: &ast.Name{
+						Kind:  kinds.Name,
+						Value: "Subscription",
+					},
+				},
+			},
 		},
 	}
 }

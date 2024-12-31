@@ -9,6 +9,7 @@ import (
 
 type ResolutionHandlers struct {
 	OnEvent func(ctx context.Context, r *GeneratedResolver, e *Event) error
+	WebSocket func(ctx context.Context, r *GeneratedResolver) (<-chan any, error)
 	{{range $obj := .Model.ObjectEntities}}
 		Create{{$obj.Name}} func (ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error)
 		Update{{$obj.Name}} func(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error)
@@ -36,6 +37,7 @@ func DefaultResolutionHandlers() ResolutionHandlers {
 				{{$obj.Name}}{{$rel.MethodName}}: {{$obj.Name}}{{$rel.MethodName}}Handler,
 			{{end}}
 		{{end}}
+		WebSocket: WebSocketHandler,
 	}
 	return handlers
 }

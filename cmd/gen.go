@@ -199,6 +199,9 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.ResolverMutations, path.Join(p, "gen/resolver-mutations.go"), data); err != nil {
 		return err
 	}
+	if err := templates.WriteTemplate(templates.ResolverSubscriptions, path.Join(p, "gen/resolver-subscriptions.go"), data); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.ResultType, path.Join(p, "gen/result-type.go"), data); err != nil {
 		return err
 	}
@@ -208,12 +211,16 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.ResolverEvents, path.Join(p, "gen/events.go"), data); err != nil {
 		return err
 	}
+	if err := templates.WriteTemplate(templates.ResolverSockets, path.Join(p, "gen/resolver-socket.go"), data); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.ResolverSrcGen, path.Join(p, "src/resolver_gen.go"), data); err != nil {
 		return err
 	}
 	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "src/config.go"), data); err != nil {
 		return err
 	}
+
 	if err := templates.WriteTemplate(templates.Validator, path.Join(p, "utils/validator.go"), data); err != nil {
 		return err
 	}
@@ -252,7 +259,7 @@ func createUtilsFile(p string) error {
 
 func ensureDir(dir string) {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.Mkdir(dir, 0777)
+		err = os.MkdirAll(dir, 0777)
 		if err != nil {
 			panic(err)
 		}

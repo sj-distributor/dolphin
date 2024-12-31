@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"{{.Config.Package}}/auth"
+	"github.com/gofrs/uuid"
 )
 
 var Socket = NewSocketManager()
@@ -19,23 +19,15 @@ func (r *GeneratedSubscriptionResolver) WebSocket(ctx context.Context) (<-chan i
 }
 
 func WebSocketHandler(ctx context.Context, r *GeneratedResolver) (<-chan interface{}, error) {
-	if err := auth.CheckRouterAuth(ctx, true); err != nil {
-		return nil, err
-	}
-
 	ch := make(chan interface{})
 
-	userID := GetPrincipalIDFromContext(ctx)
-
-	if userID == nil {
-		return nil, fmt.Errorf("userID is nil")
-	}
+	userID := uuid.Must(uuid.NewV4()).String()
 
 	// 注册用户连接
-	Socket.Register(*userID, ch)
+	Socket.Register(userID, "*", ch)
 
 	go func() {
-		defer Socket.Unregister(*userID) // 连接断开时移除
+		defer Socket.Unregister(userID) // 连接断开时移除
 		for {
 			select {
 			case <-ctx.Done():

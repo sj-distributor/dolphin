@@ -22,8 +22,6 @@ func NewSocketManager() *SocketManager {
 
 // Register 注册用户的连接，并关联到公司
 func (sm *SocketManager) Register(userID, companyID string, ch chan interface{}) {
-	fmt.Println("Register", userID)
-
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 
@@ -39,7 +37,6 @@ func (sm *SocketManager) Register(userID, companyID string, ch chan interface{})
 
 // Unregister 移除用户的连接，并从公司中移除
 func (sm *SocketManager) Unregister(userID string) {
-	fmt.Println("Unregister", userID)
 	sm.mu.Lock()
 	defer sm.mu.Unlock()
 

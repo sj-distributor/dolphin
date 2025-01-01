@@ -17,4 +17,8 @@ type Task @entity(title: "任务管理") {
 	dueDate: Time @column
 	user: User @relationship(inverse:"tasks")
 }
+
+extend type Subscription {
+  webSocket: Any
+}
 `

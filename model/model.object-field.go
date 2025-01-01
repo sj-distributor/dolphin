@@ -42,9 +42,7 @@ func (o *ObjectField) MethodName() string {
 }
 
 func (o *ObjectField) RelationshipTypeName() string {
-	field := strings.Replace(o.MethodName(), "sID", "", -1)
-	field = strings.Replace(field, "ID", "", -1)
-	return field
+	return o.Def.Kind
 }
 
 func (o *ObjectField) RelationshipName() string {

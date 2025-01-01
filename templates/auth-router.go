@@ -13,12 +13,12 @@ import (
 
 // 检测路由是否需要登录
 func CheckRouterAuth(ctx context.Context, checkAuth bool) error {
-	if checkAuth == false {
+	if !checkAuth {
 		return nil
 	}
 
 	var colName string = ""
-	resolver := graphql.GetResolverContext(ctx)
+	resolver := graphql.GetFieldContext(ctx)
 	path := utils.StrToArr(resolver.Path().String(), ".")
 	if len(path) > 0 {
 		colName = path[0]

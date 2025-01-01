@@ -7,22 +7,23 @@ import (
 
 // EnrichModelObjects ...
 func EnrichModelObjects(m *Model) error {
-	id := columnDefinition("id", "ID", true)
-	isDelete := columnDefinition("isDelete", "Int", false)
-	weight := columnDefinition("weight", "Int", false)
-	state := columnDefinition("state", "Int", false)
-	createdAt := columnDefinition("createdAt", "Int", true)
-	updatedAt := columnDefinition("updatedAt", "Int", false)
-	deletedAt := columnDefinition("deletedAt", "Int", false)
-	createdBy := columnDefinition("createdBy", "ID", false)
-	updatedBy := columnDefinition("updatedBy", "ID", false)
-	deletedBy := columnDefinition("deletedBy", "ID", false)
+	id := columnDefinition("id", "ID", "ID", true)
+	isDelete := columnDefinition("isDelete", "Int", "Int", false)
+	weight := columnDefinition("weight", "Int", "Int", false)
+	state := columnDefinition("state", "Int", "Int", false)
+	createdAt := columnDefinition("createdAt", "Int", "Int", true)
+	updatedAt := columnDefinition("updatedAt", "Int", "Int", false)
+	deletedAt := columnDefinition("deletedAt", "Int", "Int", false)
+	createdBy := columnDefinition("createdBy", "ID", "ID", false)
+	updatedBy := columnDefinition("updatedBy", "ID", "ID", false)
+	deletedBy := columnDefinition("deletedBy", "ID", "ID", false)
 
 	for _, o := range m.ObjectEntities() {
 		o.Def.Fields = append([]*ast.FieldDefinition{id}, o.Def.Fields...)
 		for _, rel := range o.Relationships() {
 			if rel.IsToOne() {
-				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", false))
+				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", rel.Target().Name(), false))
+				// o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", rel.Target().Name(), false))
 			}
 		}
 		o.Def.Fields = append(o.Def.Fields, isDelete, weight, state, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
@@ -36,7 +37,7 @@ func EnrichModel(m *Model) error {
 	for _, o := range m.ObjectEntities() {
 		for _, rel := range o.Relationships() {
 			if rel.IsToMany() {
-				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", listType(nonNull(namedType("ID")))))
+				o.Def.Fields = append(o.Def.Fields, columnDefinitionWithType(rel.Name()+"Ids", kinds.FieldDefinition, listType(nonNull(namedType("ID")))))
 			}
 		}
 		definitions = append(definitions, createObjectDefinition(o), updateObjectDefinition(o), createObjectSortType(o), createObjectFilterType(o))
@@ -71,17 +72,23 @@ func scalarDefinition(name string) *ast.ScalarDefinition {
 	}
 }
 
-func columnDefinition(columnName, columnType string, isNonNull bool) *ast.FieldDefinition {
+func columnDefinition(columnName, columnType, sourceType string, isNonNull bool) *ast.FieldDefinition {
 	t := namedType(columnType)
+	t1 := namedType(sourceType)
+
 	if isNonNull {
 		t = nonNull(t)
+		t1 = nonNull(t1)
 	}
-	return columnDefinitionWithType(columnName, t)
+
+	tt := getNamedType(t1).(*ast.Named)
+
+	return columnDefinitionWithType(columnName, tt.Name.Value, t)
 }
-func columnDefinitionWithType(fieldName string, t ast.Type) *ast.FieldDefinition {
+func columnDefinitionWithType(fieldName, kindName string, t ast.Type) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
 		Name: nameNode(fieldName),
-		Kind: kinds.FieldDefinition,
+		Kind: kindName,
 		Type: t,
 		Directives: []*ast.Directive{
 			{

@@ -22,17 +22,17 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		Filter *{{$obj.Name}}FilterType
 	}
 	func (r *GeneratedQueryResolver) {{$obj.Name}}(ctx context.Context, id *string, filter *{{$obj.Name}}FilterType) (*{{$obj.Name}}, error) {
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return nil, err
+		}
+
 		opts := Query{{$obj.Name}}HandlerOptions{
 			ID: id,
 			Filter: filter,
 		}
-		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts, true)
+		return r.Handlers.Query{{$obj.Name}}(ctx, r.GeneratedResolver, opts)
 	}
-	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions, authType bool) (*{{$obj.Name}}, error) {
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return nil, err
-		}
-	
+	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error) {
 		selection := []ast.Selection{}
 		for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
 			selection = append(selection, f.Field)
@@ -79,6 +79,10 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		Rand   *bool
 	}
 	func (r *GeneratedQueryResolver) {{$obj.PluralName}}(ctx context.Context, current_page *int, per_page *int, q *string, sort []*{{$obj.Name}}SortType, filter *{{$obj.Name}}FilterType, rand *bool) (*{{$obj.Name}}ResultType, error) {
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return nil, err
+		}
+
 		opts := Query{{$obj.PluralName}}HandlerOptions{
       CurrentPage: current_page,
       PerPage:  per_page,
@@ -87,13 +91,9 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			Filter: filter,
 			Rand: rand,
 		}
-		return r.Handlers.Query{{$obj.PluralName}}(ctx, r.GeneratedResolver, opts, true)
+		return r.Handlers.Query{{$obj.PluralName}}(ctx, r.GeneratedResolver, opts)
 	}
-	func Query{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions, authType bool) (*{{$obj.Name}}ResultType, error) {
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return nil, err
-		}
-	
+	func Query{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.PluralName}}HandlerOptions) (*{{$obj.Name}}ResultType, error) {
 		query := {{$obj.Name}}QueryFilter{opts.Q}
 
 		var selectionSet *ast.SelectionSet
@@ -198,9 +198,9 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 
 		{{range $index, $rel := $obj.Relationships}}
 			func (r *Generated{{$obj.Name}}Resolver) {{$rel.MethodName}}(ctx context.Context, obj *{{$obj.Name}}) (res {{$rel.ReturnType}}, err error) {
-				return r.Handlers.{{$obj.Name}}{{$rel.MethodName}}(ctx, r.GeneratedResolver, obj, true)
+				return r.Handlers.{{$obj.Name}}{{$rel.MethodName}}(ctx, r.GeneratedResolver, obj)
 			}
-			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}, authType bool) (items {{$rel.ReturnType}}, err error) {
+			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (items {{$rel.ReturnType}}, err error) {
 				{{if $rel.IsToMany}}
 					// 判断是否有详情权限
 					if err := auth.CheckAuthorization(ctx, "{{$rel.MethodName}}"); err != nil {

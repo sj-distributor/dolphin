@@ -21,7 +21,12 @@ type MutationEvents struct {
 {{range $obj := .Model.ObjectEntities}}
 	func (r *GeneratedMutationResolver) Create{{$obj.Name}}(ctx context.Context, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input, true)
+
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return item, err
+		}
+
+		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input)
 		if err!=nil{
 			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return
@@ -29,12 +34,8 @@ type MutationEvents struct {
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
-	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error) {
-		item = &{{$obj.Name}}{}
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return item, err
-		}
-	
+	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
+		item = &User{}
 		now := time.Now()
 		timestampMillis := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
@@ -224,7 +225,12 @@ type MutationEvents struct {
 	}
 	func (r *GeneratedMutationResolver) Update{{$obj.Name}}(ctx context.Context, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input, true)
+
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return item, err
+		}
+
+		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input)
 		if err!=nil{
 			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return
@@ -232,12 +238,9 @@ type MutationEvents struct {
 		err = FinishMutationContext(ctx, r.GeneratedResolver)
 		return
 	}
-	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}, authType bool) (item *{{$obj.Name}}, err error) {
+	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
 		newItem := &{{$obj.Name}}{}
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return item, err
-		}
 
 		isChange := false
 		now := time.Now()
@@ -523,7 +526,12 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Delete{{$obj.PluralName}}(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		done,err := r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped, true)
+	
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return false, err
+		}
+
+		done,err := r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped)
 		if err != nil {
 			RollbackMutationContext(ctx, r.GeneratedResolver)
 			return done, err
@@ -532,11 +540,8 @@ type MutationEvents struct {
 		return done,err
 	}
 
-	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool, authType bool) (bool,error) {
+	func Delete{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, unscoped *bool) (bool, error) {
 		var err error = nil
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return false, err
-		}
 
 		if len(id) > 0 {
 			for _, v := range id {
@@ -555,7 +560,12 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Recovery{{$obj.PluralName}}(ctx context.Context, id []string) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-		done,err := r.Handlers.Recovery{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, true)
+	
+		if err := auth.CheckRouterAuth(ctx); err != nil {
+			return false, err
+		}
+
+		done,err := r.Handlers.Recovery{{$obj.PluralName}}(ctx, r.GeneratedResolver, id)
 		if err != nil {
 			return done, err
 		}
@@ -563,11 +573,8 @@ type MutationEvents struct {
 		return done,err
 	}
 
-	func Recovery{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string, authType bool) (bool,error) {
+	func Recovery{{$obj.PluralName}}Handler(ctx context.Context, r *GeneratedResolver, id []string) (bool,error) {
 		var err error = nil
-		if err := auth.CheckRouterAuth(ctx, authType); err != nil {
-			return false, err
-		}
 	
 		var unscoped bool = false
 

@@ -88,8 +88,11 @@ func columnDefinition(columnName, columnType, sourceType string, isNonNull bool)
 func columnDefinitionWithType(fieldName, kindName string, t ast.Type) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
 		Name: nameNode(fieldName),
-		Kind: kindName,
+		Kind: kinds.FieldDefinition,
 		Type: t,
+		Description: &ast.StringValue{
+			Kind: kindName,
+		},
 		Directives: []*ast.Directive{
 			{
 				Kind: kinds.Directive,

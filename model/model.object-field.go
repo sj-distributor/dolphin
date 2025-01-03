@@ -42,7 +42,7 @@ func (o *ObjectField) MethodName() string {
 }
 
 func (o *ObjectField) RelationshipTypeName() string {
-	return o.Def.Kind
+	return o.Def.Description.Kind
 }
 
 func (o *ObjectField) RelationshipName() string {

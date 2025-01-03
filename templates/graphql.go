@@ -105,12 +105,12 @@ var GraphqlApi = `[
 			{ "name": "{{$rel.Name}}", "desc": "{{$rel.Target.Name}}连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "{{$rel.LowerName}}实例" }{{ $relComma = "," }}{{end}}
     ],
     "data": [
-      { "name": "{{$obj.EntityName}}", "title": "列表", "api": "{{$obj.ToLowerPluralName}}", "type": "list", "method": "Query" },
-      { "name": "{{$obj.EntityName}}", "title": "详情", "api": "{{$obj.LowerName}}", "type": "detail", "method": "Query" },
-      { "name": "{{$obj.EntityName}}", "title": "新增", "api": "create{{$obj.Name}}", "type": "add", "method": "Mutation" },
-      { "name": "{{$obj.EntityName}}", "title": "修改", "api": "update{{$obj.Name}}", "type": "edit", "method": "Mutation" },
-      { "name": "{{$obj.EntityName}}", "title": "删除", "api": "delete{{$obj.PluralName}}", "type": "delete", "method": "Mutation" },
-      { "name": "{{$obj.EntityName}}", "title": "恢复", "api": "recovery{{$obj.PluralName}}", "type": "recovery", "method": "Mutation" }
+      { "name": "{{$obj.EntityName}}", "title": "列表", "api": "{{$obj.ToLowerPluralName}}", "type": "list", "method": "Query", "code": "query {{$obj.Name}}s ($currentPage: Int = 1, $perPage: Int = 10, $sort: [{{$obj.Name}}SortType!], $search: String, $filter: {{$obj.Name}}FilterType, $rand: Boolean = false) {\n  {{$obj.ToLowerPluralName}}(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      {{range $col := $obj.Columns}}{{$col.Name}}\n      {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {\n        ...{{$rel.Target.Name}}sFields\n      }\n      {{end}}\n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "详情", "api": "{{$obj.LowerName}}", "type": "detail", "method": "Query", "code": "query {{$obj.Name}}Detail ($id: ID, $search: String, $filter: {{$obj.Name}}FilterType) {\n  {{$obj.LowerName}}(id: $id, q: $search, filter: $filter) {\n    {{range $col := $obj.Columns}}{{$col.Name}}\n    {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {\n      ...{{$rel.Target.Name}}sFields\n    }\n    {{end}}\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "新增", "api": "create{{$obj.Name}}", "type": "add", "method": "Mutation", "code": "mutation {{$obj.Name}}Add ($data: {{$obj.Name}}CreateInput!) {\n  create{{$obj.Name}}(input: $data) {\n    id\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "修改", "api": "update{{$obj.Name}}", "type": "edit", "method": "Mutation", "code": "mutation {{$obj.Name}}Edit ($id: ID!, $data: {{$obj.Name}}UpdateInput!) {\n  update{{$obj.Name}}(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "删除", "api": "delete{{$obj.PluralName}}", "type": "delete", "method": "Mutation", "code": "mutation {{$obj.Name}}sDelete ($id: [ID!]!) {\n  delete{{$obj.PluralName}}(id: $id)\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "恢复", "api": "recovery{{$obj.PluralName}}", "type": "recovery", "method": "Mutation", "code": "mutation {{$obj.Name}}sRecovery ($id: [ID!]!) {\n  recovery{{$obj.PluralName}}(id: $id)\n}" }
     ]
   },
 {{end}}

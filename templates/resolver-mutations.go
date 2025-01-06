@@ -35,7 +35,7 @@ type MutationEvents struct {
 		return
 	}
 	func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
-		item = &User{}
+		item = &{{$obj.Name}}{}
 		now := time.Now()
 		timestampMillis := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
@@ -129,7 +129,7 @@ type MutationEvents struct {
 							}
 			
 							{{$rel.Name}}Input := utils.StructToMap(*v)
-							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, true)
+							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
 							if err != nil {
 								return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
 							}
@@ -168,7 +168,7 @@ type MutationEvents struct {
 						}
 		
 						{{$rel.Name}}Input := utils.StructToMap(*v)
-						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input, true)
+						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input)
 						if err != nil {
 							return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
 						}
@@ -348,7 +348,7 @@ type MutationEvents struct {
 							}
 			
 							{{$rel.Name}}Input := utils.StructToMap(*v)
-							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input, true)
+							_, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input)
 							if err != nil {
 								return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
 							}
@@ -387,7 +387,7 @@ type MutationEvents struct {
 						}
 		
 						{{$rel.Name}}Input := utils.StructToMap(*v)
-						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input, true)
+						{{$rel.Name}}, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input)
 						if err != nil {
 							return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
 						}

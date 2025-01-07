@@ -93,8 +93,8 @@ var GraphqlApi = `[
 			{ "name": "weight", "desc": "权重：用来排序", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" },
 			{ "name": "state", "desc": "状态：1/正常、2/禁用、3/下架", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" }
 		]
-	},{{range $obj := .Model.Objects}}
-  {
+	},{{- $objComma := "" -}}{{range $obj := .Model.Objects}}{{$objComma}}
+	{
     "title": "{{$obj.EntityName}}",
     "name": "{{$obj.ToLowerPluralName}}",
     "type": 0,
@@ -112,9 +112,8 @@ var GraphqlApi = `[
       { "name": "{{$obj.EntityName}}", "title": "删除", "api": "delete{{$obj.PluralName}}", "type": "delete", "method": "Mutation", "code": "mutation {{$obj.Name}}sDelete ($id: [ID!]!) {\n  delete{{$obj.PluralName}}(id: $id)\n}" },
       { "name": "{{$obj.EntityName}}", "title": "恢复", "api": "recovery{{$obj.PluralName}}", "type": "recovery", "method": "Mutation", "code": "mutation {{$obj.Name}}sRecovery ($id: [ID!]!) {\n  recovery{{$obj.PluralName}}(id: $id)\n}" }
     ]
-  },
-{{end}}
-{{- $extComma := "" -}}{{range $ext := .Model.ObjectExtensions}}{{$extComma}}{{$obj := $ext.Object}}{{range $col := $obj.Fields}}
+  }{{ $objComma = "," }}{{end}}
+	{{- $extComma := "," -}}{{range $ext := .Model.ObjectExtensions}}{{$obj := $ext.Object}}{{range $col := $obj.Fields}}{{$extComma}}
 	{
     "title": "{{$col.GetTableName}}",
     "name": "{{$col.Name}}",

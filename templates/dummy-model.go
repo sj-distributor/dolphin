@@ -1,6 +1,13 @@
 package templates
 
 var DummyModel = `
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  ADMIN
+  USER
+}
+
 type User @entity(title: "用户管理") {
   phone: String! @column(gorm: "type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;") @validator(required: "true", type: "phone", repeat: "no", relation: "no", edit: "no")
   password: String! @column(gorm: "type:varchar(64) comment '登录密码';NOT NULL;") @validator(required: "true", type: "password")

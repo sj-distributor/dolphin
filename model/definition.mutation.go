@@ -2,7 +2,6 @@ package model
 
 import (
 	"github.com/graphql-go/graphql/language/kinds"
-	"github.com/iancoleman/strcase"
 	"github.com/jinzhu/inflection"
 
 	"github.com/graphql-go/graphql/language/ast"
@@ -30,19 +29,20 @@ func mutationDefinition(m *Model) *ast.ObjectDefinition {
 func createFieldInput(obj Object) *ast.InputValueDefinition {
 	d := createObjectDefinition(obj)
 	return &ast.InputValueDefinition{
-		Kind:        kinds.InputValueDefinition,
-		Name:        nameNode("input"),
-		Type:        nonNull(namedType(d.Name.Value)),
-		Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationCreate" + strcase.ToCamel(obj.Name()) + "Args"},
+		Kind: kinds.InputValueDefinition,
+		Name: nameNode("input"),
+		Type: nonNull(namedType(d.Name.Value)),
+		// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationCreate" + strcase.ToCamel(obj.Name()) + "Args"},
 	}
 }
 
 // MutationUpdateUserArgs
 func createFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode("create" + inflection.Singular(obj.Name())),
-		Type: nonNull(namedType(obj.Name())),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode("create" + inflection.Singular(obj.Name())),
+		Type:       nonNull(namedType(obj.Name())),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			createFieldInput(obj),
 		},
@@ -52,18 +52,19 @@ func createFieldDefinition(obj Object) *ast.FieldDefinition {
 func updateFieldInput(obj Object) *ast.InputValueDefinition {
 	d := updateObjectDefinition(obj)
 	return &ast.InputValueDefinition{
-		Kind:        kinds.InputValueDefinition,
-		Name:        nameNode("input"),
-		Type:        nonNull(namedType(d.Name.Value)),
-		Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationUpdate" + strcase.ToCamel(obj.Name()) + "Args"},
+		Kind: kinds.InputValueDefinition,
+		Name: nameNode("input"),
+		Type: nonNull(namedType(d.Name.Value)),
+		// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationUpdate" + strcase.ToCamel(obj.Name()) + "Args"},
 	}
 }
 
 func updateFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode("update" + inflection.Singular(obj.Name())),
-		Type: nonNull(namedType(obj.Name())),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode("update" + inflection.Singular(obj.Name())),
+		Type:       nonNull(namedType(obj.Name())),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			&idInput,
 			updateFieldInput(obj),
@@ -73,9 +74,10 @@ func updateFieldDefinition(obj Object) *ast.FieldDefinition {
 
 func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode("delete" + inflection.Plural(obj.Name())),
-		Type: nonNull(namedType("Boolean")),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode("delete" + inflection.Plural(obj.Name())),
+		Type:       nonNull(namedType("Boolean")),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind: kinds.InputValueDefinition,
@@ -87,7 +89,7 @@ func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
 				Name:         nameNode("unscoped"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},
 				Type:         namedType("Boolean"),
-				Description:  &ast.StringValue{Kind: kinds.StringValue, Value: "MutationDelete" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
+				// Description:  &ast.StringValue{Kind: kinds.StringValue, Value: "MutationDelete" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}
@@ -95,15 +97,16 @@ func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
 
 func recoveryFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode("recovery" + inflection.Plural(obj.Name())),
-		Type: nonNull(namedType("Boolean")),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode("recovery" + inflection.Plural(obj.Name())),
+		Type:       nonNull(namedType("Boolean")),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
-				Kind:        kinds.InputValueDefinition,
-				Name:        nameNode("id"),
-				Type:        nonNull(listType(nonNull(namedType("ID")))),
-				Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationRecovery" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
+				Kind: kinds.InputValueDefinition,
+				Name: nameNode("id"),
+				Type: nonNull(listType(nonNull(namedType("ID")))),
+				// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "MutationRecovery" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}

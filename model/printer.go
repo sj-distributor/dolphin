@@ -27,12 +27,14 @@ func PrintSchema(model Model) (string, error) {
 		}
 		o.Def.Fields = fields
 		o.Def.Directives = filterDirective(o.Def.Directives, "entity")
+		o.Def.Directives = filterDirective(o.Def.Directives, "hasRole")
 	}
 
 	for _, o := range model.ObjectExtensions() {
 		fields := []*ast.FieldDefinition{}
 		for _, f := range o.Object.Def.Fields {
 			f.Directives = filterDirective(f.Directives, "entity")
+			f.Directives = filterDirective(f.Directives, "hasRole")
 			fields = append(fields, f)
 		}
 		o.Object.Def.Fields = fields

@@ -24,6 +24,32 @@ func createObjectSortEnum() *ast.EnumDefinition {
 	}
 }
 
+func createObjectHasRoleEnum(obj Object) []*ast.Directive {
+	directive := []*ast.Directive{}
+
+	if obj.HasDirective("hasRole") {
+		hasRole := obj.Directive("hasRole")
+		if len(hasRole.Arguments) > 0 {
+			name := hasRole.Arguments[0].Name
+			value := hasRole.Arguments[0].Value
+
+			directive = append(directive, &ast.Directive{
+				Kind: kinds.Directive,
+				Name: nameNode(hasRole.Name.Value),
+				Arguments: []*ast.Argument{
+					{
+						Kind:  kinds.Argument,
+						Name:  name,
+						Value: value,
+					},
+				},
+			})
+		}
+	}
+
+	return directive
+}
+
 func createObjectSortType(obj Object) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
 

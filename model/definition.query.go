@@ -31,9 +31,10 @@ func queryDefinition(m *Model) *ast.ObjectDefinition {
 
 func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode(inflection.Singular(strcase.ToLowerCamel(obj.Name()))),
-		Type: namedType(obj.Name()),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode(inflection.Singular(strcase.ToLowerCamel(obj.Name()))),
+		Type:       namedType(obj.Name()),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind: kinds.InputValueDefinition,
@@ -54,9 +55,10 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 func listFieldDefinition(obj Object) *ast.FieldDefinition {
 	// createObjectSortType(obj)
 	return &ast.FieldDefinition{
-		Kind: kinds.FieldDefinition,
-		Name: nameNode(inflection.Plural(strcase.ToLowerCamel(obj.Name()))),
-		Type: namedType(obj.Name() + "ResultType"),
+		Kind:       kinds.FieldDefinition,
+		Name:       nameNode(inflection.Plural(strcase.ToLowerCamel(obj.Name()))),
+		Type:       namedType(obj.Name() + "ResultType"),
+		Directives: createObjectHasRoleEnum(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind:         kinds.InputValueDefinition,

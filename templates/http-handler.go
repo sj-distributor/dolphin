@@ -16,11 +16,11 @@ import (
 	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
-func GetHTTPServeMux(r ResolverRoot, db *DB) *mux.Router {
+func GetHTTPServeMux(c Config, db *DB) *mux.Router {
 	mux := mux.NewRouter()
 	mux.Use(auth.Handler)
 
-	executableSchema := NewExecutableSchema(Config{Resolvers: r})
+	executableSchema := NewExecutableSchema(c)
 	gqlHandler := handler.NewDefaultServer(executableSchema)
 
 	loaders := GetLoaders(db)

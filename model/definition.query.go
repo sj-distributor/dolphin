@@ -34,7 +34,7 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode(inflection.Singular(strcase.ToLowerCamel(obj.Name()))),
 		Type:       namedType(obj.Name()),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind: kinds.InputValueDefinition,
@@ -58,7 +58,7 @@ func listFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode(inflection.Plural(strcase.ToLowerCamel(obj.Name()))),
 		Type:       namedType(obj.Name() + "ResultType"),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind:         kinds.InputValueDefinition,

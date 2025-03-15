@@ -55,8 +55,9 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 			fields = append(fields, &ast.InputValueDefinition{
 				Kind:        kinds.InputValueDefinition,
 				Name:        col.Def.Name,
-				Description: col.Def.Description,
 				Type:        t,
+				Directives:  createObjectColumnDirective(col),
+				Description: col.Def.Description,
 			})
 		}
 	}

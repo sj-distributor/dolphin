@@ -208,10 +208,6 @@ type MutationEvents struct {
 				}
 			{{end}}
 		{{end}}
-
-		if err := utils.Validate(item); err != nil {
-			return nil, err
-		}
 		
 	  if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
 	    return item, err
@@ -433,10 +429,6 @@ type MutationEvents struct {
 				}
 			{{end}}
 		{{end}}
-
-		if err := utils.Validate(item); err != nil {
-			return nil, err
-		}
 	
 		if !isChange {
 			return item, nil

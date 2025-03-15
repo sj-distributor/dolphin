@@ -46,6 +46,7 @@ func generate(fileDirPath, p string) error {
 	fmt.Println("Generating contents from", matches, "...")
 	modelSource := `
 		directive @format on FIELD_DEFINITION
+		directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int) on INPUT_FIELD_DEFINITION
 		input FileField {
 			hash: String!
 			file: Upload!

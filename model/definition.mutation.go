@@ -42,7 +42,7 @@ func createFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode("create" + inflection.Singular(obj.Name())),
 		Type:       nonNull(namedType(obj.Name())),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			createFieldInput(obj),
 		},
@@ -64,7 +64,7 @@ func updateFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode("update" + inflection.Singular(obj.Name())),
 		Type:       nonNull(namedType(obj.Name())),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			&idInput,
 			updateFieldInput(obj),
@@ -77,7 +77,7 @@ func deleteFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode("delete" + inflection.Plural(obj.Name())),
 		Type:       nonNull(namedType("Boolean")),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind: kinds.InputValueDefinition,
@@ -100,7 +100,7 @@ func recoveryFieldDefinition(obj Object) *ast.FieldDefinition {
 		Kind:       kinds.FieldDefinition,
 		Name:       nameNode("recovery" + inflection.Plural(obj.Name())),
 		Type:       nonNull(namedType("Boolean")),
-		Directives: createObjectHasRoleEnum(obj),
+		Directives: createObjectDirective(obj),
 		Arguments: []*ast.InputValueDefinition{
 			{
 				Kind: kinds.InputValueDefinition,

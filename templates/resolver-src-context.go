@@ -5,7 +5,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/maiguangyang/decoration/gen"
+	"{{.Config.Package}}/config"
 )
 
 // 结构体
@@ -28,7 +28,7 @@ func (c *ContextStruct) GetValue(key any) string {
 
 // 获取 Header
 func (c *ContextStruct) GetHeader(key string) string {
-	if header, ok := c.ctx.Value(gen.KeyHeader).(*http.Header); ok {
+	if header, ok := c.ctx.Value(config.KeyHeader).(*http.Header); ok {
 		return header.Get(key)
 	}
 	return ""
@@ -36,30 +36,30 @@ func (c *ContextStruct) GetHeader(key string) string {
 
 // 设置 Header
 func (c *ContextStruct) SetHeader(header http.Header) {
-	c.ctx = context.WithValue(c.ctx, gen.KeyHeader, &header)
+	c.ctx = context.WithValue(c.ctx, config.KeyHeader, &header)
 }
 
 // 获取 Authorization
 func (c *ContextStruct) GetAuthorization() string {
-	return c.GetValue(gen.KeyAuthorization)
+	return c.GetValue(config.KeyAuthorization)
 }
 
 // 设置 Authorization
 func (c *ContextStruct) SetAuthorization(value string) {
 	if len(value) > 0 {
-		c.SetValue(gen.KeyAuthorization, value)
+		c.SetValue(config.KeyAuthorization, value)
 	}
 }
 
 // 获取 SecretKey
 func (c *ContextStruct) GetSecretKey() string {
-	return c.GetValue(gen.KeySecretKey)
+	return c.GetValue(config.KeySecretKey)
 }
 
 // 设置 SecretKey
 func (c *ContextStruct) SetSecretKey(value string) {
 	if len(value) > 0 {
-		c.SetValue(gen.KeySecretKey, value)
+		c.SetValue(config.KeySecretKey, value)
 	}
 }
 

@@ -1,6 +1,6 @@
 package templates
 
-var AuthJWT = `package gen
+var AuthJWT = `package auth
 
 import (
 	"errors"
@@ -10,7 +10,18 @@ import (
 	"{{.Config.Package}}/utils"
 )
 
-// var USER_JWT_TOKEN JWTToken
+// 用户token
+var USER_JWT_TOKEN = JWTToken{
+	TokenExpTime: config.USER_TOKEN_EXP_TIME,
+	SecretKey:    config.USER_TOKEN_SECRET_KEY,
+}
+
+// 管理员token
+var ADMIN_JWT_TOKEN = JWTToken{
+	TokenExpTime: config.ADMIN_TOKEN_EXP_TIME,
+	SecretKey:    config.ADMIN_TOKEN_SECRET_KEY,
+}
+
 
 type JWTClaims struct {
 	jwtgo.RegisteredClaims

@@ -26,7 +26,7 @@ var initCmd = cli.Command{
 		fmt.Printf("Initializing project in %s\n", p)
 
 		if !fileExists(path.Join(p, model.YmlFileName)) {
-			if err := createConfigFile(p, ctx.Args().First()); err != nil {
+			if err := createYamlFile(p, ctx.Args().First()); err != nil {
 				return cli.NewExitError(err, 1)
 			}
 		}
@@ -50,6 +50,10 @@ var initCmd = cli.Command{
 		}
 
 		if err := createSrcFile(p); err != nil {
+			return cli.NewExitError(err, 1)
+		}
+
+		if err := createConfigFile(p); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
@@ -95,7 +99,7 @@ func fileExists(filename string) bool {
 	return false
 }
 
-func createConfigFile(p, isAuto string) error {
+func createYamlFile(p, isAuto string) error {
 	defaultPackagep, err := getDefaultPackageName(p)
 	if err != nil {
 		return err
@@ -203,6 +207,10 @@ func createAuthFile(p string) error {
 		return err
 	}
 
+	if err := templates.WriteTemplate(templates.AuthJWT, path.Join(p, "auth/jwt.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
 	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open_routes.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
@@ -222,6 +230,20 @@ func createSrcFile(p string) error {
 	// }
 
 	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createConfigFile(p string) error {
+	c, err := model.LoadConfigFromPath(p)
+	if err != nil {
+		return err
+	}
+	ensureDir(path.Join(p, "config"))
+
+	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "config/config.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

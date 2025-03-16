@@ -11,8 +11,5 @@ const (
 	KeyMutationTransaction  key = iota
 	KeyMutationEvents       key = iota
 	KeyExecutableSchema     key = iota
-	KeyHeader               key = iota
-	KeyAuthorization        key = iota
-	KeySecretKey            key = iota
 )
 `

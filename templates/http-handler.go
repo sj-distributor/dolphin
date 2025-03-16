@@ -13,6 +13,8 @@ import (
 	"github.com/gorilla/mux"
 
 	jwtgo "github.com/golang-jwt/jwt/v5"
+
+	"{{.Config.Package}}/auth"
 )
 
 func GetHTTPServeMux(c Config, db *DB) *mux.Router {
@@ -94,7 +96,7 @@ var MySecret = []byte("cr6ffSvnPwHwVNgQiQMxtrBtcNRa9NuK")
 
 // 这里传入的是手机号，因为我项目登陆用的是手机号和密码
 func MakeToken(phone string) (tokenString string, err error) {
-	claim := JWTClaims{
+	claim := auth.JWTClaims{
 		RegisteredClaims: jwtgo.RegisteredClaims{
 			Subject:   phone,
 			ExpiresAt: jwtgo.NewNumericDate(time.Now().Add(3 * time.Hour * time.Duration(1))), // 过期时间3小时

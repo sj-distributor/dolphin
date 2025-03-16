@@ -21,11 +21,6 @@ type MutationEvents struct {
 {{range $obj := .Model.ObjectEntities}}
 	func (r *GeneratedMutationResolver) Create{{$obj.Name}}(ctx context.Context, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return item, err
-		}
-
 		item, err = r.Handlers.Create{{$obj.Name}}(ctx, r.GeneratedResolver, input)
 		if err!=nil{
 			RollbackMutationContext(ctx, r.GeneratedResolver)
@@ -221,11 +216,6 @@ type MutationEvents struct {
 	}
 	func (r *GeneratedMutationResolver) Update{{$obj.Name}}(ctx context.Context, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return item, err
-		}
-
 		item,err = r.Handlers.Update{{$obj.Name}}(ctx, r.GeneratedResolver, id, input)
 		if err!=nil{
 			RollbackMutationContext(ctx, r.GeneratedResolver)
@@ -518,11 +508,6 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Delete{{$obj.PluralName}}(ctx context.Context, id []string, unscoped *bool) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return false, err
-		}
-
 		done,err := r.Handlers.Delete{{$obj.PluralName}}(ctx, r.GeneratedResolver, id, unscoped)
 		if err != nil {
 			RollbackMutationContext(ctx, r.GeneratedResolver)
@@ -552,11 +537,6 @@ type MutationEvents struct {
 
 	func (r *GeneratedMutationResolver) Recovery{{$obj.PluralName}}(ctx context.Context, id []string) (bool, error) {
 		ctx = EnrichContextWithMutations(ctx, r.GeneratedResolver)
-	
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return false, err
-		}
-
 		done,err := r.Handlers.Recovery{{$obj.PluralName}}(ctx, r.GeneratedResolver, id)
 		if err != nil {
 			return done, err

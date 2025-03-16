@@ -22,10 +22,6 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		Filter *{{$obj.Name}}FilterType
 	}
 	func (r *GeneratedQueryResolver) {{$obj.Name}}(ctx context.Context, id *string, filter *{{$obj.Name}}FilterType) (*{{$obj.Name}}, error) {
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return nil, err
-		}
-
 		opts := Query{{$obj.Name}}HandlerOptions{
 			ID: id,
 			Filter: filter,
@@ -79,10 +75,6 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		Rand   *bool
 	}
 	func (r *GeneratedQueryResolver) {{$obj.PluralName}}(ctx context.Context, current_page *int, per_page *int, q *string, sort []*{{$obj.Name}}SortType, filter *{{$obj.Name}}FilterType, rand *bool) (*{{$obj.Name}}ResultType, error) {
-		if err := auth.CheckRouterAuth(ctx); err != nil {
-			return nil, err
-		}
-
 		opts := Query{{$obj.PluralName}}HandlerOptions{
       CurrentPage: current_page,
       PerPage:  per_page,

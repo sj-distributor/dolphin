@@ -40,7 +40,8 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 		if err != nil {
 			return nil, err
 		}
-		return next(ctx)
+
+		return value, nil
 	}
 
 	/***
@@ -68,7 +69,13 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 			return nil, err
 		}
 
-		return next(ctx)
+		// 密码加密
+		if typeArg != nil && *typeArg == "password" {
+			password := value.(string)
+			return utils.EncryptPassword(password), nil
+		}
+
+		return value, nil
 	}
 
 	return resolver

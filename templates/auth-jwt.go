@@ -1,6 +1,6 @@
 package templates
 
-var AuthJWT = `package auth
+var AuthJWT = `package gen
 
 import (
 	"errors"
@@ -10,19 +10,19 @@ import (
 	"{{.Config.Package}}/utils"
 )
 
-var USER_JWT_TOKEN _JWTToken
+// var USER_JWT_TOKEN JWTToken
 
 type JWTClaims struct {
 	jwtgo.RegisteredClaims
 }
 
-type _JWTToken struct {
+type JWTToken struct {
 	TokenExpTime int64
 	SecretKey    string
 }
 
 // 設置JWT
-func (j *_JWTToken) SetToken(str interface{}) string {
+func (j *JWTToken) SetToken(str interface{}) (string, error) {
 	timeNow := time.Now().Unix()
 	token := jwtgo.NewWithClaims(jwtgo.SigningMethodHS256, jwtgo.MapClaims{
 		"content": str,
@@ -30,12 +30,11 @@ func (j *_JWTToken) SetToken(str interface{}) string {
 		"exp":     int64(timeNow + 60*60*24*j.TokenExpTime),
 	})
 
-	ss, _ := token.SignedString([]byte(j.SecretKey))
-	return ss
+	return token.SignedString([]byte(j.SecretKey))
 }
 
 // 驗證JWT有效性
-func (j *_JWTToken) Verify(token string) error {
+func (j *JWTToken) Verify(token string) error {
 	_, err := j.GetTokenContent(token)
 	if err != nil {
 		return err
@@ -52,7 +51,7 @@ func (j *_JWTToken) Verify(token string) error {
 /**
  * token解密
  */
-func (j *_JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
+func (j *JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
 	claims, err := j.GetTokenContent(token)
 
 	if claims == nil || err != nil {
@@ -67,7 +66,7 @@ func (j *_JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
 /**
  * 获取token内容
  */
-func (j *_JWTToken) GetTokenContent(token string) (interface{}, error) {
+func (j *JWTToken) GetTokenContent(token string) (interface{}, error) {
 	if len(token) < 7 {
 		return nil, errors.New("Invalid Authorization")
 	}
@@ -81,7 +80,7 @@ func (j *_JWTToken) GetTokenContent(token string) (interface{}, error) {
 /**
  * 校验token是否有效
  */
-func (j *_JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error) {
+func (j *JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error) {
 	token, err := jwtgo.Parse(data, func(token *jwtgo.Token) (interface{}, error) {
 		return key, nil
 	})

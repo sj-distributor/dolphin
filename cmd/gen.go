@@ -71,8 +71,8 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
-	genPath := path.Join(p, "gen")
-	ensureDir(genPath)
+	ensureDir(path.Join(p, "gen"))
+	ensureDir(path.Join(p, "config"))
 
 	err = model.EnrichModelObjects(&m)
 	if err != nil {
@@ -215,10 +215,20 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.ResolverSockets, path.Join(p, "gen/resolver-socket.go"), data); err != nil {
 		return err
 	}
+
+	if err := templates.WriteTemplate(templates.AuthJWT, path.Join(p, "gen/jwt.go"), data); err != nil {
+		return err
+	}
+
 	if err := templates.WriteTemplate(templates.ResolverSrcGen, path.Join(p, "src/resolver_gen.go"), data); err != nil {
 		return err
 	}
-	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "src/config.go"), data); err != nil {
+
+	if err := templates.WriteTemplate(templates.ResolverSrcContext, path.Join(p, "src/context.go"), data); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "config/config.go"), data); err != nil {
 		return err
 	}
 

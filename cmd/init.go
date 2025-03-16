@@ -53,6 +53,10 @@ var initCmd = cli.Command{
 			return cli.NewExitError(err, 1)
 		}
 
+		if err := createMiddlewareFile(p); err != nil {
+			return cli.NewExitError(err, 1)
+		}
+
 		if err := createEnumsFile(p); err != nil {
 			return cli.NewExitError(err, 1)
 		}
@@ -194,13 +198,6 @@ func createAuthFile(p string) error {
 		return err
 	}
 	ensureDir(path.Join(p, "auth"))
-	if err := templates.WriteTemplate(templates.AuthJWT, path.Join(p, "auth/jwt.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
-
-	if err := templates.WriteTemplate(templates.AuthHandler, path.Join(p, "auth/handler.go"), templates.TemplateData{Config: &c}); err != nil {
-		return err
-	}
 
 	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth_router.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
@@ -225,6 +222,20 @@ func createSrcFile(p string) error {
 	// }
 
 	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createMiddlewareFile(p string) error {
+	c, err := model.LoadConfigFromPath(p)
+	if err != nil {
+		return err
+	}
+	ensureDir(path.Join(p, "src/middleware"))
+
+	if err := templates.WriteTemplate(templates.MiddlewareHandler, path.Join(p, "src/middleware/handler.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

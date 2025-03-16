@@ -11,14 +11,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
-	"{{.Config.Package}}/auth"
 
 	jwtgo "github.com/golang-jwt/jwt/v5"
 )
 
 func GetHTTPServeMux(c Config, db *DB) *mux.Router {
 	mux := mux.NewRouter()
-	mux.Use(auth.Handler)
 
 	executableSchema := NewExecutableSchema(c)
 	gqlHandler := handler.NewDefaultServer(executableSchema)
@@ -75,10 +73,6 @@ func enrichRequestContext(req *http.Request, loaders interface{}, executableSche
 	return req.WithContext(ctx)
 }
 
-type JWTClaims struct {
-	jwtgo.RegisteredClaims
-}
-
 func getJWTClaims(req *http.Request) (res map[string]interface{}, err error) {
 	// var p *JWTClaims
 	res = map[string]interface{}{}
@@ -89,7 +83,7 @@ func getJWTClaims(req *http.Request) (res map[string]interface{}, err error) {
 		return
 	}
 
-	res, err = auth.USER_JWT_TOKEN.DecryptToken(tokenStr)
+	// res, err = auth.USER_JWT_TOKEN.DecryptThandler.gooken(tokenStr)
 
 	// p = &JWTClaims{}
 	// jwtgo.ParseWithClaims(tokenStr, p, nil)

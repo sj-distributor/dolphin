@@ -15,6 +15,7 @@ import (
 	"github.com/urfave/cli"
 
 	"{{.Config.Package}}/gen"
+	"{{.Config.Package}}/src/middleware"
 	"{{.Config.Package}}/src"
 )
 
@@ -87,15 +88,13 @@ func startServer(enableCors bool, port string) error {
 	db := gen.NewDBFromEnvVars("")
 	defer db.Close()
 
-	// 加载配置文件
-	src.Config()
-
 	eventController, err := gen.NewEventController()
 	if err != nil {
 		return err
 	}
 
 	mux := gen.GetHTTPServeMux(src.New(db, &eventController), db)
+	mux.Use(middleware.Handler)
 
 	var handler http.Handler
 	if enableCors {

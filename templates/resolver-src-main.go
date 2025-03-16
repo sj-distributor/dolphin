@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"{{.Config.Package}}/gen"
+	"{{.Config.Package}}/utils"
 )
 
 func New(db *gen.DB, ec *gen.EventController) gen.Config {
@@ -35,7 +36,7 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 	 *
 	 */
 	c.Directives.HasRole = func(ctx context.Context, obj any, next graphql.Resolver, role gen.Role) (res any, err error) {
-		_, err = next(ctx)
+		value, err := next(ctx)
 
 		if err != nil {
 			return nil, err
@@ -78,6 +79,6 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 		return value, nil
 	}
 
-	return resolver
+	return c
 }
 `

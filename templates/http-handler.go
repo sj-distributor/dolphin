@@ -85,7 +85,11 @@ func getJWTClaims(req *http.Request) (res map[string]interface{}, err error) {
 		return
 	}
 
-	// res, err = auth.USER_JWT_TOKEN.DecryptThandler.gooken(tokenStr)
+	res, err = auth.ParseJWT(tokenStr)
+
+	if err == nil {
+		res = res["content"].(map[string]interface{})
+	}
 
 	// p = &JWTClaims{}
 	// jwtgo.ParseWithClaims(tokenStr, p, nil)

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	jwtgo "github.com/golang-jwt/jwt/v5"
-	"{{.Config.Package}}/utils"
+	"{{.Config.Package}}/config"
 )
 
 // 用户token
@@ -22,9 +22,8 @@ var ADMIN_JWT_TOKEN = JWTToken{
 	SecretKey:    config.ADMIN_TOKEN_SECRET_KEY,
 }
 
-
 type JWTClaims struct {
-	jwtgo.RegisteredClaims
+	jwt.RegisteredClaims
 }
 
 type JWTToken struct {
@@ -35,7 +34,7 @@ type JWTToken struct {
 // 設置JWT
 func (j *JWTToken) SetToken(str interface{}) (string, error) {
 	timeNow := time.Now().Unix()
-	token := jwtgo.NewWithClaims(jwtgo.SigningMethodHS256, jwtgo.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"content": str,
 		"nbf":     int64(timeNow),
 		"exp":     int64(timeNow + 60*60*24*j.TokenExpTime),
@@ -91,8 +90,8 @@ func (j *JWTToken) GetTokenContent(token string) (interface{}, error) {
 /**
  * 校验token是否有效
  */
-func (j *JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error) {
-	token, err := jwtgo.Parse(data, func(token *jwtgo.Token) (interface{}, error) {
+func (j *JWTToken) ParseToken(data string, key []byte) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(data, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
 
@@ -100,7 +99,32 @@ func (j *JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error) 
 		return nil, err
 	}
 
-	claims := token.Claims.(jwtgo.MapClaims)
+	claims := token.Claims.(jwt.MapClaims)
 
 	return claims, nil
-}`
+}
+
+// 解析 JWT 中间部分（Payload）
+func ParseJWT(token string) (map[string]interface{}, error) {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("invalid token format")
+	}
+
+	payloadSegment := parts[1]
+
+	// Base64 解码
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode payload: %v", err)
+	}
+
+	// JSON 解析
+	var payload map[string]interface{}
+	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %v", err)
+	}
+
+	return payload, nil
+}
+`

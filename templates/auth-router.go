@@ -40,7 +40,7 @@ func getTokenMap(ctx context.Context) (content map[string]interface{}, err error
 
 	token := authorization.(string)
 
-	data, err := parseJWT(token)
+	data, err := ParseJWT(token)
 	if err != nil {
 		return content, err
 	}

@@ -37,6 +37,21 @@ func createObjectDirective(obj Object) []*ast.Directive {
 				Arguments: arguments,
 			})
 		}
+	} else {
+		directives = append(directives, &ast.Directive{
+			Kind: kinds.Directive,
+			Name: nameNode("hasRole"),
+			Arguments: []*ast.Argument{
+				{
+					Kind: kinds.Argument,
+					Name: nameNode("role"),
+					Value: &ast.EnumValue{
+						Kind:  kinds.EnumValue,
+						Value: "ALL",
+					},
+				},
+			},
+		})
 	}
 
 	return directives

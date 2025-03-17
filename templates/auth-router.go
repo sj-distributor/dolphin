@@ -32,6 +32,30 @@ func GetMethodName(ctx context.Context) (*string, error) {
 	return &colName, nil
 }
 
+// 获取当前请求的content
+func getTokenMap(ctx context.Context) (content map[string]interface{}, err error) {
+	authorization := ctx.Value(config.KeyAuthorization)
+	if authorization == nil {
+		return content, errors.New("Invalid Authorization")
+	}
+
+	token := authorization.(string)
+
+	data, err := parseJWT(token)
+	if err != nil {
+		return content, err
+	}
+
+	if data["content"] == nil {
+		return content, errors.New("Invalid Authorization")
+	}
+
+	content = data["content"].(map[string]interface{})
+	content["token"] = token
+
+	return
+}
+
 // 权限校验
 func CheckAuthorization(ctx context.Context, methodName string) (err error) {
 	index := utils.StrIndexOf(jwt.NoAuthRoutes, methodName)
@@ -40,42 +64,37 @@ func CheckAuthorization(ctx context.Context, methodName string) (err error) {
 		return nil
 	}
 
-	authorization := ctx.Value(config.KeyAuthorization)
-	if authorization == nil {
-		return errors.New("Invalid Authorization")
-	}
-
-	token := authorization.(string)
-
-	data, err := parseJWT(token)
+	content, err := getTokenMap(ctx)
 	if err != nil {
 		return err
 	}
 
-	if data["content"] == nil {
-		return errors.New("Invalid Authorization")
+	token := content["token"].(string)
+
+	if content["role"] == "ADMIN" {
+		return AdminTokenVerify(ctx, token)
 	}
 
-	content := data["content"].(map[string]interface{})
-
-	if content["role"] == true {
-		return AdminTokenVerify(token)
-	}
-
-	return UserTokenVerify(token)
+	return UserTokenVerify(ctx, token)
 }
 
 // 用户token校验
-func UserTokenVerify(token string) error {
-	// 校验url权限
-	err := USER_JWT_TOKEN.Verify(token)
-	return err
+func UserTokenVerify(ctx context.Context, token string) error {
+	content, err := getTokenMap(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 管理员角色不需要校验
+	if content["role"] == "ADMIN" {
+		return nil
+	}
+
+	return USER_JWT_TOKEN.Verify(token)
 }
 
 // 管理员token校验
-func AdminTokenVerify(token string) error {
-	// 校验url权限
-	err := ADMIN_JWT_TOKEN.Verify(token)
-	return err
+func AdminTokenVerify(ctx context.Context, token string) error {
+	return ADMIN_JWT_TOKEN.Verify(token)
 }
 `

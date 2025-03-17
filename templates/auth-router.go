@@ -10,7 +10,6 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/iancoleman/strcase"
 	"{{.Config.Package}}/config"
-	"{{.Config.Package}}/src/jwt"
 	"{{.Config.Package}}/utils"
 )
 
@@ -58,7 +57,7 @@ func getTokenMap(ctx context.Context) (content map[string]interface{}, err error
 
 // 权限校验
 func CheckAuthorization(ctx context.Context, methodName string) (err error) {
-	index := utils.StrIndexOf(jwt.NoAuthRoutes, methodName)
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
 
 	if index != -1 {
 		return nil
@@ -69,17 +68,21 @@ func CheckAuthorization(ctx context.Context, methodName string) (err error) {
 		return err
 	}
 
-	token := content["token"].(string)
-
 	if content["role"] == "ADMIN" {
-		return AdminTokenVerify(ctx, token)
+		return AdminTokenVerify(ctx, methodName)
 	}
 
-	return UserTokenVerify(ctx, token)
+	return UserTokenVerify(ctx, methodName)
 }
 
 // 用户token校验
-func UserTokenVerify(ctx context.Context, token string) error {
+func UserTokenVerify(ctx context.Context, methodName string) error {
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
+
+	if index != -1 {
+		return nil
+	}
+
 	content, err := getTokenMap(ctx)
 	if err != nil {
 		return err
@@ -90,11 +93,26 @@ func UserTokenVerify(ctx context.Context, token string) error {
 		return nil
 	}
 
+	token := content["token"].(string)
+
 	return USER_JWT_TOKEN.Verify(token)
 }
 
 // 管理员token校验
-func AdminTokenVerify(ctx context.Context, token string) error {
+func AdminTokenVerify(ctx context.Context, methodName string) error {
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
+	fmt.Println(methodName, NoAuthRoutes)
+
+	if index != -1 {
+		return nil
+	}
+
+	content, err := getTokenMap(ctx)
+	if err != nil {
+		return err
+	}
+	token := content["token"].(string)
+
 	return ADMIN_JWT_TOKEN.Verify(token)
 }
 `

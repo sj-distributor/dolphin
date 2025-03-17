@@ -5,6 +5,7 @@ import (
 	"context"
 
 	"{{.Config.Package}}/gen"
+	"{{.Config.Package}}/auth"
 	"{{.Config.Package}}/utils"
 )
 
@@ -32,17 +33,39 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 	/***
 	 * @description: 自定义的 GraphQL 角色校验，用于管理员或者用户对服务的访问权限。
 	 *
-	 * @param {*string} role - 角色枚举值：ADMIN | USER。
+	 * @param {*string} role - 角色枚举值：ALL | ADMIN | USER。
 	 *
 	 */
 	c.Directives.HasRole = func(ctx context.Context, obj any, next graphql.Resolver, role gen.Role) (res any, err error) {
-		value, err := next(ctx)
+		methodName, err := auth.GetMethodName(ctx)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return value, nil
+		// 验证全部人身份
+		if role == gen.RoleAll {
+
+			if err := auth.CheckAuthorization(ctx, *methodName); err != nil {
+				return nil, err
+			}
+		}
+
+		// 验证管理员身份
+		if role == gen.RoleAdmin {
+			if err := auth.AdminTokenVerify(ctx, *methodName); err != nil {
+				return nil, err
+			}
+		}
+
+		// 验证用户身份
+		if role == gen.RoleUser {
+			if err := auth.UserTokenVerify(ctx, *methodName); err != nil {
+				return nil, err
+			}
+		}
+
+		return next(ctx)
 	}
 
 	/***

@@ -31,30 +31,6 @@ func GetMethodName(ctx context.Context) (*string, error) {
 	return &colName, nil
 }
 
-// 获取当前请求的content
-func getTokenMap(ctx context.Context) (content map[string]interface{}, err error) {
-	authorization := ctx.Value(config.KeyAuthorization)
-	if authorization == nil {
-		return content, errors.New("Invalid Authorization")
-	}
-
-	token := authorization.(string)
-
-	data, err := ParseJWT(token)
-	if err != nil {
-		return content, err
-	}
-
-	if data["content"] == nil {
-		return content, errors.New("Invalid Authorization")
-	}
-
-	content = data["content"].(map[string]interface{})
-	content["token"] = token
-
-	return
-}
-
 // 权限校验
 func CheckAuthorization(ctx context.Context, methodName string) (err error) {
 	index := utils.StrIndexOf(NoAuthRoutes, methodName)
@@ -63,10 +39,12 @@ func CheckAuthorization(ctx context.Context, methodName string) (err error) {
 		return nil
 	}
 
-	content, err := getTokenMap(ctx)
+	data, err := UserTokenToMap(ctx)
 	if err != nil {
 		return err
 	}
+
+	content := data["content"].(map[string]interface{})
 
 	if content["role"] == "ADMIN" {
 		return AdminTokenVerify(ctx, methodName)
@@ -83,17 +61,19 @@ func UserTokenVerify(ctx context.Context, methodName string) error {
 		return nil
 	}
 
-	content, err := getTokenMap(ctx)
+	data, err := UserTokenToMap(ctx)
 	if err != nil {
 		return err
 	}
+
+	content := data["content"].(map[string]interface{})
 
 	// 管理员角色不需要校验
 	if content["role"] == "ADMIN" {
 		return nil
 	}
 
-	token := content["token"].(string)
+	token := data["token"].(string)
 
 	return USER_JWT_TOKEN.Verify(token)
 }
@@ -101,17 +81,17 @@ func UserTokenVerify(ctx context.Context, methodName string) error {
 // 管理员token校验
 func AdminTokenVerify(ctx context.Context, methodName string) error {
 	index := utils.StrIndexOf(NoAuthRoutes, methodName)
-	fmt.Println(methodName, NoAuthRoutes)
 
 	if index != -1 {
 		return nil
 	}
 
-	content, err := getTokenMap(ctx)
+	data, err := UserTokenToMap(ctx)
 	if err != nil {
 		return err
 	}
-	token := content["token"].(string)
+
+	token := data["token"].(string)
 
 	return ADMIN_JWT_TOKEN.Verify(token)
 }

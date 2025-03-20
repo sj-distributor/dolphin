@@ -46,6 +46,9 @@ func (o *ObjectField) RelationshipTypeName() string {
 }
 
 func (o *ObjectField) RelationshipName() string {
+	if !o.IsRelationship() {
+		return o.MethodName()
+	}
 	return strings.Replace(o.MethodName(), "ID", "", -1)
 }
 
@@ -131,7 +134,7 @@ func (o *ObjectField) HasName(name string) bool {
 
 // IsRelationshipIdentifier ...
 func (o *ObjectField) IsRelationshipIdentifier() bool {
-	return strings.HasSuffix(o.Name(), "Id")
+	return strings.HasSuffix(o.Name(), "Id") && o.IsRelationship()
 }
 
 // IsCreatable ...

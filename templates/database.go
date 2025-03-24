@@ -100,7 +100,7 @@ func NewDB(db *gorm.DB) *DB {
 	return &v
 }
 
-func TableName(name string, ctx context.Context) string {
+func TableName(name string) string {
 	prefix := os.Getenv("TABLE_NAME_PREFIX")
 	if prefix != "" {
 		return prefix + "_" + name

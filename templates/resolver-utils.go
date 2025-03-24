@@ -80,7 +80,8 @@ func FinishMutationContext(ctx context.Context, r *GeneratedResolver) (err error
 
 // GetTransaction ...
 func GetTransaction(ctx context.Context) *gorm.DB {
-	return ctx.Value(KeyMutationTransaction).(*gorm.DB)
+	gdb := ctx.Value(KeyMutationTransaction).(*gorm.DB)
+	return gdb.WithContext(ctx)
 }
 
 // RollbackMutationContext ...

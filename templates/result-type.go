@@ -133,7 +133,7 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 		}
 	}
 
-	return q.Find(out).Error
+	return q.WithContext(ctx).Find(out).Error
 }
 
 // GetTotal ...
@@ -175,7 +175,7 @@ func (r *EntityResultType) GetTotal(ctx context.Context, db *gorm.DB, table stri
 
 	var result CountResult
 	
-	err = q.Select("COUNT(DISTINCT " + table + ".id) as count").Scan(&result).Error
+	err = q.WithContext(ctx).Select("COUNT(DISTINCT " + table + ".id) as count").Scan(&result).Error
 
 	count = result.Count
 

@@ -23,7 +23,7 @@ func (f *{{$obj.Name}}FilterType) IsEmpty(ctx context.Context) bool {
 	return len(wheres) == 0
 }
 func (f *{{$obj.Name}}FilterType) Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error {
-	return f.ApplyWithAlias(ctx, TableName("{{$obj.TableName}}", ctx), wheres, values, joins)
+	return f.ApplyWithAlias(ctx, TableName("{{$obj.TableName}}"), wheres, values, joins)
 }
 func (f *{{$obj.Name}}FilterType) ApplyWithAlias(ctx context.Context, alias string, wheres *[]string, values *[]interface{}, joins *[]string) error {
 	if f == nil {

@@ -28,6 +28,10 @@ func EnrichModelObjects(m *Model) error {
 		}
 		o.Def.Fields = append(o.Def.Fields, isDelete, weight, state, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
 	}
+
+	for _, o := range m.ObjectShardings() {
+		o.Def.Fields = append(o.Def.Fields, columnDefinition("shardingId", "Int", "Int", true))
+	}
 	return nil
 }
 

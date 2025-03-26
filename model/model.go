@@ -69,6 +69,20 @@ func (m *Model) ObjectEntities() []Object {
 	return objs
 }
 
+func (m *Model) ObjectShardings() []Object {
+	objs := []Object{}
+	for _, def := range m.Doc.Definitions {
+		def, ok := def.(*ast.ObjectDefinition)
+		if ok {
+			obj := Object{Def: def, Model: m}
+			if obj.HasDirective("sharding") {
+				objs = append(objs, obj)
+			}
+		}
+	}
+	return objs
+}
+
 func (m *Model) HasFederatedTypes() bool {
 	for _, o := range m.Objects() {
 		if o.IsFederatedType() {

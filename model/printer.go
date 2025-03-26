@@ -28,6 +28,7 @@ func PrintSchema(model Model) (string, error) {
 		o.Def.Fields = fields
 		o.Def.Directives = filterDirective(o.Def.Directives, "entity")
 		o.Def.Directives = filterDirective(o.Def.Directives, "hasRole")
+		o.Def.Directives = filterDirective(o.Def.Directives, "sharding")
 	}
 
 	for _, o := range model.ObjectExtensions() {
@@ -35,6 +36,7 @@ func PrintSchema(model Model) (string, error) {
 		for _, f := range o.Object.Def.Fields {
 			f.Directives = filterDirective(f.Directives, "entity")
 			f.Directives = filterDirective(f.Directives, "hasRole")
+			f.Directives = filterDirective(f.Directives, "sharding")
 			fields = append(fields, f)
 		}
 		o.Object.Def.Fields = fields

@@ -100,16 +100,18 @@ func NewDB(db *gorm.DB) *DB {
 	return &v
 }
 
-var ShardingArray = []string{"contents"}
+var ShardingArray = []string{ {{range $obj := .Model.ObjectEntities}}{{if $obj.IsSharding}}
+	"{{.TableName}}",{{end}}{{end}}
+}
 
-var ShardingStruct = []any{
-	Content{},
+var ShardingStruct = []any{ {{range $obj := .Model.ObjectEntities}}{{if $obj.IsSharding}}
+	{{.Name}}{},{{end}}{{end}}
 }
 
 // 获取表名
 func GetShardingTableName(name string, shardingId string) string {
 	// secretKey := ctx.Value(config.KeyAppSecret)
-	if shardingId != "" && utils.StrIndexOf(Shardings, name) != -1 {
+	if shardingId != "" && utils.StrIndexOf(ShardingArray, name) != -1 {
 		return name + "_" + shardingId
 	}
 

@@ -118,6 +118,10 @@ func (o *Object) Directive(name string) *ast.Directive {
 	return nil
 }
 
+func (o *Object) IsSharding() bool {
+	return o.HasDirective("sharding")
+}
+
 func (o *Object) isRelationship(f *ast.FieldDefinition) bool {
 	for _, d := range f.Directives {
 		if d != nil && d.Name.Value == "relationship" {

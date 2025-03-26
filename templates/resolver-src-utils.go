@@ -106,4 +106,16 @@ func Difference[T string](a, b []T) []T {
 	}
 	return result
 }
+
+// 提取分表名
+func ExtractShardingTableName(input any) string {
+	if input != nil {
+		re := regexp.MustCompile("_(\\d+)$")
+		match := re.FindStringSubmatch(input.(string))
+		if len(match) > 1 {
+			return match[1] // 返回匹配的数字部分
+		}
+	}
+	return ""
+}
 `

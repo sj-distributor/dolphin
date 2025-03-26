@@ -266,7 +266,7 @@ type MutationEvents struct {
 			{{end}}
 		{{end}}
 
-		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}"), item, &id); err != nil {
+		if err = GetItem(ctx, tx, TableName("{{$obj.TableName}}", ctx), item, &id); err != nil {
 			return nil, err
 		}
 	

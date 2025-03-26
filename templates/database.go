@@ -100,12 +100,34 @@ func NewDB(db *gorm.DB) *DB {
 	return &v
 }
 
-func TableName(name string) string {
-	prefix := os.Getenv("TABLE_NAME_PREFIX")
-	if prefix != "" {
-		return prefix + "_" + name
+var ShardingArray = []string{"contents"}
+
+var ShardingStruct = []any{
+	Content{},
+}
+
+// 获取表名
+func GetShardingTableName(name string, shardingId string) string {
+	// secretKey := ctx.Value(config.KeyAppSecret)
+	if shardingId != "" && utils.StrIndexOf(Shardings, name) != -1 {
+		return name + "_" + shardingId
 	}
-	return strcase.ToSnake(strcase.ToLowerCamel(name))
+
+	return name
+}
+
+func TableName(name string, ctx context.Context) string {
+	secretKey := ctx.Value(config.KeyAppSecret)
+	shardingId := utils.ExtractShardingTableName(secretKey)
+
+	prefix := os.Getenv("TABLE_NAME_PREFIX")
+	tableName := strcase.ToSnake(strcase.ToLowerCamel(name))
+	if prefix != "" {
+		tableName = prefix + "_" + tableName
+	}
+
+	// return strcase.ToSnake(strcase.ToLowerCamel(name))
+	return GetShardingTableName(tableName, shardingId)
 }
 
 // Close ...

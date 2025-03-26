@@ -16,7 +16,7 @@ import (
 {{range $obj := .Model.ObjectEntities}}
 {{if not $obj.IsExtended}}
 func (s {{$obj.Name}}SortType) Apply(ctx context.Context, sorts *[]string, joins *[]string) error {
-	return s.ApplyWithAlias(ctx, TableName("{{$obj.TableName}}"), sorts, joins)
+	return s.ApplyWithAlias(ctx, TableName("{{$obj.TableName}}", ctx), sorts, joins)
 }
 func (s {{$obj.Name}}SortType) ApplyWithAlias(ctx context.Context, alias string, sorts *[]string, joins *[]string) error {
 	aliasPrefix := alias + "."

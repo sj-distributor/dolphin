@@ -45,12 +45,12 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		}
 		qb := r.DB.Query()
 		if opts.ID != nil {
-			qb = qb.Where(TableName("{{$obj.TableName}}") + ".id = ?", *opts.ID)
+			qb = qb.Where(TableName("{{$obj.TableName}}", ctx) + ".id = ?", *opts.ID)
 		}
 
 		var items []*{{$obj.Name}}
 		giOpts := GetItemsOptions{
-			Alias:TableName("{{$obj.TableName}}"),
+			Alias:TableName("{{$obj.TableName}}", ctx),
 			Preloaders:[]string{ {{range $r := $obj.PreloadableRelationships}}
 				"{{$r.MethodName}}",{{end}}
 			},
@@ -117,7 +117,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 
 	func (r *Generated{{$obj.Name}}ResultTypeResolver) Data(ctx context.Context, obj *{{$obj.Name}}ResultType) (items []*{{$obj.Name}}, err error) {
 		giOpts := GetItemsOptions{
-			Alias:TableName("{{$obj.TableName}}"),
+			Alias:TableName("{{$obj.TableName}}", ctx),
 			Preloaders:[]string{ {{range $r := $obj.PreloadableRelationships}}
 				"{{$r.MethodName}}",{{end}}
 			},
@@ -145,7 +145,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 	}
 
 	func (r *Generated{{$obj.Name}}ResultTypeResolver) Total(ctx context.Context, obj *{{$obj.Name}}ResultType) (count int, err error) {
-		return obj.GetTotal(ctx, r.DB.db, TableName("{{$obj.TableName}}"), &{{$obj.Name}}{})
+		return obj.GetTotal(ctx, r.DB.db, TableName("{{$obj.TableName}}", ctx), &{{$obj.Name}}{})
 	}
 
 	func (r *Generated{{$obj.Name}}ResultTypeResolver) TotalPage(ctx context.Context, obj *{{$obj.Name}}ResultType) (count int, err error) {
@@ -199,7 +199,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 						return items, errors.New("{{$rel.MethodName}} " + err.Error())
 					}
 					{{if $rel.IsManyToMany}}
-						// selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}")))
+						// selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}", ctx)))
 						// wheres  := []string{}
 						// values  := []interface{}{}
 						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error

@@ -195,11 +195,11 @@ func (o *ObjectRelationship) JoinString() string {
 	join := ""
 	if o.IsManyToMany() {
 		joinTable := o.ManyToManyJoinTable()
-		join += fmt.Sprintf("\"LEFT JOIN \"+\"%[1]s\"+\" \"+_alias+\"_jointable\"+\" ON \"+alias+\".id = \"+_alias+\"_jointable\"+\".\"+\"%[3]s_id\"+\" LEFT JOIN \"+TableName(\"%[2]s\")+\" \"+_alias+\" ON \"+_alias+\"_jointable\"+\".\"+\"%[4]s_id\"+\" = \"+_alias+\".id\"", joinTable, o.Target().TableName(), inflection.Singular(o.InverseRelationshipName()), strcase.ToSnake(inflection.Singular(o.Name())))
+		join += fmt.Sprintf("\"LEFT JOIN \"+TableName(\"%[1]s\", ctx)+\" \"+_alias+\"_jointable\"+\" ON \"+alias+\".id = \"+_alias+\"_jointable\"+\".\"+\"%[3]s_id\"+\" LEFT JOIN \"+TableName(\"%[2]s\")+\" \"+_alias+\" ON \"+_alias+\"_jointable\"+\".\"+\"%[4]s_id\"+\" = \"+_alias+\".id\"", joinTable, o.Target().TableName(), inflection.Singular(o.InverseRelationshipName()), strcase.ToSnake(inflection.Singular(o.Name())))
 	} else if o.IsToOne() {
-		join += fmt.Sprintf("\"LEFT JOIN \"+\"%[1]s\"+\" \"+_alias+\" ON \"+_alias+\".id = \"+alias+\".\"+\"%[2]s_id\"", o.Target().TableName(), strcase.ToSnake(o.Name()))
+		join += fmt.Sprintf("\"LEFT JOIN \"+TableName(\"%[1]s\", ctx)+\" \"+_alias+\" ON \"+_alias+\".id = \"+alias+\".\"+\"%[2]s_id\"", o.Target().TableName(), strcase.ToSnake(o.Name()))
 	} else if o.IsToMany() {
-		join += fmt.Sprintf("\"LEFT JOIN \"+\"%[1]s\"+\" \"+_alias+\" ON \"+_alias+\".\"+\"%[3]s_id\"+\" = \"+alias+\".id\"", o.Target().TableName(), strcase.ToSnake(o.Name()), strcase.ToSnake(o.InverseRelationshipName()))
+		join += fmt.Sprintf("\"LEFT JOIN \"+TableName(\"%[1]s\", ctx)+\" \"+_alias+\" ON \"+_alias+\".\"+\"%[3]s_id\"+\" = \"+alias+\".id\"", o.Target().TableName(), strcase.ToSnake(o.Name()), strcase.ToSnake(o.InverseRelationshipName()))
 	}
 
 	return join

@@ -192,8 +192,8 @@ type MutationEvents struct {
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsCreatable}}
-				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-					{{if $col.IsRelationshipIdentifier}}
+			if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+				{{if $col.IsRelationshipIdentifier}}
 						if err := tx.Select("id").Where("id", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
 							return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
 						}

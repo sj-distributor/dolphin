@@ -108,6 +108,10 @@ var ShardingStruct = []any{ {{range $obj := .Model.ObjectEntities}}{{if $obj.IsS
 	{{.Name}}{},{{end}}{{end}}
 }
 
+var TableMap = map[string]interface{}{ {{range $obj := .Model.ObjectEntities}}
+	"{{.TableName}}": {{.Name}}{},{{end}}
+}
+
 // 获取表名
 func GetShardingTableName(name string, shardingId string) string {
 	// secretKey := ctx.Value(config.KeyAppSecret)

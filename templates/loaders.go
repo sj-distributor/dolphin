@@ -24,16 +24,16 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 					}
 			
 					items := &[]{{$object.Name}}{}
-					selects := GetFieldsRequested(ctx, "{{$object.ToSnakePluraName}}")
-					if IndexOf(selects, "{{$object.ToSnakePluraName}}" + ".id") == -1 {
+					selects := GetFieldsRequested(ctx, TableName("{{$object.ToSnakePluraName}}", ctx))
+					if IndexOf(selects, TableName("{{$object.ToSnakePluraName}}", ctx) + ".id") == -1 {
 						selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
 					}
 
-					if IndexOf(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.ToSnakeName}}_id") == -1 {
-						selects = append(selects, "{{$object.ToSnakePluraName}}"+".{{$rel.ToSnakeName}}_id")
+					if IndexOf(selects, TableName("{{$object.ToSnakePluraName}}", ctx)+".{{$rel.ToSnakeName}}_id") == -1 {
+						selects = append(selects, TableName("{{$object.ToSnakePluraName}}", ctx)+".{{$rel.ToSnakeName}}_id")
 					}
 			
-					res := db.Query().Select(selects).Order("weight ASC, created_at ASC").Find(items, "{{$rel.ToSnakeName}}_id IN (?)", ids)
+					res := db.Query().Table(TableName("{{$object.ToSnakePluraName}}", ctx)).Select(selects).Order("weight ASC, created_at ASC").Find(items, "{{$rel.ToSnakeName}}_id IN (?)", ids)
 					if res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound) {
 						return []*dataloader.Result{
 							{Error: res.Error},
@@ -82,12 +82,12 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 			}
 
 			items := &[]{{$object.Name}}{}
-			selects := GetFieldsRequested(ctx, "{{$object.ToSnakePluraName}}")
-			if len(selects) > 0 && IndexOf(selects, "{{$object.ToSnakePluraName}}" + ".id") == -1 {
-				selects = append(selects, "{{$object.ToSnakePluraName}}" + ".id")
+			selects := GetFieldsRequested(ctx, TableName("{{$object.ToSnakePluraName}}", ctx))
+			if len(selects) > 0 && IndexOf(selects, TableName("{{$object.ToSnakePluraName}}", ctx) + ".id") == -1 {
+				selects = append(selects, TableName("{{$object.ToSnakePluraName}}", ctx) + ".id")
 			}
 
-			res := db.Query().Select(selects).Order("weight ASC, created_at ASC").Find(items, "id IN (?)", ids)
+			res := db.Query().Table(TableName("{{$object.ToSnakePluraName}}", ctx)).Select(selects).Order("weight ASC, created_at ASC").Find(items, "id IN (?)", ids)
 			if res.Error != nil && errors.Is(res.Error, gorm.ErrRecordNotFound) {
 				return []*dataloader.Result{
 					{Error: res.Error},

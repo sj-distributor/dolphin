@@ -41,6 +41,13 @@ func (o *ObjectField) MethodName() string {
 	return templates.ToGo(name)
 }
 
+func (o *ObjectField) Type() string {
+	if namedType, ok := o.Def.Type.(*ast.Named); ok {
+		return namedType.Name.Value
+	}
+	return "unknown"
+}
+
 func (o *ObjectField) RelationshipTypeName() string {
 	return o.Def.Description.Kind
 }
@@ -134,7 +141,7 @@ func (o *ObjectField) HasName(name string) bool {
 
 // IsRelationshipIdentifier ...
 func (o *ObjectField) IsRelationshipIdentifier() bool {
-	return strings.HasSuffix(o.Name(), "Id") && o.IsRelationship()
+	return strings.HasSuffix(o.Name(), "Id") && o.Type() == "ID"
 }
 
 // IsCreatable ...

@@ -18,12 +18,14 @@ func IndexOf(str []interface{}, data interface{}) int {
 }
 
 func GetRandomString(n int) string {
-	rand.Seed(time.Now().Unix())
+	// 创建一个新的随机数生成器
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	bytes := []byte(str)
-	var result []byte
+	result := make([]byte, n)
+
 	for i := 0; i < n; i++ {
-		result = append(result, bytes[rand.Intn(len(bytes))])
+		result[i] = bytes[rng.Intn(len(bytes))]
 	}
 	return string(result)
 }

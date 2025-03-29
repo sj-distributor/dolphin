@@ -118,4 +118,16 @@ func ExtractShardingTableName(input any) string {
 	}
 	return ""
 }
+func GetRandomString(n int) string {
+	// 创建一个新的随机数生成器
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	bytes := []byte(str)
+	result := make([]byte, n)
+
+	for i := 0; i < n; i++ {
+		result[i] = bytes[rng.Intn(len(bytes))]
+	}
+	return string(result)
+}
 `

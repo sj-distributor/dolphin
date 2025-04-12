@@ -130,4 +130,12 @@ func GetRandomString(n int) string {
 	}
 	return string(result)
 }
+
+//  生成订单号
+func GenOrderNo() string {
+	now := time.Now()
+	// 精确到毫秒
+	orderNo := now.Format("20060102150405") + fmt.Sprintf("%03d", now.Nanosecond()/1e6)
+	return orderNo
+}
 `

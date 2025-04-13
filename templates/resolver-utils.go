@@ -103,12 +103,12 @@ func AddMutationEvent(ctx context.Context, e Event) {
 
 // GetFieldsRequested ...
 func GetFieldsRequested(ctx context.Context, alias string) []string {
-	// result := graphql.CollectAllFields(ctx)
+	result := graphql.CollectAllFields(ctx)
 	reqCtx := graphql.GetOperationContext(ctx)
 
-	// if IndexOf(result, alias) != -1 || alias != reqCtx.OperationName {
-	// 	return []string{alias + ".*"}
-	// }
+	if IndexOf(result, alias) != -1 || alias != reqCtx.OperationName {
+		return []string{alias + ".*"}
+	}
 	fieldSelections := graphql.GetFieldContext(ctx).Field.Selections
 	return recurseSelectionSets(reqCtx, []string{}, fieldSelections, alias)
 }

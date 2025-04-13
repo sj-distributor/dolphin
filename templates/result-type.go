@@ -53,7 +53,7 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 	q := db
 
 	selects := GetFieldsRequested(ctx, opts.Alias)
-	if len(selects) > 0 && IndexOf(selects, opts.Alias+".id") == -1 {
+	if len(selects) > 0 && IndexOf(selects, opts.Alias+".*") == -1 && IndexOf(selects, opts.Alias+".id") == -1 {
 		selects = append(selects, opts.Alias+".id")
 	}
 

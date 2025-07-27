@@ -22,7 +22,7 @@ func EnrichModelObjects(m *Model) error {
 		o.Def.Fields = append([]*ast.FieldDefinition{id}, o.Def.Fields...)
 		for _, rel := range o.Relationships() {
 			if rel.IsToOne() {
-				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", rel.Target().Name(), false))
+				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", rel.Target().Name(), rel.IsNonNull()))
 				// o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", rel.Target().Name(), false))
 			}
 		}

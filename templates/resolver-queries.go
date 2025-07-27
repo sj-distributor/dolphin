@@ -228,8 +228,16 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 					}
 
 					loaders := ctx.Value(KeyLoaders).(map[string]*dataloader.Loader)
-					if obj.{{$rel.MethodName}}ID != nil {
-						item, _ := loaders["{{$rel.Target.Name}}"].Load(ctx, dataloader.StringKey(*obj.{{$rel.MethodName}}ID))()
+					objKey := obj.{{$rel.MethodName}}ID
+
+					{{if $rel.IsNonNull}}
+						if objKey != "" {
+							item, _ := loaders["{{$rel.Target.Name}}"].Load(ctx, dataloader.StringKey(objKey))()
+					{{else}}
+						if objKey != nil {
+							item, _ := loaders["{{$rel.Target.Name}}"].Load(ctx, dataloader.StringKey(*objKey))()
+					{{end}}
+
 						items, _ = item.({{$rel.ReturnType}})
 						{{if $rel.IsNonNull}}
 							if items == nil {

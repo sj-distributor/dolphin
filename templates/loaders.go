@@ -46,10 +46,15 @@ func GetLoaders(db *DB) map[string]*dataloader.Loader {
 					itemMap := make(map[string][]*{{$object.Name}}, len(keys))
 					for _, v := range *items {
 						item := v
-						if itemMap[*item.{{$rel.MethodName}}ID] == nil {
-							itemMap[*item.{{$rel.MethodName}}ID] = []*{{$object.Name}}{}
+						{{if $rel.IsNonNull}}
+							mapKey := item.{{$rel.MethodName}}ID
+						{{else}}
+							mapKey := *item.{{$rel.MethodName}}ID
+						{{end}}
+						if itemMap[mapKey] == nil {
+							itemMap[mapKey] = []*{{$object.Name}}{}
 						}
-						itemMap[*item.{{$rel.MethodName}}ID] = append(itemMap[*item.{{$rel.MethodName}}ID], &item)
+						itemMap[mapKey] = append(itemMap[mapKey], &item)
 					}
 			
 					for _, key := range keys {

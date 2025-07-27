@@ -182,7 +182,12 @@ type MutationEvents struct {
 					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
 						return item, err
 					}
-					item.{{$rel.MethodName}}ID = &v.ID
+
+					{{if $rel.IsNonNull}}
+						item.{{$rel.MethodName}}ID = v.ID
+					{{else}}
+						item.{{$rel.MethodName}}ID = &v.ID
+					{{end}}
 					item.{{$rel.MethodName}} = v
 					event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
 					event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
@@ -393,8 +398,15 @@ type MutationEvents struct {
 					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
 						return item, err
 					}
-					item.{{$rel.MethodName}}ID = &v.ID
-					newItem.{{$rel.MethodName}}ID = &v.ID
+
+					{{if $rel.IsNonNull}}
+						item.{{$rel.MethodName}}ID = v.ID
+						newItem.{{$rel.MethodName}}ID = v.ID
+					{{else}}
+						item.{{$rel.MethodName}}ID = &v.ID
+						newItem.{{$rel.MethodName}}ID = &v.ID
+					{{end}}
+
 					item.{{$rel.MethodName}} = v
 					newItem.{{$rel.MethodName}} = v
 					isChange = true

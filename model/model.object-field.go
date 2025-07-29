@@ -141,7 +141,7 @@ func (o *ObjectField) HasName(name string) bool {
 
 // IsRelationshipIdentifier ...
 func (o *ObjectField) IsRelationshipIdentifier() bool {
-	return strings.HasSuffix(o.Name(), "Id") && o.Type() == "ID"
+	return strings.HasSuffix(o.Name(), "Id") && o.Type() == "ID" || strings.HasSuffix(o.Name(), "Id") && o.TargetType() == "ID"
 }
 
 // IsCreatable ...

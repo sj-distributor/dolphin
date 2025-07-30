@@ -1,8 +1,6 @@
 package model
 
 import (
-	"strings"
-
 	"github.com/graphql-go/graphql/language/kinds"
 	"github.com/iancoleman/strcase"
 
@@ -14,7 +12,7 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 	fields := []*ast.InputValueDefinition{}
 	for _, col := range obj.Fields() {
 		t := col.Def.Type
-		if strings.Contains(name, CREATE) {
+		if name == CREATE {
 			if !col.IsCreatable() {
 				continue
 			}
@@ -24,7 +22,7 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 			}
 		}
 
-		if strings.Contains(name, UPDATE) {
+		if name == UPDATE {
 			if !col.IsUpdatable() || col.Name() == "id" {
 				continue
 			}
@@ -47,7 +45,7 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 				Type: t,
 			})
 		} else {
-			if name == "UpdateInput" {
+			if name == UPDATE {
 				t = getNullableType(t)
 			} else if obj.Field(strcase.ToLowerCamel(col.RelationshipName())).IsRequired() {
 				t = nonNull(t)
@@ -63,7 +61,7 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 	}
 	return &ast.InputObjectDefinition{
 		Kind:   kinds.InputObjectDefinition,
-		Name:   nameNode(obj.Name() + name),
+		Name:   nameNode(name + obj.Name() + "Input"),
 		Fields: fields,
 	}
 }
@@ -116,11 +114,11 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 }
 
 func createObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	return objectDefinitionFunc(obj, "CreateInput")
+	return objectDefinitionFunc(obj, "create")
 }
 
 func updateObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	return objectDefinitionFunc(obj, "UpdateInput")
+	return objectDefinitionFunc(obj, "update")
 }
 
 func createObjectRelationship(obj Object) *ast.InputObjectDefinition {

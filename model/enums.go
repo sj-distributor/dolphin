@@ -1,6 +1,6 @@
 package model
 
 const (
-	CREATE string = "Create"
-	UPDATE string = "Update"
+	CREATE string = "create"
+	UPDATE string = "update"
 )

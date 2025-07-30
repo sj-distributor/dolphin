@@ -190,6 +190,10 @@ func (o *Object) HasDirective(name string) bool {
 	return o.Directive(name) != nil
 }
 
+func (o *Object) IsSkip() bool {
+	return o.Directive("skip") != nil
+}
+
 func (o *Object) IsFederatedType() bool {
 	return o.HasDirective("key")
 }

@@ -17,6 +17,10 @@ func queryDefinition(m *Model) *ast.ObjectDefinition {
 	}
 
 	for _, obj := range m.ObjectEntities() {
+		if obj.IsSkip() {
+			continue
+		}
+
 		fields = append(fields, fetchFieldDefinition(obj), listFieldDefinition(obj))
 	}
 	return &ast.ObjectDefinition{

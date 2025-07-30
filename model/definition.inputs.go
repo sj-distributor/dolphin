@@ -114,11 +114,11 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 }
 
 func createObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	return objectDefinitionFunc(obj, "create")
+	return objectDefinitionFunc(obj, "Create")
 }
 
 func updateObjectDefinition(obj Object) *ast.InputObjectDefinition {
-	return objectDefinitionFunc(obj, "update")
+	return objectDefinitionFunc(obj, "Update")
 }
 
 func createObjectRelationship(obj Object) *ast.InputObjectDefinition {

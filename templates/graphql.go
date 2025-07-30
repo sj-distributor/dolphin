@@ -36,14 +36,14 @@ var Graphql = `{{range $obj := .Model.Objects}}
   }
 
   # 新增
-  mutation create{{$obj.Name}} ($data: create{{$obj.Name}}Input!) {
+  mutation create{{$obj.Name}} ($data: Create{{$obj.Name}}Input!) {
     create{{$obj.Name}}(input: $data) {
       id
     }
   }
 
   # 修改
-  mutation update{{$obj.Name}} ($id: ID!, $data: update{{$obj.Name}}Input!) {
+  mutation update{{$obj.Name}} ($id: ID!, $data: Update{{$obj.Name}}Input!) {
     update{{$obj.Name}}(id: $id, input: $data) {
       id
     }
@@ -107,8 +107,8 @@ var GraphqlApi = `[
     "data": [
       { "name": "{{$obj.EntityName}}", "title": "列表", "api": "{{$obj.ToLowerPluralName}}", "type": "list", "method": "Query", "code": "query {{$obj.Name}}s($currentPage: Int = 1, $perPage: Int = 10, $sort: [{{$obj.Name}}SortType!], $search: String, $filter: {{$obj.Name}}FilterType, $rand: Boolean = false) {\n  {{$obj.ToLowerPluralName}}(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      {{range $col := $obj.Columns}}{{$col.Name}}\n      {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {\n        ...{{$rel.Target.Name}}sFields\n      }\n      {{end}}\n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
       { "name": "{{$obj.EntityName}}", "title": "详情", "api": "{{$obj.LowerName}}", "type": "detail", "method": "Query", "code": "query {{$obj.Name}}Detail($id: ID, $search: String, $filter: {{$obj.Name}}FilterType) {\n  {{$obj.LowerName}}(id: $id, q: $search, filter: $filter) {\n    {{range $col := $obj.Columns}}{{$col.Name}}\n    {{end}}{{range $rel := $obj.Relationships}}{{$rel.Name}} {\n      ...{{$rel.Target.Name}}sFields\n    }\n    {{end}}\n  }\n}" },
-      { "name": "{{$obj.EntityName}}", "title": "新增", "api": "create{{$obj.Name}}", "type": "create", "method": "Mutation", "code": "mutation create{{$obj.Name}}($data: create{{$obj.Name}}Input!) {\n  create{{$obj.Name}}(input: $data) {\n    id\n  }\n}" },
-      { "name": "{{$obj.EntityName}}", "title": "修改", "api": "update{{$obj.Name}}", "type": "update", "method": "Mutation", "code": "mutation update{{$obj.Name}}($id: ID!, $data: update{{$obj.Name}}Input!) {\n  update{{$obj.Name}}(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "新增", "api": "create{{$obj.Name}}", "type": "create", "method": "Mutation", "code": "mutation create{{$obj.Name}}($data: Create{{$obj.Name}}Input!) {\n  create{{$obj.Name}}(input: $data) {\n    id\n  }\n}" },
+      { "name": "{{$obj.EntityName}}", "title": "修改", "api": "update{{$obj.Name}}", "type": "update", "method": "Mutation", "code": "mutation update{{$obj.Name}}($id: ID!, $data: Update{{$obj.Name}}Input!) {\n  update{{$obj.Name}}(id: $id, input: $data) {\n    id\n  }\n}" },
       { "name": "{{$obj.EntityName}}", "title": "删除", "api": "delete{{$obj.PluralName}}", "type": "delete", "method": "Mutation", "code": "mutation delete{{$obj.PluralName}}($id: [ID!]!) {\n  delete{{$obj.PluralName}}(id: $id)\n}" },
       { "name": "{{$obj.EntityName}}", "title": "恢复", "api": "recovery{{$obj.PluralName}}", "type": "recovery", "method": "Mutation", "code": "mutation recovery{{$obj.PluralName}}($id: [ID!]!) {\n  recovery{{$obj.PluralName}}(id: $id)\n}" }
     ]

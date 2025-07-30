@@ -55,9 +55,9 @@ models:
         resolver: true
       total_page:
         resolver: true
-  create{{$obj.Name}}Input:
+  Create{{$obj.Name}}Input:
     model: "map[string]interface{}"
-  update{{$obj.Name}}Input:
+  Update{{$obj.Name}}Input:
     model: "map[string]interface{}"
   {{end}}
   _Any:

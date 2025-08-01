@@ -406,9 +406,9 @@ type MutationEvents struct {
 						v.ID = uuid.Must(uuid.NewV4()).String()
 					}
 
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
-						return item, err
-					}
+					// if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
+					// 	return item, err
+					// }
 
 					{{if $rel.IsNonNull}}
 						item.{{$rel.MethodName}}ID = v.ID
@@ -418,11 +418,11 @@ type MutationEvents struct {
 						newItem.{{$rel.MethodName}}ID = &v.ID
 					{{end}}
 
-					item.{{$rel.MethodName}} = v
-					newItem.{{$rel.MethodName}} = v
+					// item.{{$rel.MethodName}} = v
+					// newItem.{{$rel.MethodName}} = v
 					isChange = true
-					event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
-					event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
+					// event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
+					// event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
 				}
 			{{end}}
 		{{end}}

@@ -178,6 +178,13 @@ type MutationEvents struct {
 							return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
 						}
 						v.ID = uuid.Must(uuid.NewV4()).String()
+						{{if $rel.IsOneToOne}}
+						{{if $rel.IsNonNull}}
+						v.{{$rel.UpperRelationshipName}}ID = &item.ID
+						{{else}}
+						v.{{$rel.UpperRelationshipName}}ID = item.ID
+						{{end}}
+						{{end}}
 					}
 					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
 						return item, err

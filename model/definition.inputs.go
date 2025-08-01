@@ -78,6 +78,8 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 
 		if col.Name() == "id" {
 			t = getNamedType(t)
+		} else {
+			t = getNullableType(t)
 		}
 		// if strings.Contains(name, CREATE) {
 		// 	if !col.IsCreatable() || col.IsReadonlyType() || col.Name() == "id" {

@@ -123,6 +123,9 @@ func (o *ObjectRelationship) IsManyToOne() bool {
 func (o *ObjectRelationship) IsOneToMany() bool {
 	return !o.IsToMany() && o.InverseRelationship().IsToMany()
 }
+func (o *ObjectRelationship) IsOneToOne() bool {
+	return !o.IsToMany() && o.InverseRelationship().IsToOne()
+}
 func (o *ObjectRelationship) IsSelfReferencing() bool {
 	inv := o.InverseRelationship()
 	return o.Obj.Name() == inv.Obj.Name() && o.Name() == inv.Name()

@@ -13,7 +13,8 @@ func objectDefinitionFunc(obj Object, name string) *ast.InputObjectDefinition {
 	for _, col := range obj.Fields() {
 		t := col.Def.Type
 		if name == CREATE {
-			if !col.IsCreatable() {
+
+			if !col.IsCreatable() || col.IsShardingID() {
 				continue
 			}
 
@@ -72,7 +73,7 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 	for _, col := range obj.Columns() {
 		t := col.Def.Type
 
-		if !col.IsUpdatable() || col.IsReadonlyType() || isListType(getNullableType(t)) {
+		if !col.IsUpdatable() || col.IsReadonlyType() || isListType(getNullableType(t)) || col.IsShardingID() {
 			continue
 		}
 

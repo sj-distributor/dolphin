@@ -194,6 +194,11 @@ func (o *ObjectField) IsEmbedded() bool {
 	return !o.IsColumn() && !o.IsRelationship()
 }
 
+// IsShardingID
+func (o *ObjectField) IsShardingID() bool {
+	return o.Name() == "shardingId"
+}
+
 // HasTargetObject ...
 func (o *ObjectField) HasTargetObject() bool {
 	return o.Obj.Model.HasObject(o.TargetType())

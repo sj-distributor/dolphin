@@ -22,8 +22,6 @@ type DB struct {
 	db *gorm.DB
 }
 
-type SyncShardingFunc func(db *DB) error
-
 func NewDBFromEnvVars(name string) *DB {
 	urlString := name
 
@@ -153,11 +151,6 @@ func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate({{range $obj := .Model.ObjectEntities}}
 		{{.Name}}{},{{end}}
 	)
-}
-
-// 同步分表字段结构
-func (db *DB) SyncShardingTable(callback SyncShardingFunc) error {
-	return callback(db)
 }
 
 func (db *DB) Ping() error {

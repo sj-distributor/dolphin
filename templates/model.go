@@ -35,6 +35,13 @@ type {{.Name}} struct {
 {{end}}
 }
 
+{{if $object.IsSharding}}
+	type {{.Name}}Shard struct {
+		{{range $col := $object.Columns}}
+			{{$col.MethodName}} {{$col.GoType}} ` + "`" + `{{$col.ModelTags}}` + "`" + `{{end}}
+	}
+{{end}}
+
 func (m *{{.Name}}) Is_Entity() {}
 
 {{range $interface := $object.Interfaces}}

@@ -97,7 +97,7 @@ type MutationEvents struct {
 						}
 					}
 			
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(items); err != nil {
+					if err := tx.Model(&item).Table("{{$rel.TargetTypeToSnakeName}}s").Association("{{$rel.MethodName}}").Replace(items); err != nil {
 						return item, err
 					}
 
@@ -114,6 +114,8 @@ type MutationEvents struct {
 						// 判断ID是否为空
 						if !utils.IsEmpty(v.ID) {
 							// 判断是否有Update权限
+							v.UpdatedAt = &timestampMillis
+							v.UpdatedBy = principalID
 							if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
 								return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
 							}
@@ -136,11 +138,13 @@ type MutationEvents struct {
 								return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
 							}
 							v.ID = uuid.Must(uuid.NewV4()).String()
+							v.CreatedAt = timestampMillis
+							v.CreatedBy = principalID
 							new{{$rel.MethodName}} = append(new{{$rel.MethodName}}, v)
 						}
 					}
 					
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
+					if err := tx.Model(&item).Table("{{$rel.TargetTypeToSnakeName}}s").Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
 						return item, err
 					}
 
@@ -153,6 +157,8 @@ type MutationEvents struct {
 					// 判断ID是否为空
 					if !utils.IsEmpty(v.ID) {
 						// 判断是否有Update权限
+						v.UpdatedAt = &timestampMillis
+						v.UpdatedBy = principalID
 						if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
 							return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
 						}
@@ -178,6 +184,8 @@ type MutationEvents struct {
 							return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
 						}
 						v.ID = uuid.Must(uuid.NewV4()).String()
+						v.CreatedAt = timestampMillis
+						v.CreatedBy = principalID
 						{{if $rel.IsOneToOne}}
 						{{if $rel.IsNonNull}}
 						v.{{$rel.UpperRelationshipName}}ID = &item.ID
@@ -186,7 +194,7 @@ type MutationEvents struct {
 						{{end}}
 						{{end}}
 					}
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {
+					if err := tx.Model(&item).Table("{{$rel.TargetTypeToSnakeName}}s").Association("{{$rel.MethodName}}").Append(v); err != nil {
 						return item, err
 					}
 
@@ -323,7 +331,7 @@ type MutationEvents struct {
 						}
 					}
 			
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(items); err != nil {
+					if err := tx.Model(&item).Table("{{$rel.TargetTypeToSnakeName}}s").Association("{{$rel.MethodName}}").Replace(items); err != nil {
 						return item, err
 					}
 
@@ -340,6 +348,8 @@ type MutationEvents struct {
 						// 判断ID是否为空
 						if !utils.IsEmpty(v.ID) {
 							// 判断是否有Update权限
+							v.UpdatedAt = &timestampMillis
+							v.UpdatedBy = principalID
 							if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
 								return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
 							}
@@ -362,11 +372,13 @@ type MutationEvents struct {
 								return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
 							}
 							v.ID = uuid.Must(uuid.NewV4()).String()
+							v.CreatedAt = timestampMillis
+							v.CreatedBy = principalID
 							new{{$rel.MethodName}} = append(new{{$rel.MethodName}}, v)
 						}
 					}
 
-					if err := tx.Model(&item).Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
+					if err := tx.Model(&item).Table("{{$rel.TargetTypeToSnakeName}}s").Association("{{$rel.MethodName}}").Replace(append(update{{$rel.MethodName}}, new{{$rel.MethodName}}...)); err != nil {
 						return item, err
 					}
 
@@ -379,6 +391,8 @@ type MutationEvents struct {
 					// 判断ID是否为空
 					if !utils.IsEmpty(v.ID) {
 						// 判断是否有Update权限
+						v.UpdatedAt = &timestampMillis
+						v.UpdatedBy = principalID
 						if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
 							return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
 						}
@@ -404,6 +418,8 @@ type MutationEvents struct {
 							return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
 						}
 						v.ID = uuid.Must(uuid.NewV4()).String()
+						v.CreatedAt = timestampMillis
+						v.CreatedBy = principalID
 					}
 
 					// if err := tx.Model(&item).Association("{{$rel.MethodName}}").Append(v); err != nil {

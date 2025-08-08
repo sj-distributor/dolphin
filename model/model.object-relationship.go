@@ -24,9 +24,15 @@ func (o *ObjectRelationship) ToSnakeName() string {
 func (o *ObjectRelationship) LowerName() string {
 	return strcase.ToLowerCamel(o.Target().Name())
 }
+
 func (o *ObjectRelationship) MethodName() string {
 	return strcase.ToCamel(o.Name())
 }
+
+func (o *ObjectRelationship) TargetTypeToSnakeName() string {
+	return strcase.ToSnake(o.TargetType())
+}
+
 func (o *ObjectRelationship) ToSnakeRelationshipName() string {
 	return strcase.ToSnake(o.InverseRelationshipName())
 }

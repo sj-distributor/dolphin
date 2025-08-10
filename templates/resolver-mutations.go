@@ -218,9 +218,11 @@ type MutationEvents struct {
 			if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
 			{{end}}
 				{{if $col.IsRelationshipIdentifier}}
+					if !utils.IsNil(input["{{$col.Name}}"]) {
 						if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
 							return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
 						}
+					}
 					{{end}}item.{{$col.MethodName}} = changes.{{$col.MethodName}}
 					{{if $col.IsIdentifier}}event.EntityID = item.{{$col.MethodName}}
 					{{end}}event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
@@ -451,8 +453,10 @@ type MutationEvents struct {
 				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
 				{{end}}
 					{{if $col.IsRelationshipIdentifier}}
-						if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
-							return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+						if !utils.IsNil(input["{{$col.Name}}"]) {
+							if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
+								return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+							}
 						}
 					{{end}}event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
 					event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
@@ -467,7 +471,7 @@ type MutationEvents struct {
 			return item, nil
 		}
 
-		if err := tx.Model(&newItem).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		if err := tx.Model(&item).Select("*").Where("id = ?", id).Updates(item).Error; err != nil {
 	    return item, err
 	  }
 		

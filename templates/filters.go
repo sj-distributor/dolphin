@@ -88,15 +88,18 @@ func (f *{{$obj.Name}}FilterType) ApplyWithAlias(ctx context.Context, alias stri
 func (f *{{$obj.Name}}FilterType) WhereContent(aliasPrefix string) (conditions []string, values []interface{}) {
 	conditions = []string{}
 	values = []interface{}{}
+	whereConditions := []string{}
 
 	{{range $col := $obj.Columns}}{{if $col.IsWritableType}}
 		{{range $fm := $col.FilterMapping}} {{$varName := (printf "f.%s%s" $col.MethodName $fm.SuffixCamel)}}
-			if {{$varName}} != nil {
+			if {{$varName}} != nil && IndexOf(whereConditions, aliasPrefix+SnakeString("{{$col.Name}}")) == -1 {
 				conditions = append(conditions, aliasPrefix + SnakeString("{{$col.Name}}")+" {{$fm.Operator}}")
+				whereConditions = append(whereConditions, aliasPrefix+SnakeString("{{$col.Name}}"))
 				{{if $fm.IsLike}}values = append(values, "%"+{{$fm.WrapValueVariable $varName}}+"%"){{else}}values = append(values, {{$fm.WrapValueVariable $varName}}){{end}}
 			}
 		{{end}}
-		if f.{{$col.MethodName}}Null != nil {
+		if f.{{$col.MethodName}}Null != nil && IndexOf(whereConditions, aliasPrefix+SnakeString("{{$col.Name}}")) == -1 {
+			whereConditions = append(whereConditions, aliasPrefix+SnakeString("{{$col.Name}}"))
 			if *f.{{$col.MethodName}}Null {
 				conditions = append(conditions, aliasPrefix+SnakeString("{{$col.Name}}")+" IS NULL" + " OR " + aliasPrefix+SnakeString("{{$col.Name}}")+" =''")
 			} else {

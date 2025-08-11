@@ -154,6 +154,8 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 	  totalPage  := int(math.Ceil(float64(total) / float64(perPage)))
 		if totalPage < 0 {
 			totalPage = 0
+		} else if perPage <= 0 {
+			totalPage = total
 		}
 
 	  return totalPage, nil

@@ -196,20 +196,27 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 			}
 			func {{$obj.Name}}{{$rel.MethodName}}Handler(ctx context.Context,r *GeneratedResolver, obj *{{$obj.Name}}) (items {{$rel.ReturnType}}, err error) {
 				{{if $rel.IsToMany}}
+					items = {{$rel.ReturnType}}{}
+
 					// 判断是否有详情权限
 					if err := auth.CheckAuthorization(ctx, "{{$rel.MethodName}}"); err != nil {
 						return items, errors.New("{{$rel.MethodName}} " + err.Error())
 					}
 					{{if $rel.IsManyToMany}}
+
 						// selects := GetFieldsRequested(ctx, strings.ToLower(TableName("{{$rel.Target.TableName}}", ctx)))
 						// wheres  := []string{}
 						// values  := []interface{}{}
 						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
 						// err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Find(&items).Error
 
-						err = r.DB.Query().Order("weight ASC, created_at ASC").Preload("{{$rel.MethodName}}").First(&obj).Error
+						err = r.DB.Query().Table("{{$rel.TargetTypeToSnakeName}}s").Order("weight ASC, created_at ASC").Preload("{{$rel.MethodName}}").First(&obj).Error
 
 						if err != nil {
+							if errors.Is(err, gorm.ErrRecordNotFound) {
+								// 记录不存在
+								return items, nil
+							}
 							return items, err
 						}
 					

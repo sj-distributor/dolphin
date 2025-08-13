@@ -230,7 +230,7 @@ type MutationEvents struct {
 			{{end}}
 		{{end}}
 		
-	  if err := tx.Omit(clause.Associations).Create(item).Error; err != nil {
+	  if err := tx.Omit(clause.Associations).Table(TableName("{{$obj.TableName}}", ctx)).Create(item).Error; err != nil {
 	    return item, err
 	  }
 
@@ -471,7 +471,7 @@ type MutationEvents struct {
 			return item, nil
 		}
 
-		if err := tx.Model(&item).Select("*").Where("id = ?", id).Updates(item).Error; err != nil {
+		if err := tx.Table(TableName("{{$obj.TableName}}", ctx)).Where("id = ?", id).Save(item).Error; err != nil {
 	    return item, err
 	  }
 		

@@ -11,7 +11,7 @@ import (
 )
 
 func GetItem(ctx context.Context, db *gorm.DB, table string, out interface{}, id *string) error {
-	return db.First(out, table+".id = ?", id).Error
+	return db.Table(TableName(table, ctx)).First(out, table+".id = ?", id).Error
 }
 
 type EntityFilter interface {
@@ -133,7 +133,7 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 		}
 	}
 
-	return q.WithContext(ctx).Find(out).Error
+	return q.Table(TableName(opts.Alias, ctx)).WithContext(ctx).Find(out).Error
 }
 
 // GetTotal ...
@@ -175,7 +175,7 @@ func (r *EntityResultType) GetTotal(ctx context.Context, db *gorm.DB, table stri
 
 	var result CountResult
 	
-	err = q.WithContext(ctx).Select("COUNT(DISTINCT " + table + ".id) as count").Scan(&result).Error
+	err = q.WithContext(ctx).Table(TableName(table, ctx)).Select("COUNT(DISTINCT " + table + ".id) as count").Scan(&result).Error
 
 	count = result.Count
 

@@ -212,21 +212,24 @@ type MutationEvents struct {
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsCreatable}}
-			{{if $col.IsID}}
-			if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} && !utils.IsEmpty(input["{{$col.Name}}"]) {
+			{{if $col.IsOptional}}
+			if _, ok := input["{{$col.Name}}"]; ok && changes.{{$col.MethodName}} != nil {
 			{{else}}
-			if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+			if _, ok := input["{{$col.Name}}"]; ok && !utils.IsEmpty(input["{{$col.Name}}"]) {
 			{{end}}
-				{{if $col.IsRelationshipIdentifier}}
-					if !utils.IsNil(input["{{$col.Name}}"]) {
-						if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
-							return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
-						}
+			if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} || (*item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+
+			{{if $col.IsRelationshipIdentifier}}
+				if !utils.IsNil(input["{{$col.Name}}"]) {
+					if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
+						return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
 					}
-					{{end}}item.{{$col.MethodName}} = changes.{{$col.MethodName}}
-					{{if $col.IsIdentifier}}event.EntityID = item.{{$col.MethodName}}
-					{{end}}event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 				}
+				{{end}}item.{{$col.MethodName}} = changes.{{$col.MethodName}}
+				{{if $col.IsIdentifier}}event.EntityID = item.{{$col.MethodName}}
+				{{end}}event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
+				}
+			}
 			{{end}}
 		{{end}}
 		
@@ -252,9 +255,7 @@ type MutationEvents struct {
 	}
 	func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id string, input map[string]interface{}) (item *{{$obj.Name}}, err error) {
 		item = &{{$obj.Name}}{}
-		newItem := &{{$obj.Name}}{}
 
-		isChange := false
 		now := time.Now()
 		timestampMillis := now.UnixNano() / 1e6
 		principalID := GetPrincipalIDFromContext(ctx)
@@ -297,7 +298,7 @@ type MutationEvents struct {
 		}
 	
 		if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
-			newItem.UpdatedBy = principalID
+			item.UpdatedBy = principalID
 		}
 
 		{{range $rel := .Relationships}}
@@ -430,15 +431,11 @@ type MutationEvents struct {
 
 					{{if $rel.IsNonNull}}
 						item.{{$rel.MethodName}}ID = v.ID
-						newItem.{{$rel.MethodName}}ID = v.ID
 					{{else}}
 						item.{{$rel.MethodName}}ID = &v.ID
-						newItem.{{$rel.MethodName}}ID = &v.ID
 					{{end}}
 
 					// item.{{$rel.MethodName}} = v
-					// newItem.{{$rel.MethodName}} = v
-					isChange = true
 					// event.AddNewValue("{{$rel.Name}}", item.{{$rel.MethodName}})
 					// event.AddNewValue("{{$rel.Name}}Id", item.{{$rel.MethodName}}ID)
 				}
@@ -447,11 +444,13 @@ type MutationEvents struct {
 
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
-				{{if $col.IsID}}
-				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} && !utils.IsEmpty(input["{{$col.Name}}"]) {
-				{{else}}
-				if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-				{{end}}
+			{{if $col.IsOptional}}
+			if _, ok := input["{{$col.Name}}"]; ok && changes.{{$col.MethodName}} != nil {
+			{{else}}
+			if _, ok := input["{{$col.Name}}"]; ok && !utils.IsEmpty(input["{{$col.Name}}"]) {
+			{{end}}
+			if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} || (*item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+
 					{{if $col.IsRelationshipIdentifier}}
 						if !utils.IsNil(input["{{$col.Name}}"]) {
 							if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
@@ -461,15 +460,10 @@ type MutationEvents struct {
 					{{end}}event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
 					event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 					item.{{$col.MethodName}} = changes.{{$col.MethodName}}
-					newItem.{{$col.MethodName}} = changes.{{$col.MethodName}}
-					isChange = true
+					}
 				}
 			{{end}}
 		{{end}}
-	
-		if !isChange {
-			return item, nil
-		}
 
 		if err := tx.Table(TableName("{{$obj.TableName}}", ctx)).Where("id = ?", id).Save(item).Error; err != nil {
 	    return item, err

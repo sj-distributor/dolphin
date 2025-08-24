@@ -511,7 +511,7 @@ type MutationEvents struct {
 			status = 2
 		}
 
-		if err = tx.Unscoped().Where("is_delete = ? and id = ?", status, id).First(item).Error; err != nil {
+		if err = tx.Unscoped().Table(TableName("{{$obj.TableName}}", ctx)).Where("is_delete = ? and id = ?", status, id).First(item).Error; err != nil {
 			return err
 		}
 
@@ -527,15 +527,15 @@ type MutationEvents struct {
 
 		// 如果是恢复删除数据
 		if tye == "recovery" {
-			if err := tx.Unscoped().Model(&item).Updates(map[string]interface{}{"IsDelete": 1, "DeletedAt": nil, "DeletedBy": nil}).Error; err != nil {
+			if err := tx.Unscoped().Table(TableName("{{$obj.TableName}}", ctx)).Model(&item).Updates(map[string]interface{}{"IsDelete": 1, "DeletedAt": nil, "DeletedBy": nil}).Error; err != nil {
 				return err
 			}
 		} else {
 			if unscoped != nil && *unscoped {
-				if err := tx.Unscoped().Model(&item).Delete(item).Error; err != nil {
+				if err := tx.Unscoped().Table(TableName("{{$obj.TableName}}", ctx)).Model(&item).Delete(item).Error; err != nil {
 					return err
 				}
-			} else if err := tx.Model(&item).Updates({{$obj.Name}}{IsDelete: &isDelete, DeletedAt: &deletedAt, DeletedBy: principalID, UpdatedBy: principalID}).Error; err != nil {
+			} else if err := tx.Model(&item).Table(TableName("{{$obj.TableName}}", ctx)).Updates({{$obj.Name}}{IsDelete: &isDelete, DeletedAt: &deletedAt, DeletedBy: principalID, UpdatedBy: principalID}).Error; err != nil {
 				return err
 			}
 		}

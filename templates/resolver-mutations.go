@@ -445,11 +445,11 @@ type MutationEvents struct {
 		{{range $col := .Columns}}
 			{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
 			{{if $col.IsOptional}}
-			if _, ok := input["{{$col.Name}}"]; ok && changes.{{$col.MethodName}} != nil {
+			if _, ok := input["{{$col.Name}}"]; ok {
 			{{else}}
-			if _, ok := input["{{$col.Name}}"]; ok && !utils.IsEmpty(input["{{$col.Name}}"]) {
+			if _, ok := input["{{$col.Name}}"]; ok {
 			{{end}}
-			if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} || (*item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+			// if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} || (*item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
 
 					{{if $col.IsRelationshipIdentifier}}
 						if !utils.IsNil(input["{{$col.Name}}"]) {
@@ -461,7 +461,7 @@ type MutationEvents struct {
 					event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 					item.{{$col.MethodName}} = changes.{{$col.MethodName}}
 					}
-				}
+				// }
 			{{end}}
 		{{end}}
 

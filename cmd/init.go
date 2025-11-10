@@ -211,6 +211,10 @@ func createAuthFile(p string) error {
 		return err
 	}
 
+	if err := templates.WriteTemplate(templates.AuthUser, path.Join(p, "auth/user.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
 	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open_routes.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
@@ -230,6 +234,10 @@ func createSrcFile(p string) error {
 	// }
 
 	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+
+	if err := templates.WriteTemplate(templates.ResolverSrcContext, path.Join(p, "src/context.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

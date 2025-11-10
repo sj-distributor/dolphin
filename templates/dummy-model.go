@@ -1,9 +1,15 @@
+/*
+ * @Author: Marlon.M
+ * @Email: maiguangyang@163.com
+ * @Date: 2025-03-17 14:43:51
+ */
 package templates
 
 var DummyModel = `
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
 enum Role {
+	ALL
   ADMIN
   USER
 }

@@ -355,7 +355,7 @@ func (o *ObjectField) ModelTags() string {
 	}
 
 	if o.Name() == "isDelete" {
-		_gorm = "type:int(2);comment:'是否删除：1/正常、0/删除';default:1;index:is_delete;"
+		_gorm = "type:int(2);comment:'是否删除：1/正常、2/删除';default:1;index:is_delete;"
 	}
 
 	if o.Name() == "weight" {
@@ -363,7 +363,7 @@ func (o *ObjectField) ModelTags() string {
 	}
 
 	if o.Name() == "state" {
-		_gorm = "type:int(2);comment:'状态：1/正常、0/禁用';default:1;index:state;"
+		_gorm = "type:int(2);comment:'状态：1/正常、2/禁用';default:1;index:state;"
 	}
 
 	for _, d := range o.Def.Directives {
@@ -437,7 +437,7 @@ var columnMap = map[string]map[string]string{
 		"type":    "varchar(36)",
 	},
 	"state": {
-		"comment": "状态：1/正常、2/禁用、3/下架",
+		"comment": "状态：1/正常、2/禁用",
 		"type":    "int(2)",
 	},
 	"weight": {

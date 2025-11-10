@@ -9,9 +9,10 @@ var DummyModel = `
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
 enum Role {
-	ALL
+  ALL
   ADMIN
   USER
+  GUEST
 }
 
 type User @entity(title: "用户管理") {

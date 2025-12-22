@@ -14,6 +14,19 @@ func GetItem(ctx context.Context, db *gorm.DB, table string, out interface{}, id
 	return db.Table(TableName(table, ctx)).First(out, table+".id = ?", id).Error
 }
 
+// UniqueStrings returns a new slice with duplicate strings removed, preserving order.
+func UniqueStrings(items []string) []string {
+	seen := make(map[string]bool)
+	result := make([]string, 0, len(items))
+	for _, item := range items {
+		if !seen[item] {
+			seen[item] = true
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 type EntityFilter interface {
 	Apply(ctx context.Context, wheres *[]string, values *[]interface{}, joins *[]string) error
 }
@@ -116,15 +129,7 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 		q = q.Where(strings.Join(wheres, " AND "), values...)
 	}
 
-	uniqueJoinsMap := map[string]bool{}
-	uniqueJoins := []string{}
-	for _, join := range joins {
-		if !uniqueJoinsMap[join] {
-			uniqueJoinsMap[join] = true
-			uniqueJoins = append(uniqueJoins, join)
-		}
-	}
-	for _, join := range uniqueJoins {
+	for _, join := range UniqueStrings(joins) {
 		q = q.Joins(join)
 	}
 	if len(opts.Preloaders) > 0 {
@@ -160,16 +165,7 @@ func (r *EntityResultType) GetTotal(ctx context.Context, db *gorm.DB, table stri
 		q = q.Where(strings.Join(wheres, " AND "), values...)
 	}
 
-	uniqueJoinsMap := map[string]bool{}
-	uniqueJoins := []string{}
-	for _, join := range joins {
-		if !uniqueJoinsMap[join] {
-			uniqueJoinsMap[join] = true
-			uniqueJoins = append(uniqueJoins, join)
-		}
-	}
-
-	for _, join := range uniqueJoins {
+	for _, join := range UniqueStrings(joins) {
 		q = q.Joins(join)
 	}
 

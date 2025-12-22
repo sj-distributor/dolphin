@@ -6,6 +6,17 @@ import (
 	"strings"
 )
 
+// CompactNils removes nil pointers from a slice.
+func CompactNils[T any](items []*T) []*T {
+	result := make([]*T, 0, len(items))
+	for _, item := range items {
+		if item != nil {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 func (f *UserFilterType) IsEmpty(ctx context.Context) bool {
 	wheres := []string{}
 	values := []interface{}{}
@@ -992,12 +1003,7 @@ func (f *UserFilterType) WhereContent(aliasPrefix string) (conditions []string, 
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *UserFilterType) AndWith(f2 ...*UserFilterType) *UserFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -1008,12 +1014,7 @@ func (f *UserFilterType) AndWith(f2 ...*UserFilterType) *UserFilterType {
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *UserFilterType) OrWith(f2 ...*UserFilterType) *UserFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -1921,12 +1922,7 @@ func (f *ProfileFilterType) WhereContent(aliasPrefix string) (conditions []strin
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *ProfileFilterType) AndWith(f2 ...*ProfileFilterType) *ProfileFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -1937,12 +1933,7 @@ func (f *ProfileFilterType) AndWith(f2 ...*ProfileFilterType) *ProfileFilterType
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *ProfileFilterType) OrWith(f2 ...*ProfileFilterType) *ProfileFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -2892,12 +2883,7 @@ func (f *TaskFilterType) WhereContent(aliasPrefix string) (conditions []string, 
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *TaskFilterType) AndWith(f2 ...*TaskFilterType) *TaskFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -2908,12 +2894,7 @@ func (f *TaskFilterType) AndWith(f2 ...*TaskFilterType) *TaskFilterType {
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *TaskFilterType) OrWith(f2 ...*TaskFilterType) *TaskFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -3719,12 +3700,7 @@ func (f *UserRoleFilterType) WhereContent(aliasPrefix string) (conditions []stri
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *UserRoleFilterType) AndWith(f2 ...*UserRoleFilterType) *UserRoleFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -3735,12 +3711,7 @@ func (f *UserRoleFilterType) AndWith(f2 ...*UserRoleFilterType) *UserRoleFilterT
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *UserRoleFilterType) OrWith(f2 ...*UserRoleFilterType) *UserRoleFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -4477,12 +4448,7 @@ func (f *TagFilterType) WhereContent(aliasPrefix string) (conditions []string, v
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *TagFilterType) AndWith(f2 ...*TagFilterType) *TagFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -4493,12 +4459,7 @@ func (f *TagFilterType) AndWith(f2 ...*TagFilterType) *TagFilterType {
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *TagFilterType) OrWith(f2 ...*TagFilterType) *TagFilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}

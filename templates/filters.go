@@ -10,6 +10,17 @@ import (
 	"gorm.io/gorm"
 )
 
+// CompactNils removes nil pointers from a slice.
+func CompactNils[T any](items []*T) []*T {
+	result := make([]*T, 0, len(items))
+	for _, item := range items {
+		if item != nil {
+			result = append(result, item)
+		}
+	}
+	return result
+}
+
 {{range $obj := .Model.ObjectEntities}}
 {{if not $obj.IsExtended}}
 func (f *{{$obj.Name}}FilterType) IsEmpty(ctx context.Context) bool {
@@ -114,12 +125,7 @@ func (f *{{$obj.Name}}FilterType) WhereContent(aliasPrefix string) (conditions [
 
 // AndWith convenience method for combining two or more filters with AND statement
 func (f *{{$obj.Name}}FilterType) AndWith(f2 ...*{{$obj.Name}}FilterType) *{{$obj.Name}}FilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}
@@ -130,12 +136,7 @@ func (f *{{$obj.Name}}FilterType) AndWith(f2 ...*{{$obj.Name}}FilterType) *{{$ob
 
 // OrWith convenience method for combining two or more filters with OR statement
 func (f *{{$obj.Name}}FilterType) OrWith(f2 ...*{{$obj.Name}}FilterType) *{{$obj.Name}}FilterType {
-	_f2 := f2[:0]
-	for _, x := range f2 {
-		if x != nil {
-			_f2 = append(_f2, x)
-		}
-	}
+	_f2 := CompactNils(f2)
 	if len(_f2) == 0 {
 		return f
 	}

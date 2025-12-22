@@ -16,13 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func IndexOf(str []string, data interface{}) int {
-	for k, v := range str {
-		if v == data {
-			return k
+// IndexOf returns the index of item in slice, or -1 if not found.
+func IndexOf[T comparable](slice []T, item T) int {
+	for i, v := range slice {
+		if v == item {
+			return i
 		}
 	}
-
 	return -1
 }
 

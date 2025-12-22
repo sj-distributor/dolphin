@@ -59,33 +59,21 @@ func (m *Model) HasObject(name string) bool {
 }
 
 func (m *Model) ObjectEntities() []Object {
-	objs := []Object{}
-	for _, obj := range m.Objects() {
-		if obj.HasDirective("entity") {
-			objs = append(objs, obj)
-		}
-	}
-	return objs
+	return Filter(m.Objects(), func(o Object) bool {
+		return o.HasDirective("entity")
+	})
 }
 
 func (m *Model) ObjectShardings() []Object {
-	objs := []Object{}
-	for _, obj := range m.Objects() {
-		if obj.HasDirective("sharding") {
-			objs = append(objs, obj)
-		}
-	}
-	return objs
+	return Filter(m.Objects(), func(o Object) bool {
+		return o.HasDirective("sharding")
+	})
 }
 
 func (m *Model) HasFederatedTypes() bool {
-	for _, o := range m.Objects() {
-		if o.IsFederatedType() {
-			return true
-		}
-	}
-
-	return false
+	return Any(m.Objects(), func(o Object) bool {
+		return o.IsFederatedType()
+	})
 }
 
 func (m *Model) ObjectExtensions() []ObjectExtension {

@@ -3,9 +3,11 @@ package gen
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/iancoleman/strcase"
@@ -78,7 +80,8 @@ func FinishMutationContext(ctx context.Context, r *GeneratedResolver) (err error
 
 // GetTransaction ...
 func GetTransaction(ctx context.Context) *gorm.DB {
-	return ctx.Value(KeyMutationTransaction).(*gorm.DB)
+	gdb := ctx.Value(KeyMutationTransaction).(*gorm.DB)
+	return gdb.WithContext(ctx)
 }
 
 // RollbackMutationContext ...
@@ -99,13 +102,19 @@ func AddMutationEvent(ctx context.Context, e Event) {
 }
 
 // GetFieldsRequested ...
-func GetFieldsRequested(ctx context.Context, alias string) []string {
-	// result := graphql.CollectAllFields(ctx)
+func GetFieldsRequested(ctx context.Context, alias string) (fields []string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fields = []string{alias + ".*"}
+		}
+	}()
+
+	result := graphql.CollectAllFields(ctx)
 	reqCtx := graphql.GetOperationContext(ctx)
 
-	// if IndexOf(result, alias) != -1 || alias != reqCtx.OperationName {
-	// 	return []string{alias + ".*"}
-	// }
+	if IndexOf(result, alias) != -1 || alias != reqCtx.OperationName {
+		return []string{alias + ".*"}
+	}
 	fieldSelections := graphql.GetFieldContext(ctx).Field.Selections
 	return recurseSelectionSets(reqCtx, []string{}, fieldSelections, alias)
 }
@@ -172,4 +181,16 @@ func CheckStructFieldIsEmpty(item interface{}, input map[string]interface{}) (er
 		err = fmt.Errorf(fmt.Sprintf(enums.CannotBeEmpty, strings.Join(res, "，")))
 	}
 	return err
+}
+func GetRandomString(n int) string {
+	// 创建一个新的随机数生成器
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	bytes := []byte(str)
+	result := make([]byte, n)
+
+	for i := 0; i < n; i++ {
+		result[i] = bytes[rng.Intn(len(bytes))]
+	}
+	return string(result)
 }

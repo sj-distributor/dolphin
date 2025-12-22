@@ -1,12 +1,15 @@
 package gen
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"github.com/sj-distributor/dolphin-example/config"
+	"github.com/sj-distributor/dolphin-example/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -97,17 +100,49 @@ func NewDB(db *gorm.DB) *DB {
 	return &v
 }
 
-func TableName(name string) string {
-	prefix := os.Getenv("TABLE_NAME_PREFIX")
-	if prefix != "" {
-		return prefix + "_" + name
+var ShardingArray = []string{}
+
+var ShardingStruct = []any{}
+
+var TableMap = map[string]interface{}{
+	"users":      User{},
+	"profiles":   Profile{},
+	"tasks":      Task{},
+	"user_roles": UserRole{},
+	"tags":       Tag{},
+}
+
+// 获取表名
+func GetShardingTableName(name string, shardingId string) string {
+	// secretKey := ctx.Value(config.KeyAppSecret)
+	if shardingId != "" && utils.StrIndexOf(ShardingArray, name) != -1 {
+		return name + "_" + shardingId
 	}
-	return strcase.ToSnake(strcase.ToLowerCamel(name))
+
+	return name
+}
+
+func TableName(name string, ctx context.Context) string {
+	secretKey := ctx.Value(config.KeyAppSecret)
+	shardingId := utils.ExtractShardingTableName(secretKey)
+
+	prefix := os.Getenv("TABLE_NAME_PREFIX")
+	tableName := strcase.ToSnake(strcase.ToLowerCamel(name))
+	if prefix != "" {
+		tableName = prefix + "_" + tableName
+	}
+
+	// return strcase.ToSnake(strcase.ToLowerCamel(name))
+	return GetShardingTableName(tableName, shardingId)
 }
 
 // Close ...
 func (db *DB) Close() error {
-	return db.Close()
+	sqlDB, err := db.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Close()
 }
 
 // Query ...
@@ -119,10 +154,17 @@ func (db *DB) Query() *gorm.DB {
 func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate(
 		User{},
+		Profile{},
 		Task{},
+		UserRole{},
+		Tag{},
 	)
 }
 
 func (db *DB) Ping() error {
-	return db.Ping()
+	sqlDB, err := db.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Ping()
 }

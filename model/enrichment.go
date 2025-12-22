@@ -57,6 +57,7 @@ func EnrichModel(m *Model) error {
 		schemaDefinition(m),
 		queryDefinition(m),
 		mutationDefinition(m),
+		subscriptionDefinition(),
 		createObjectSortEnum(),
 	}
 	m.Doc.Definitions = append(schemaHeaderNodes, m.Doc.Definitions...)
@@ -142,6 +143,21 @@ func schemaDefinition(m *Model) *ast.SchemaDefinition {
 						Value: "Subscription",
 					},
 				},
+			},
+		},
+	}
+}
+
+// subscriptionDefinition creates a base Subscription type with webSocket field
+func subscriptionDefinition() *ast.ObjectDefinition {
+	return &ast.ObjectDefinition{
+		Kind: kinds.ObjectDefinition,
+		Name: nameNode("Subscription"),
+		Fields: []*ast.FieldDefinition{
+			{
+				Kind: kinds.FieldDefinition,
+				Name: nameNode("webSocket"),
+				Type: namedType("Any"),
 			},
 		},
 	}

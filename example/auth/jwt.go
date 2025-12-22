@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -91,4 +94,28 @@ func (j *_JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error)
 	claims := token.Claims.(jwtgo.MapClaims)
 
 	return claims, nil
+}
+
+// ParseJWT 解析 JWT 中间部分（Payload）
+func ParseJWT(token string) (map[string]interface{}, error) {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return nil, fmt.Errorf("invalid token format")
+	}
+
+	payloadSegment := parts[1]
+
+	// Base64 解码
+	payloadBytes, err := base64.RawURLEncoding.DecodeString(payloadSegment)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode payload: %v", err)
+	}
+
+	// JSON 解析
+	var payload map[string]interface{}
+	if err := json.Unmarshal(payloadBytes, &payload); err != nil {
+		return nil, fmt.Errorf("failed to parse JSON: %v", err)
+	}
+
+	return payload, nil
 }

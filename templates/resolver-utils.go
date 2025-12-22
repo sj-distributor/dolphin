@@ -102,7 +102,13 @@ func AddMutationEvent(ctx context.Context, e Event) {
 }
 
 // GetFieldsRequested ...
-func GetFieldsRequested(ctx context.Context, alias string) []string {
+func GetFieldsRequested(ctx context.Context, alias string) (fields []string) {
+	defer func() {
+		if r := recover(); r != nil {
+			fields = []string{alias + ".*"}
+		}
+	}()
+	
 	result := graphql.CollectAllFields(ctx)
 	reqCtx := graphql.GetOperationContext(ctx)
 

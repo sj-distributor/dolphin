@@ -82,7 +82,6 @@ func AesCbcDecrypt(text string, key string) string {
 	if err != nil {
 		return ""
 	}
-	fmt.Println("cryptText", cryptText)
 
 	decData, err := aescrypto.AesCbcPkcs7Decrypt(cryptText, []byte(key), nil)
 

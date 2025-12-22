@@ -30,9 +30,12 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 	}
 	func Query{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, opts Query{{$obj.Name}}HandlerOptions) (*{{$obj.Name}}, error) {
 		selection := []ast.Selection{}
-		for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
-			selection = append(selection, f.Field)
-		}
+		func() {
+			defer func() { recover() }()
+			for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
+				selection = append(selection, f.Field)
+			}
+		}()
 		selectionSet := ast.SelectionSet(selection)
 
 		query := {{$obj.Name}}QueryFilter{}
@@ -89,11 +92,14 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 		query := {{$obj.Name}}QueryFilter{opts.Q}
 
 		var selectionSet *ast.SelectionSet
-		for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
-			if f.Field.Name == "data" {
-				selectionSet = &f.Field.SelectionSet
+		func() {
+			defer func() { recover() }()
+			for _, f := range graphql.CollectFieldsCtx(ctx, nil) {
+				if f.Field.Name == "data" {
+					selectionSet = &f.Field.SelectionSet
+				}
 			}
-		}
+		}()
 
 		_sort := []EntitySort{}
 		for _, sort := range opts.Sort {
@@ -210,7 +216,7 @@ type GeneratedQueryResolver struct{ *GeneratedResolver }
 						// err = tx.Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(obj).Related(&items, "{{$rel.MethodName}}").Error
 						// err = r.DB.Query().Select(selects).Where(strings.Join(wheres, " AND "), values...).Model(&{{$rel.TargetType}}{}).Find(&items).Error
 
-						err = r.DB.Query().Table("{{$rel.TargetTypeToSnakeName}}s").Order("weight ASC, created_at ASC").Preload("{{$rel.MethodName}}").First(&obj).Error
+						err = r.DB.Query().Model(obj).Order("weight ASC, created_at ASC").Preload("{{$rel.MethodName}}").First(&obj).Error
 
 						if err != nil {
 							if errors.Is(err, gorm.ErrRecordNotFound) {

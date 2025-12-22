@@ -93,7 +93,12 @@ func startServer(enableCors bool, port string) error {
 		return err
 	}
 
-	mux := gen.GetHTTPServeMux(src.New(db, &eventController), db)
+	resolver := src.New(db, &eventController)
+	config := gen.Config{
+		Resolvers: resolver,
+	}
+
+	mux := gen.GetHTTPServeMux(config, db)
 
 	var handler http.Handler
 	if enableCors {

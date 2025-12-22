@@ -15,52 +15,114 @@
 			{ "name": "state", "desc": "状态：1/正常、2/禁用、3/下架", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" }
 		]
 	},
-  {
-    "title": "用户管理",
+	{
+    "title": "User",
     "name": "users",
     "type": 0,
     "fields": [
-      { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
-			{ "name": "phone", "desc": "账号：使用手机号码", "type": "varchar(32)", "required": "true", "validator": "phone", "remark": "" },
-			{ "name": "password", "desc": "登录密码", "type": "varchar(64)", "required": "true", "validator": "password", "remark": "" },
-			{ "name": "email", "desc": "用户邮箱地址", "type": "varchar(64)", "required": "false", "validator": "email", "remark": "default:null" },
-			{ "name": "nickname", "desc": "昵称", "type": "varchar(64)", "required": "false", "validator": "", "remark": "" },
-			{ "name": "age", "desc": "年龄", "type": "int(3)", "required": "false", "validator": "int", "remark": "default:1" },
-			{ "name": "lastName", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			
-			{ "name": "tasks", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" }
+			{ "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "phone", "desc": "", "type": "varchar(32);comment:'phone';NOT", "required": "true", "validator": "phone", "remark": "" },
+			{ "name": "password", "desc": "", "type": "varchar(64);comment:'password';NOT", "required": "true", "validator": "password", "remark": "" },
+			{ "name": "email", "desc": "", "type": "", "required": "false", "validator": "email", "remark": "default:null" },
+			{ "name": "nickname", "desc": "", "type": "varchar(64);comment:'nickname';DEFAULT", "required": "false", "validator": "", "remark": "" },
+			{ "name": "age", "desc": "", "type": "", "required": "false", "validator": "int", "remark": "default:1" },
+			{ "name": "profileId", "desc": "ProfileID实例Id", "type": "varchar(36)", "required": "false", "validator": "", "remark": "" },
+			{ "name": "profile", "desc": "Profile连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "profile实例" },
+			{ "name": "tasks", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" },
+			{ "name": "userRoles", "desc": "UserRole连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "userRole实例" }
     ],
     "data": [
-      { "name": "用户管理", "title": "列表", "api": "users", "type": "list", "method": "Query" },
-      { "name": "用户管理", "title": "详情", "api": "user", "type": "detail", "method": "Query" },
-      { "name": "用户管理", "title": "新增", "api": "createUser", "type": "add", "method": "Mutation" },
-      { "name": "用户管理", "title": "修改", "api": "updateUser", "type": "edit", "method": "Mutation" },
-      { "name": "用户管理", "title": "删除", "api": "deleteUsers", "type": "delete", "method": "Mutation" },
-      { "name": "用户管理", "title": "恢复", "api": "recoveryUsers", "type": "recovery", "method": "Mutation" }
+      { "name": "User", "title": "列表", "api": "users", "type": "list", "method": "Query", "code": "query Users($currentPage: Int = 1, $perPage: Int = 10, $sort: [UserSortType!], $search: String, $filter: UserFilterType, $rand: Boolean = false) {\n  users(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      id\n      phone\n      password\n      email\n      nickname\n      age\n      profileId\n      isDelete\n      weight\n      state\n      deletedBy\n      updatedBy\n      createdBy\n      deletedAt\n      updatedAt\n      createdAt\n      profile {\n        ...ProfilesFields\n      }\n      tasks {\n        ...TasksFields\n      }\n      userRoles {\n        ...UserRolesFields\n      }\n      \n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "User", "title": "详情", "api": "user", "type": "detail", "method": "Query", "code": "query UserDetail($id: ID, $search: String, $filter: UserFilterType) {\n  user(id: $id, q: $search, filter: $filter) {\n    id\n    phone\n    password\n    email\n    nickname\n    age\n    profileId\n    isDelete\n    weight\n    state\n    deletedBy\n    updatedBy\n    createdBy\n    deletedAt\n    updatedAt\n    createdAt\n    profile {\n      ...ProfilesFields\n    }\n    tasks {\n      ...TasksFields\n    }\n    userRoles {\n      ...UserRolesFields\n    }\n    \n  }\n}" },
+      { "name": "User", "title": "新增", "api": "createUser", "type": "create", "method": "Mutation", "code": "mutation createUser($data: CreateUserInput!) {\n  createUser(input: $data) {\n    id\n  }\n}" },
+      { "name": "User", "title": "修改", "api": "updateUser", "type": "update", "method": "Mutation", "code": "mutation updateUser($id: ID!, $data: UpdateUserInput!) {\n  updateUser(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "User", "title": "删除", "api": "deleteUsers", "type": "delete", "method": "Mutation", "code": "mutation deleteUsers($id: [ID!]!) {\n  deleteUsers(id: $id)\n}" },
+      { "name": "User", "title": "恢复", "api": "recoveryUsers", "type": "recovery", "method": "Mutation", "code": "mutation recoveryUsers($id: [ID!]!) {\n  recoveryUsers(id: $id)\n}" }
     ]
   },
-
-  {
-    "title": "任务管理",
-    "name": "tasks",
+	{
+    "title": "Profile",
+    "name": "profiles",
     "type": 0,
     "fields": [
-      { "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
-			{ "name": "title", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			{ "name": "completed", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			{ "name": "dueDate", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
-			{ "name": "userId", "desc": "User实例Id", "type": "varchar(36)", "required": "false", "validator": "", "remark": "" },
-			
+			{ "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "avatar", "desc": "", "type": "varchar(255);comment:'avatar", "required": "false", "validator": "", "remark": "default:null" },
+			{ "name": "bio", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "birthday", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "address", "desc": "", "type": "", "required": "false", "validator": "", "remark": "default:null" },
+			{ "name": "userId", "desc": "UserID实例Id", "type": "varchar(36)", "required": "true", "validator": "", "remark": "" },
 			{ "name": "user", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" }
     ],
     "data": [
-      { "name": "任务管理", "title": "列表", "api": "tasks", "type": "list", "method": "Query" },
-      { "name": "任务管理", "title": "详情", "api": "task", "type": "detail", "method": "Query" },
-      { "name": "任务管理", "title": "新增", "api": "createTask", "type": "add", "method": "Mutation" },
-      { "name": "任务管理", "title": "修改", "api": "updateTask", "type": "edit", "method": "Mutation" },
-      { "name": "任务管理", "title": "删除", "api": "deleteTasks", "type": "delete", "method": "Mutation" },
-      { "name": "任务管理", "title": "恢复", "api": "recoveryTasks", "type": "recovery", "method": "Mutation" }
+      { "name": "Profile", "title": "列表", "api": "profiles", "type": "list", "method": "Query", "code": "query Profiles($currentPage: Int = 1, $perPage: Int = 10, $sort: [ProfileSortType!], $search: String, $filter: ProfileFilterType, $rand: Boolean = false) {\n  profiles(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      id\n      avatar\n      bio\n      birthday\n      address\n      userId\n      isDelete\n      weight\n      state\n      deletedBy\n      updatedBy\n      createdBy\n      deletedAt\n      updatedAt\n      createdAt\n      user {\n        ...UsersFields\n      }\n      \n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "Profile", "title": "详情", "api": "profile", "type": "detail", "method": "Query", "code": "query ProfileDetail($id: ID, $search: String, $filter: ProfileFilterType) {\n  profile(id: $id, q: $search, filter: $filter) {\n    id\n    avatar\n    bio\n    birthday\n    address\n    userId\n    isDelete\n    weight\n    state\n    deletedBy\n    updatedBy\n    createdBy\n    deletedAt\n    updatedAt\n    createdAt\n    user {\n      ...UsersFields\n    }\n    \n  }\n}" },
+      { "name": "Profile", "title": "新增", "api": "createProfile", "type": "create", "method": "Mutation", "code": "mutation createProfile($data: CreateProfileInput!) {\n  createProfile(input: $data) {\n    id\n  }\n}" },
+      { "name": "Profile", "title": "修改", "api": "updateProfile", "type": "update", "method": "Mutation", "code": "mutation updateProfile($id: ID!, $data: UpdateProfileInput!) {\n  updateProfile(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "Profile", "title": "删除", "api": "deleteProfiles", "type": "delete", "method": "Mutation", "code": "mutation deleteProfiles($id: [ID!]!) {\n  deleteProfiles(id: $id)\n}" },
+      { "name": "Profile", "title": "恢复", "api": "recoveryProfiles", "type": "recovery", "method": "Mutation", "code": "mutation recoveryProfiles($id: [ID!]!) {\n  recoveryProfiles(id: $id)\n}" }
     ]
   },
-
+	{
+    "title": "Task",
+    "name": "tasks",
+    "type": 0,
+    "fields": [
+			{ "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "title", "desc": "", "type": "varchar(128);comment:'title';NOT", "required": "true", "validator": "", "remark": "" },
+			{ "name": "description", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "completed", "desc": "", "type": "", "required": "false", "validator": "", "remark": "default:0" },
+			{ "name": "dueDate", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "priority", "desc": "", "type": "", "required": "false", "validator": "", "remark": "default:2" },
+			{ "name": "userId", "desc": "UserID实例Id", "type": "varchar(36)", "required": "false", "validator": "", "remark": "" },
+			{ "name": "user", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" },
+			{ "name": "tags", "desc": "Tag连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "tag实例" }
+    ],
+    "data": [
+      { "name": "Task", "title": "列表", "api": "tasks", "type": "list", "method": "Query", "code": "query Tasks($currentPage: Int = 1, $perPage: Int = 10, $sort: [TaskSortType!], $search: String, $filter: TaskFilterType, $rand: Boolean = false) {\n  tasks(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      id\n      title\n      description\n      completed\n      dueDate\n      priority\n      userId\n      isDelete\n      weight\n      state\n      deletedBy\n      updatedBy\n      createdBy\n      deletedAt\n      updatedAt\n      createdAt\n      user {\n        ...UsersFields\n      }\n      tags {\n        ...TagsFields\n      }\n      \n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "Task", "title": "详情", "api": "task", "type": "detail", "method": "Query", "code": "query TaskDetail($id: ID, $search: String, $filter: TaskFilterType) {\n  task(id: $id, q: $search, filter: $filter) {\n    id\n    title\n    description\n    completed\n    dueDate\n    priority\n    userId\n    isDelete\n    weight\n    state\n    deletedBy\n    updatedBy\n    createdBy\n    deletedAt\n    updatedAt\n    createdAt\n    user {\n      ...UsersFields\n    }\n    tags {\n      ...TagsFields\n    }\n    \n  }\n}" },
+      { "name": "Task", "title": "新增", "api": "createTask", "type": "create", "method": "Mutation", "code": "mutation createTask($data: CreateTaskInput!) {\n  createTask(input: $data) {\n    id\n  }\n}" },
+      { "name": "Task", "title": "修改", "api": "updateTask", "type": "update", "method": "Mutation", "code": "mutation updateTask($id: ID!, $data: UpdateTaskInput!) {\n  updateTask(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "Task", "title": "删除", "api": "deleteTasks", "type": "delete", "method": "Mutation", "code": "mutation deleteTasks($id: [ID!]!) {\n  deleteTasks(id: $id)\n}" },
+      { "name": "Task", "title": "恢复", "api": "recoveryTasks", "type": "recovery", "method": "Mutation", "code": "mutation recoveryTasks($id: [ID!]!) {\n  recoveryTasks(id: $id)\n}" }
+    ]
+  },
+	{
+    "title": "UserRole",
+    "name": "userRoles",
+    "type": 0,
+    "fields": [
+			{ "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "name", "desc": "", "type": "varchar(64);comment:'name';NOT", "required": "true", "validator": "", "remark": "" },
+			{ "name": "description", "desc": "", "type": "", "required": "false", "validator": "", "remark": "default:null" },
+			{ "name": "permissions", "desc": "", "type": "", "required": "false", "validator": "", "remark": "" },
+			{ "name": "users", "desc": "User连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "user实例" }
+    ],
+    "data": [
+      { "name": "UserRole", "title": "列表", "api": "userRoles", "type": "list", "method": "Query", "code": "query UserRoles($currentPage: Int = 1, $perPage: Int = 10, $sort: [UserRoleSortType!], $search: String, $filter: UserRoleFilterType, $rand: Boolean = false) {\n  userRoles(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      id\n      name\n      description\n      permissions\n      isDelete\n      weight\n      state\n      deletedBy\n      updatedBy\n      createdBy\n      deletedAt\n      updatedAt\n      createdAt\n      users {\n        ...UsersFields\n      }\n      \n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "UserRole", "title": "详情", "api": "userRole", "type": "detail", "method": "Query", "code": "query UserRoleDetail($id: ID, $search: String, $filter: UserRoleFilterType) {\n  userRole(id: $id, q: $search, filter: $filter) {\n    id\n    name\n    description\n    permissions\n    isDelete\n    weight\n    state\n    deletedBy\n    updatedBy\n    createdBy\n    deletedAt\n    updatedAt\n    createdAt\n    users {\n      ...UsersFields\n    }\n    \n  }\n}" },
+      { "name": "UserRole", "title": "新增", "api": "createUserRole", "type": "create", "method": "Mutation", "code": "mutation createUserRole($data: CreateUserRoleInput!) {\n  createUserRole(input: $data) {\n    id\n  }\n}" },
+      { "name": "UserRole", "title": "修改", "api": "updateUserRole", "type": "update", "method": "Mutation", "code": "mutation updateUserRole($id: ID!, $data: UpdateUserRoleInput!) {\n  updateUserRole(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "UserRole", "title": "删除", "api": "deleteUserRoles", "type": "delete", "method": "Mutation", "code": "mutation deleteUserRoles($id: [ID!]!) {\n  deleteUserRoles(id: $id)\n}" },
+      { "name": "UserRole", "title": "恢复", "api": "recoveryUserRoles", "type": "recovery", "method": "Mutation", "code": "mutation recoveryUserRoles($id: [ID!]!) {\n  recoveryUserRoles(id: $id)\n}" }
+    ]
+  },
+	{
+    "title": "Tag",
+    "name": "tags",
+    "type": 0,
+    "fields": [
+			{ "name": "id", "desc": "uuid", "type": "varchar(36)", "required": "true", "validator": "", "remark": "create方法不是必填" },
+			{ "name": "name", "desc": "", "type": "varchar(32);comment:'name';NOT", "required": "true", "validator": "", "remark": "" },
+			{ "name": "color", "desc": "", "type": "", "required": "false", "validator": "", "remark": "default:'blue'" },
+			{ "name": "tasks", "desc": "Task连表查询", "type": "relationship", "required": "false", "validator": "", "remark": "task实例" }
+    ],
+    "data": [
+      { "name": "Tag", "title": "列表", "api": "tags", "type": "list", "method": "Query", "code": "query Tags($currentPage: Int = 1, $perPage: Int = 10, $sort: [TagSortType!], $search: String, $filter: TagFilterType, $rand: Boolean = false) {\n  tags(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {\n    data {\n      id\n      name\n      color\n      isDelete\n      weight\n      state\n      deletedBy\n      updatedBy\n      createdBy\n      deletedAt\n      updatedAt\n      createdAt\n      tasks {\n        ...TasksFields\n      }\n      \n    }\n    current_page\n    per_page\n    total\n    total_page\n  }\n}" },
+      { "name": "Tag", "title": "详情", "api": "tag", "type": "detail", "method": "Query", "code": "query TagDetail($id: ID, $search: String, $filter: TagFilterType) {\n  tag(id: $id, q: $search, filter: $filter) {\n    id\n    name\n    color\n    isDelete\n    weight\n    state\n    deletedBy\n    updatedBy\n    createdBy\n    deletedAt\n    updatedAt\n    createdAt\n    tasks {\n      ...TasksFields\n    }\n    \n  }\n}" },
+      { "name": "Tag", "title": "新增", "api": "createTag", "type": "create", "method": "Mutation", "code": "mutation createTag($data: CreateTagInput!) {\n  createTag(input: $data) {\n    id\n  }\n}" },
+      { "name": "Tag", "title": "修改", "api": "updateTag", "type": "update", "method": "Mutation", "code": "mutation updateTag($id: ID!, $data: UpdateTagInput!) {\n  updateTag(id: $id, input: $data) {\n    id\n  }\n}" },
+      { "name": "Tag", "title": "删除", "api": "deleteTags", "type": "delete", "method": "Mutation", "code": "mutation deleteTags($id: [ID!]!) {\n  deleteTags(id: $id)\n}" },
+      { "name": "Tag", "title": "恢复", "api": "recoveryTags", "type": "recovery", "method": "Mutation", "code": "mutation recoveryTags($id: [ID!]!) {\n  recoveryTags(id: $id)\n}" }
+    ]
+  }
 ]

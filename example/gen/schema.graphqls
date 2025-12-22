@@ -11,88 +11,47 @@ scalar Any
 schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Query {
-  user(
-    id: ID
-    
-    """QueryUserArgs"""
-    filter: UserFilterType
-  ): User
-  users(
-    current_page: Int = 1
-    per_page: Int = 10
-    q: String
-    sort: [UserSortType!]
-    filter: UserFilterType
-    
-    """QueryUsersArgs"""
-    rand: Boolean = false
-  ): UserResultType
-  task(
-    id: ID
-    
-    """QueryTaskArgs"""
-    filter: TaskFilterType
-  ): Task
-  tasks(
-    current_page: Int = 1
-    per_page: Int = 10
-    q: String
-    sort: [TaskSortType!]
-    filter: TaskFilterType
-    
-    """QueryTasksArgs"""
-    rand: Boolean = false
-  ): TaskResultType
+  user(id: ID, filter: UserFilterType): User @hasRole(role: ALL)
+  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType @hasRole(role: ALL)
+  profile(id: ID, filter: ProfileFilterType): Profile @hasRole(role: ALL)
+  profiles(current_page: Int = 1, per_page: Int = 10, q: String, sort: [ProfileSortType!], filter: ProfileFilterType, rand: Boolean = false): ProfileResultType @hasRole(role: ALL)
+  task(id: ID, filter: TaskFilterType): Task @hasRole(role: ALL)
+  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType @hasRole(role: ALL)
+  userRole(id: ID, filter: UserRoleFilterType): UserRole @hasRole(role: ALL)
+  userRoles(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserRoleSortType!], filter: UserRoleFilterType, rand: Boolean = false): UserRoleResultType @hasRole(role: ALL)
+  tag(id: ID, filter: TagFilterType): Tag @hasRole(role: ALL)
+  tags(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TagSortType!], filter: TagFilterType, rand: Boolean = false): TagResultType @hasRole(role: ALL)
 }
 
 type Mutation {
-  createUser(
-    
-    """MutationCreateUserArgs"""
-    input: UserCreateInput!
-  ): User!
-  updateUser(
-    id: ID!
-    
-    """MutationUpdateUserArgs"""
-    input: UserUpdateInput!
-  ): User!
-  deleteUsers(
-    id: [ID!]!
-    
-    """MutationDeleteUsersArgs"""
-    unscoped: Boolean = false
-  ): Boolean!
-  recoveryUsers(
-    
-    """MutationRecoveryUsersArgs"""
-    id: [ID!]!
-  ): Boolean!
-  createTask(
-    
-    """MutationCreateTaskArgs"""
-    input: TaskCreateInput!
-  ): Task!
-  updateTask(
-    id: ID!
-    
-    """MutationUpdateTaskArgs"""
-    input: TaskUpdateInput!
-  ): Task!
-  deleteTasks(
-    id: [ID!]!
-    
-    """MutationDeleteTasksArgs"""
-    unscoped: Boolean = false
-  ): Boolean!
-  recoveryTasks(
-    
-    """MutationRecoveryTasksArgs"""
-    id: [ID!]!
-  ): Boolean!
+  createUser(input: CreateUserInput!): User! @hasRole(role: ALL)
+  updateUser(id: ID!, input: UpdateUserInput!): User! @hasRole(role: ALL)
+  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryUsers(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createProfile(input: CreateProfileInput!): Profile! @hasRole(role: ALL)
+  updateProfile(id: ID!, input: UpdateProfileInput!): Profile! @hasRole(role: ALL)
+  deleteProfiles(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryProfiles(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createTask(input: CreateTaskInput!): Task! @hasRole(role: ALL)
+  updateTask(id: ID!, input: UpdateTaskInput!): Task! @hasRole(role: ALL)
+  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryTasks(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createUserRole(input: CreateUserRoleInput!): UserRole! @hasRole(role: ALL)
+  updateUserRole(id: ID!, input: UpdateUserRoleInput!): UserRole! @hasRole(role: ALL)
+  deleteUserRoles(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryUserRoles(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createTag(input: CreateTagInput!): Tag! @hasRole(role: ALL)
+  updateTag(id: ID!, input: UpdateTagInput!): Tag! @hasRole(role: ALL)
+  deleteTags(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryTags(id: [ID!]!): Boolean! @hasRole(role: ALL)
+}
+
+type Subscription {
+  webSocket: Any
 }
 
 enum ObjectSortType {
@@ -101,6 +60,17 @@ enum ObjectSortType {
 }
 
 directive @format on FIELD_DEFINITION
+
+directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int) on INPUT_FIELD_DEFINITION
+
+directive @hasRole(role: Role!) on FIELD_DEFINITION
+
+enum Role {
+  ALL
+  ADMIN
+  USER
+  GUEST
+}
 
 input FileField {
   hash: String!
@@ -114,7 +84,86 @@ type User {
   email: String
   nickname: String
   age: Int
-  lastName: String
+  profile: Profile
+  tasks: [Task!]!
+  userRoles: [UserRole!]!
+  profileId: ID
+  isDelete: Int
+  weight: Int
+  state: Int
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+  tasksIds: [ID!]
+  userRolesIds: [ID!]
+}
+
+type Profile {
+  id: ID!
+  avatar: String
+  bio: String
+  birthday: Time
+  address: String
+  user: User!
+  userId: ID!
+  isDelete: Int
+  weight: Int
+  state: Int
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  description: String
+  completed: Boolean
+  dueDate: Time
+  priority: Int
+  user: User
+  tags: [Tag!]!
+  userId: ID
+  isDelete: Int
+  weight: Int
+  state: Int
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+  tagsIds: [ID!]
+}
+
+type UserRole {
+  id: ID!
+  name: String!
+  description: String
+  permissions: String
+  users: [User!]!
+  isDelete: Int
+  weight: Int
+  state: Int
+  deletedBy: ID
+  updatedBy: ID
+  createdBy: ID
+  deletedAt: Int
+  updatedAt: Int
+  createdAt: Int!
+  usersIds: [ID!]
+}
+
+type Tag {
+  id: ID!
+  name: String!
+  color: String
   tasks: [Task!]!
   isDelete: Int
   weight: Int
@@ -128,50 +177,38 @@ type User {
   tasksIds: [ID!]
 }
 
-type Task {
-  id: ID!
-  title: String
-  completed: Boolean
-  dueDate: Time
-  user: User
-  userId: ID
-  isDelete: Int
-  weight: Int
-  state: Int
-  deletedBy: ID
-  updatedBy: ID
-  createdBy: ID
-  deletedAt: Int
-  updatedAt: Int
-  createdAt: Int!
-}
-
-input UserCreateInput {
-  phone: String!
-  password: String!
-  email: String
+input CreateUserInput {
+  phone: String! @validator(required: "true", type: "phone")
+  password: String! @validator(required: "true", type: "password")
+  email: String @validator(type: "email")
   nickname: String
-  age: Int
-  lastName: String
+  age: Int @validator(type: "int")
+  profile: ProfileRelationship
   tasks: [TaskRelationship]
+  userRoles: [UserRoleRelationship]
+  profileId: ID
   isDelete: Int
   weight: Int
   state: Int
   tasksIds: [ID!]
+  userRolesIds: [ID!]
 }
 
-input UserUpdateInput {
-  phone: String
-  password: String
-  email: String
+input UpdateUserInput {
+  phone: String @validator(required: "true", type: "phone")
+  password: String @validator(required: "true", type: "password")
+  email: String @validator(type: "email")
   nickname: String
-  age: Int
-  lastName: String
+  age: Int @validator(type: "int")
+  profile: ProfileRelationship
   tasks: [TaskRelationship]
+  userRoles: [UserRoleRelationship]
+  profileId: ID
   isDelete: Int
   weight: Int
   state: Int
   tasksIds: [ID!]
+  userRolesIds: [ID!]
 }
 
 input UserSortType {
@@ -181,7 +218,7 @@ input UserSortType {
   email: ObjectSortType
   nickname: ObjectSortType
   age: ObjectSortType
-  lastName: ObjectSortType
+  profileId: ObjectSortType
   isDelete: ObjectSortType
   weight: ObjectSortType
   state: ObjectSortType
@@ -192,7 +229,10 @@ input UserSortType {
   updatedAt: ObjectSortType
   createdAt: ObjectSortType
   tasksIds: ObjectSortType
+  userRolesIds: ObjectSortType
+  profile: ProfileSortType
   tasks: TaskSortType
+  userRoles: UserRoleSortType
 }
 
 input UserFilterType {
@@ -258,17 +298,14 @@ input UserFilterType {
   age_lte: Int
   age_in: [Int!]
   age_null: Boolean
-  lastName: String
-  lastName_ne: String
-  lastName_gt: String
-  lastName_lt: String
-  lastName_gte: String
-  lastName_lte: String
-  lastName_in: [String!]
-  lastName_like: String
-  lastName_prefix: String
-  lastName_suffix: String
-  lastName_null: Boolean
+  profileId: ID
+  profileId_ne: ID
+  profileId_gt: ID
+  profileId_lt: ID
+  profileId_gte: ID
+  profileId_lte: ID
+  profileId_in: [ID!]
+  profileId_null: Boolean
   isDelete: Int
   isDelete_ne: Int
   isDelete_gt: Int
@@ -341,17 +378,19 @@ input UserFilterType {
   createdAt_lte: Int
   createdAt_in: [Int!]
   createdAt_null: Boolean
+  profile: ProfileFilterType
   tasks: TaskFilterType
+  userRoles: UserRoleFilterType
 }
 
 input UserRelationship {
   id: ID
-  phone: String!
-  password: String!
+  phone: String
+  password: String
   email: String
   nickname: String
   age: Int
-  lastName: String
+  profileId: ID
   isDelete: Int
   weight: Int
   state: Int
@@ -365,10 +404,23 @@ type UserResultType {
   total_page: Int!
 }
 
-input TaskCreateInput {
-  title: String
-  completed: Boolean
-  dueDate: Time
+input CreateProfileInput {
+  avatar: String
+  bio: String
+  birthday: Time
+  address: String
+  user: UserRelationship
+  userId: ID!
+  isDelete: Int
+  weight: Int
+  state: Int
+}
+
+input UpdateProfileInput {
+  avatar: String
+  bio: String
+  birthday: Time
+  address: String
   user: UserRelationship
   userId: ID
   isDelete: Int
@@ -376,22 +428,12 @@ input TaskCreateInput {
   state: Int
 }
 
-input TaskUpdateInput {
-  title: String
-  completed: Boolean
-  dueDate: Time
-  user: UserRelationship
-  userId: ID
-  isDelete: Int
-  weight: Int
-  state: Int
-}
-
-input TaskSortType {
+input ProfileSortType {
   id: ObjectSortType
-  title: ObjectSortType
-  completed: ObjectSortType
-  dueDate: ObjectSortType
+  avatar: ObjectSortType
+  bio: ObjectSortType
+  birthday: ObjectSortType
+  address: ObjectSortType
   userId: ObjectSortType
   isDelete: ObjectSortType
   weight: ObjectSortType
@@ -405,9 +447,9 @@ input TaskSortType {
   user: UserSortType
 }
 
-input TaskFilterType {
-  AND: [TaskFilterType!]
-  OR: [TaskFilterType!]
+input ProfileFilterType {
+  AND: [ProfileFilterType!]
+  OR: [ProfileFilterType!]
   id: ID
   id_ne: ID
   id_gt: ID
@@ -416,33 +458,47 @@ input TaskFilterType {
   id_lte: ID
   id_in: [ID!]
   id_null: Boolean
-  title: String
-  title_ne: String
-  title_gt: String
-  title_lt: String
-  title_gte: String
-  title_lte: String
-  title_in: [String!]
-  title_like: String
-  title_prefix: String
-  title_suffix: String
-  title_null: Boolean
-  completed: Boolean
-  completed_ne: Boolean
-  completed_gt: Boolean
-  completed_lt: Boolean
-  completed_gte: Boolean
-  completed_lte: Boolean
-  completed_in: [Boolean!]
-  completed_null: Boolean
-  dueDate: Time
-  dueDate_ne: Time
-  dueDate_gt: Time
-  dueDate_lt: Time
-  dueDate_gte: Time
-  dueDate_lte: Time
-  dueDate_in: [Time!]
-  dueDate_null: Boolean
+  avatar: String
+  avatar_ne: String
+  avatar_gt: String
+  avatar_lt: String
+  avatar_gte: String
+  avatar_lte: String
+  avatar_in: [String!]
+  avatar_like: String
+  avatar_prefix: String
+  avatar_suffix: String
+  avatar_null: Boolean
+  bio: String
+  bio_ne: String
+  bio_gt: String
+  bio_lt: String
+  bio_gte: String
+  bio_lte: String
+  bio_in: [String!]
+  bio_like: String
+  bio_prefix: String
+  bio_suffix: String
+  bio_null: Boolean
+  birthday: Time
+  birthday_ne: Time
+  birthday_gt: Time
+  birthday_lt: Time
+  birthday_gte: Time
+  birthday_lte: Time
+  birthday_in: [Time!]
+  birthday_null: Boolean
+  address: String
+  address_ne: String
+  address_gt: String
+  address_lt: String
+  address_gte: String
+  address_lte: String
+  address_in: [String!]
+  address_like: String
+  address_prefix: String
+  address_suffix: String
+  address_null: Boolean
   userId: ID
   userId_ne: ID
   userId_gt: ID
@@ -526,11 +582,226 @@ input TaskFilterType {
   user: UserFilterType
 }
 
+input ProfileRelationship {
+  id: ID
+  avatar: String
+  bio: String
+  birthday: Time
+  address: String
+  userId: ID
+  isDelete: Int
+  weight: Int
+  state: Int
+}
+
+type ProfileResultType {
+  data: [Profile!]!
+  total: Int!
+  current_page: Int!
+  per_page: Int!
+  total_page: Int!
+}
+
+input CreateTaskInput {
+  title: String!
+  description: String
+  completed: Boolean
+  dueDate: Time
+  priority: Int
+  user: UserRelationship
+  tags: [TagRelationship]
+  userId: ID
+  isDelete: Int
+  weight: Int
+  state: Int
+  tagsIds: [ID!]
+}
+
+input UpdateTaskInput {
+  title: String
+  description: String
+  completed: Boolean
+  dueDate: Time
+  priority: Int
+  user: UserRelationship
+  tags: [TagRelationship]
+  userId: ID
+  isDelete: Int
+  weight: Int
+  state: Int
+  tagsIds: [ID!]
+}
+
+input TaskSortType {
+  id: ObjectSortType
+  title: ObjectSortType
+  description: ObjectSortType
+  completed: ObjectSortType
+  dueDate: ObjectSortType
+  priority: ObjectSortType
+  userId: ObjectSortType
+  isDelete: ObjectSortType
+  weight: ObjectSortType
+  state: ObjectSortType
+  deletedBy: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  deletedAt: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  tagsIds: ObjectSortType
+  user: UserSortType
+  tags: TagSortType
+}
+
+input TaskFilterType {
+  AND: [TaskFilterType!]
+  OR: [TaskFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_null: Boolean
+  title: String
+  title_ne: String
+  title_gt: String
+  title_lt: String
+  title_gte: String
+  title_lte: String
+  title_in: [String!]
+  title_like: String
+  title_prefix: String
+  title_suffix: String
+  title_null: Boolean
+  description: String
+  description_ne: String
+  description_gt: String
+  description_lt: String
+  description_gte: String
+  description_lte: String
+  description_in: [String!]
+  description_like: String
+  description_prefix: String
+  description_suffix: String
+  description_null: Boolean
+  completed: Boolean
+  completed_ne: Boolean
+  completed_gt: Boolean
+  completed_lt: Boolean
+  completed_gte: Boolean
+  completed_lte: Boolean
+  completed_in: [Boolean!]
+  completed_null: Boolean
+  dueDate: Time
+  dueDate_ne: Time
+  dueDate_gt: Time
+  dueDate_lt: Time
+  dueDate_gte: Time
+  dueDate_lte: Time
+  dueDate_in: [Time!]
+  dueDate_null: Boolean
+  priority: Int
+  priority_ne: Int
+  priority_gt: Int
+  priority_lt: Int
+  priority_gte: Int
+  priority_lte: Int
+  priority_in: [Int!]
+  priority_null: Boolean
+  userId: ID
+  userId_ne: ID
+  userId_gt: ID
+  userId_lt: ID
+  userId_gte: ID
+  userId_lte: ID
+  userId_in: [ID!]
+  userId_null: Boolean
+  isDelete: Int
+  isDelete_ne: Int
+  isDelete_gt: Int
+  isDelete_lt: Int
+  isDelete_gte: Int
+  isDelete_lte: Int
+  isDelete_in: [Int!]
+  isDelete_null: Boolean
+  weight: Int
+  weight_ne: Int
+  weight_gt: Int
+  weight_lt: Int
+  weight_gte: Int
+  weight_lte: Int
+  weight_in: [Int!]
+  weight_null: Boolean
+  state: Int
+  state_ne: Int
+  state_gt: Int
+  state_lt: Int
+  state_gte: Int
+  state_lte: Int
+  state_in: [Int!]
+  state_null: Boolean
+  deletedBy: ID
+  deletedBy_ne: ID
+  deletedBy_gt: ID
+  deletedBy_lt: ID
+  deletedBy_gte: ID
+  deletedBy_lte: ID
+  deletedBy_in: [ID!]
+  deletedBy_null: Boolean
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  updatedBy_null: Boolean
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
+  createdBy_null: Boolean
+  deletedAt: Int
+  deletedAt_ne: Int
+  deletedAt_gt: Int
+  deletedAt_lt: Int
+  deletedAt_gte: Int
+  deletedAt_lte: Int
+  deletedAt_in: [Int!]
+  deletedAt_null: Boolean
+  updatedAt: Int
+  updatedAt_ne: Int
+  updatedAt_gt: Int
+  updatedAt_lt: Int
+  updatedAt_gte: Int
+  updatedAt_lte: Int
+  updatedAt_in: [Int!]
+  updatedAt_null: Boolean
+  createdAt: Int
+  createdAt_ne: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_null: Boolean
+  user: UserFilterType
+  tags: TagFilterType
+}
+
 input TaskRelationship {
   id: ID
   title: String
+  description: String
   completed: Boolean
   dueDate: Time
+  priority: Int
   userId: ID
   isDelete: Int
   weight: Int
@@ -539,6 +810,345 @@ input TaskRelationship {
 
 type TaskResultType {
   data: [Task!]!
+  total: Int!
+  current_page: Int!
+  per_page: Int!
+  total_page: Int!
+}
+
+input CreateUserRoleInput {
+  name: String!
+  description: String
+  permissions: String
+  users: [UserRelationship]
+  isDelete: Int
+  weight: Int
+  state: Int
+  usersIds: [ID!]
+}
+
+input UpdateUserRoleInput {
+  name: String
+  description: String
+  permissions: String
+  users: [UserRelationship]
+  isDelete: Int
+  weight: Int
+  state: Int
+  usersIds: [ID!]
+}
+
+input UserRoleSortType {
+  id: ObjectSortType
+  name: ObjectSortType
+  description: ObjectSortType
+  permissions: ObjectSortType
+  isDelete: ObjectSortType
+  weight: ObjectSortType
+  state: ObjectSortType
+  deletedBy: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  deletedAt: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  usersIds: ObjectSortType
+  users: UserSortType
+}
+
+input UserRoleFilterType {
+  AND: [UserRoleFilterType!]
+  OR: [UserRoleFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_null: Boolean
+  name: String
+  name_ne: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_like: String
+  name_prefix: String
+  name_suffix: String
+  name_null: Boolean
+  description: String
+  description_ne: String
+  description_gt: String
+  description_lt: String
+  description_gte: String
+  description_lte: String
+  description_in: [String!]
+  description_like: String
+  description_prefix: String
+  description_suffix: String
+  description_null: Boolean
+  permissions: String
+  permissions_ne: String
+  permissions_gt: String
+  permissions_lt: String
+  permissions_gte: String
+  permissions_lte: String
+  permissions_in: [String!]
+  permissions_like: String
+  permissions_prefix: String
+  permissions_suffix: String
+  permissions_null: Boolean
+  isDelete: Int
+  isDelete_ne: Int
+  isDelete_gt: Int
+  isDelete_lt: Int
+  isDelete_gte: Int
+  isDelete_lte: Int
+  isDelete_in: [Int!]
+  isDelete_null: Boolean
+  weight: Int
+  weight_ne: Int
+  weight_gt: Int
+  weight_lt: Int
+  weight_gte: Int
+  weight_lte: Int
+  weight_in: [Int!]
+  weight_null: Boolean
+  state: Int
+  state_ne: Int
+  state_gt: Int
+  state_lt: Int
+  state_gte: Int
+  state_lte: Int
+  state_in: [Int!]
+  state_null: Boolean
+  deletedBy: ID
+  deletedBy_ne: ID
+  deletedBy_gt: ID
+  deletedBy_lt: ID
+  deletedBy_gte: ID
+  deletedBy_lte: ID
+  deletedBy_in: [ID!]
+  deletedBy_null: Boolean
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  updatedBy_null: Boolean
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
+  createdBy_null: Boolean
+  deletedAt: Int
+  deletedAt_ne: Int
+  deletedAt_gt: Int
+  deletedAt_lt: Int
+  deletedAt_gte: Int
+  deletedAt_lte: Int
+  deletedAt_in: [Int!]
+  deletedAt_null: Boolean
+  updatedAt: Int
+  updatedAt_ne: Int
+  updatedAt_gt: Int
+  updatedAt_lt: Int
+  updatedAt_gte: Int
+  updatedAt_lte: Int
+  updatedAt_in: [Int!]
+  updatedAt_null: Boolean
+  createdAt: Int
+  createdAt_ne: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_null: Boolean
+  users: UserFilterType
+}
+
+input UserRoleRelationship {
+  id: ID
+  name: String
+  description: String
+  permissions: String
+  isDelete: Int
+  weight: Int
+  state: Int
+}
+
+type UserRoleResultType {
+  data: [UserRole!]!
+  total: Int!
+  current_page: Int!
+  per_page: Int!
+  total_page: Int!
+}
+
+input CreateTagInput {
+  name: String!
+  color: String
+  tasks: [TaskRelationship]
+  isDelete: Int
+  weight: Int
+  state: Int
+  tasksIds: [ID!]
+}
+
+input UpdateTagInput {
+  name: String
+  color: String
+  tasks: [TaskRelationship]
+  isDelete: Int
+  weight: Int
+  state: Int
+  tasksIds: [ID!]
+}
+
+input TagSortType {
+  id: ObjectSortType
+  name: ObjectSortType
+  color: ObjectSortType
+  isDelete: ObjectSortType
+  weight: ObjectSortType
+  state: ObjectSortType
+  deletedBy: ObjectSortType
+  updatedBy: ObjectSortType
+  createdBy: ObjectSortType
+  deletedAt: ObjectSortType
+  updatedAt: ObjectSortType
+  createdAt: ObjectSortType
+  tasksIds: ObjectSortType
+  tasks: TaskSortType
+}
+
+input TagFilterType {
+  AND: [TagFilterType!]
+  OR: [TagFilterType!]
+  id: ID
+  id_ne: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_null: Boolean
+  name: String
+  name_ne: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_like: String
+  name_prefix: String
+  name_suffix: String
+  name_null: Boolean
+  color: String
+  color_ne: String
+  color_gt: String
+  color_lt: String
+  color_gte: String
+  color_lte: String
+  color_in: [String!]
+  color_like: String
+  color_prefix: String
+  color_suffix: String
+  color_null: Boolean
+  isDelete: Int
+  isDelete_ne: Int
+  isDelete_gt: Int
+  isDelete_lt: Int
+  isDelete_gte: Int
+  isDelete_lte: Int
+  isDelete_in: [Int!]
+  isDelete_null: Boolean
+  weight: Int
+  weight_ne: Int
+  weight_gt: Int
+  weight_lt: Int
+  weight_gte: Int
+  weight_lte: Int
+  weight_in: [Int!]
+  weight_null: Boolean
+  state: Int
+  state_ne: Int
+  state_gt: Int
+  state_lt: Int
+  state_gte: Int
+  state_lte: Int
+  state_in: [Int!]
+  state_null: Boolean
+  deletedBy: ID
+  deletedBy_ne: ID
+  deletedBy_gt: ID
+  deletedBy_lt: ID
+  deletedBy_gte: ID
+  deletedBy_lte: ID
+  deletedBy_in: [ID!]
+  deletedBy_null: Boolean
+  updatedBy: ID
+  updatedBy_ne: ID
+  updatedBy_gt: ID
+  updatedBy_lt: ID
+  updatedBy_gte: ID
+  updatedBy_lte: ID
+  updatedBy_in: [ID!]
+  updatedBy_null: Boolean
+  createdBy: ID
+  createdBy_ne: ID
+  createdBy_gt: ID
+  createdBy_lt: ID
+  createdBy_gte: ID
+  createdBy_lte: ID
+  createdBy_in: [ID!]
+  createdBy_null: Boolean
+  deletedAt: Int
+  deletedAt_ne: Int
+  deletedAt_gt: Int
+  deletedAt_lt: Int
+  deletedAt_gte: Int
+  deletedAt_lte: Int
+  deletedAt_in: [Int!]
+  deletedAt_null: Boolean
+  updatedAt: Int
+  updatedAt_ne: Int
+  updatedAt_gt: Int
+  updatedAt_lt: Int
+  updatedAt_gte: Int
+  updatedAt_lte: Int
+  updatedAt_in: [Int!]
+  updatedAt_null: Boolean
+  createdAt: Int
+  createdAt_ne: Int
+  createdAt_gt: Int
+  createdAt_lt: Int
+  createdAt_gte: Int
+  createdAt_lte: Int
+  createdAt_in: [Int!]
+  createdAt_null: Boolean
+  tasks: TaskFilterType
+}
+
+input TagRelationship {
+  id: ID
+  name: String
+  color: String
+  isDelete: Int
+  weight: Int
+  state: Int
+}
+
+type TagResultType {
+  data: [Tag!]!
   total: Int!
   current_page: Int!
   per_page: Int!

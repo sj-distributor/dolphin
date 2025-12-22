@@ -80,6 +80,11 @@ func ApplyChanges(changes map[string]interface{}, to interface{}) error {
 					return time.Unix(0, int64(v.(float64))*int64(time.Millisecond)), nil
 				case reflect.Int64:
 					return time.Unix(0, v.(int64)*int64(time.Millisecond)), nil
+				case reflect.Struct:
+					if t, ok := v.(time.Time); ok {
+						return t, nil
+					}
+					return v, nil
 				default:
 					return v, fmt.Errorf("Unable to parse date from %v", v)
 				}

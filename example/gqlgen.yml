@@ -1,4 +1,4 @@
-# Generated with dolphin
+# Generated with dolphin (gqlgen v0.17.85)
 
 schema:
   - gen/*.graphqls
@@ -13,7 +13,7 @@ exec:
 #   filename: gen/federation.go
 #   package: gen
 #   version: 2
-#   options
+#   options:
 #     computed_requires: true
 
 # Where should any generated models go?
@@ -28,6 +28,12 @@ model:
   # package: gen
   # filename_template: "{name}.resolvers.go"
 
+# Options for code generation
+# omit_complexity: true  # skip complexity calculation
+# nullable_input_omittable: true  # wrap nullable input fields with Omittable
+# call_argument_directives_with_null: true  # call argument directives even with null values
+# omit_gqlgen_file_notice: false  # include file generation notice
+
 autobind:
   - "github.com/sj-distributor/dolphin-example/gen"
 
@@ -36,7 +42,11 @@ models:
   User:
     model: github.com/sj-distributor/dolphin-example/gen.User
     fields:
+      profile:
+        resolver: true
       tasks:
+        resolver: true
+      userRoles:
         resolver: true
   UserResultType:
     model: github.com/sj-distributor/dolphin-example/gen.UserResultType
@@ -51,15 +61,40 @@ models:
         resolver: true
       total_page:
         resolver: true
-  UserCreateInput:
+  CreateUserInput:
     model: "map[string]interface{}"
-  UserUpdateInput:
+  UpdateUserInput:
+    model: "map[string]interface{}"
+  
+  Profile:
+    model: github.com/sj-distributor/dolphin-example/gen.Profile
+    fields:
+      user:
+        resolver: true
+  ProfileResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.ProfileResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  CreateProfileInput:
+    model: "map[string]interface{}"
+  UpdateProfileInput:
     model: "map[string]interface{}"
   
   Task:
     model: github.com/sj-distributor/dolphin-example/gen.Task
     fields:
       user:
+        resolver: true
+      tags:
         resolver: true
   TaskResultType:
     model: github.com/sj-distributor/dolphin-example/gen.TaskResultType
@@ -74,9 +109,55 @@ models:
         resolver: true
       total_page:
         resolver: true
-  TaskCreateInput:
+  CreateTaskInput:
     model: "map[string]interface{}"
-  TaskUpdateInput:
+  UpdateTaskInput:
+    model: "map[string]interface{}"
+  
+  UserRole:
+    model: github.com/sj-distributor/dolphin-example/gen.UserRole
+    fields:
+      users:
+        resolver: true
+  UserRoleResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.UserRoleResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  CreateUserRoleInput:
+    model: "map[string]interface{}"
+  UpdateUserRoleInput:
+    model: "map[string]interface{}"
+  
+  Tag:
+    model: github.com/sj-distributor/dolphin-example/gen.Tag
+    fields:
+      tasks:
+        resolver: true
+  TagResultType:
+    model: github.com/sj-distributor/dolphin-example/gen.TagResultType
+    fields:
+      data:
+        resolver: true
+      total:
+        resolver: true
+      current_page:
+        resolver: true
+      per_page:
+        resolver: true
+      total_page:
+        resolver: true
+  CreateTagInput:
+    model: "map[string]interface{}"
+  UpdateTagInput:
     model: "map[string]interface{}"
   
   _Any:

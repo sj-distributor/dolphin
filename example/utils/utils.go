@@ -1,9 +1,13 @@
 package utils
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
+	"time"
 
 	"github.com/iancoleman/strcase"
 )
@@ -106,4 +110,36 @@ func Difference[T string](a, b []T) []T {
 		}
 	}
 	return result
+}
+
+// 提取分表名
+func ExtractShardingTableName(input any) string {
+	if input != nil {
+		re := regexp.MustCompile("_(\\d+)$")
+		match := re.FindStringSubmatch(input.(string))
+		if len(match) > 1 {
+			return match[1] // 返回匹配的数字部分
+		}
+	}
+	return ""
+}
+func GetRandomString(n int) string {
+	// 创建一个新的随机数生成器
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	bytes := []byte(str)
+	result := make([]byte, n)
+
+	for i := 0; i < n; i++ {
+		result[i] = bytes[rng.Intn(len(bytes))]
+	}
+	return string(result)
+}
+
+// 生成订单号
+func GenOrderNo() string {
+	now := time.Now()
+	// 精确到毫秒
+	orderNo := now.Format("20060102150405") + fmt.Sprintf("%03d", now.Nanosecond()/1e6)
+	return orderNo
 }

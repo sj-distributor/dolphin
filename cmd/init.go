@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path"
@@ -291,7 +290,7 @@ func runGenerate(p string) error {
 }
 
 func getDefaultPackageName(p string) (string, error) {
-	configSource, err := ioutil.ReadFile(path.Join(p, "go.mod"))
+	configSource, err := os.ReadFile(path.Join(p, "go.mod"))
 	if err != nil {
 		return "", err
 	}

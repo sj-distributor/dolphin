@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
+	"{{.Config.Package}}/config"
+	"{{.Config.Package}}/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -138,7 +140,11 @@ func TableName(name string, ctx context.Context) string {
 
 // Close ...
 func (db *DB) Close() error {
-	return db.Close()
+	sqlDB, err := db.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Close()
 }
 
 // Query ...
@@ -154,5 +160,9 @@ func (db *DB) AutoMigrate() error {
 }
 
 func (db *DB) Ping() error {
-	return db.Ping()
+	sqlDB, err := db.db.DB()
+	if err != nil {
+		return err
+	}
+	return sqlDB.Ping()
 }`

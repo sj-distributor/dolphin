@@ -9,6 +9,11 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
+// ============================================================
+// Go 类型映射
+// ============================================================
+
+// goTypeMap 定义 GraphQL 类型到 Go 类型的映射
 var goTypeMap = map[string]string{
 	"String":  "string",
 	"Time":    "time.Time",
@@ -19,39 +24,109 @@ var goTypeMap = map[string]string{
 	"Any":     "interface{}",
 }
 
+// ============================================================
+// 系统字段常量定义
+// ============================================================
+
+// nonCreatableFields 定义创建时应排除的字段
+var nonCreatableFields = map[string]bool{
+	"id":        true,
+	"createdAt": true,
+	"updatedAt": true,
+	"deletedAt": true,
+	"createdBy": true,
+	"updatedBy": true,
+	"deletedBy": true,
+}
+
+// nonUpdatableFields 定义更新时应排除的字段
+var nonUpdatableFields = map[string]bool{
+	"createdAt": true,
+	"updatedAt": true,
+	"deletedAt": true,
+	"createdBy": true,
+	"updatedBy": true,
+	"deletedBy": true,
+}
+
+// nonDocFields 定义文档中应排除的字段
+var nonDocFields = map[string]bool{
+	"isDelete": true,
+	"weight":   true,
+	"state":    true,
+}
+
+// indexedFields 定义需要创建索引的字段
+var indexedFields = map[string]bool{
+	"createdBy": true,
+	"updatedBy": true,
+	"deletedBy": true,
+}
+
+// ============================================================
+// 列信息常量
+// ============================================================
+
+// columnInfo 存储系统字段的元信息
+type columnInfo struct {
+	comment string
+	dbType  string
+}
+
+// columnMetadata 定义系统字段的数据库元信息
+var columnMetadata = map[string]columnInfo{
+	"id":        {comment: "uuid", dbType: "varchar(36)"},
+	"createdAt": {comment: "创建时间", dbType: "bigint(13)"},
+	"updatedAt": {comment: "更新时间", dbType: "bigint(13)"},
+	"deletedAt": {comment: "删除时间", dbType: "bigint(13)"},
+	"deletedBy": {comment: "删除人", dbType: "varchar(36)"},
+	"updatedBy": {comment: "更新人", dbType: "varchar(36)"},
+	"createdBy": {comment: "创建人", dbType: "varchar(36)"},
+	"state":     {comment: "状态：1/正常、2/禁用", dbType: "int(2)"},
+	"weight":    {comment: "权重：用来排序", dbType: "int(2)"},
+	"isDelete":  {comment: "是否删除：1/正常、2/删除", dbType: "int(2)"},
+}
+
+// ============================================================
+// ObjectField 结构体定义
+// ============================================================
+
+// ObjectField 表示 GraphQL 对象的一个字段
 type ObjectField struct {
 	Def *ast.FieldDefinition
 	Obj *Object
 }
 
+// ============================================================
+// 名称相关方法
+// ============================================================
+
+// Name 返回字段的原始名称
 func (o *ObjectField) Name() string {
 	return o.Def.Name.Value
 }
 
+// LowerName 返回字段名称的小驼峰形式
 func (o *ObjectField) LowerName() string {
 	return strcase.ToLowerCamel(o.Name())
 }
 
+// ToSnakeName 返回字段名称的蛇形命名形式
 func (o *ObjectField) ToSnakeName() string {
 	return strcase.ToSnake(o.Name())
 }
 
+// MethodName 返回适用于 Go 方法的字段名称（首字母大写）
 func (o *ObjectField) MethodName() string {
-	name := o.Name()
-	return templates.ToGo(name)
+	return templates.ToGo(o.Name())
 }
 
-func (o *ObjectField) Type() string {
-	if namedType, ok := o.Def.Type.(*ast.Named); ok {
-		return namedType.Name.Value
-	}
-	return "unknown"
+// HasName 检查字段是否具有指定名称
+func (o *ObjectField) HasName(name string) bool {
+	return o.Name() == name
 }
 
-func (o *ObjectField) RelationshipTypeName() string {
-	return o.Def.Description.Kind
-}
-
+// RelationshipName 返回关系名称（移除 ID 后缀）
 func (o *ObjectField) RelationshipName() string {
 	if !o.IsRelationship() {
 		return o.MethodName()
@@ -59,42 +134,223 @@ func (o *ObjectField) RelationshipName() string {
 	return strings.Replace(o.MethodName(), "ID", "", -1)
 }
 
-func (o *ObjectField) ArgumentsValue() []ObjectFieldInput {
-	arguments := []ObjectFieldInput{}
-	for _, f := range o.Def.Arguments {
-		arguments = append(arguments, ObjectFieldInput{f, o})
-	}
-	return arguments
+// RelationshipTypeName 返回关系的类型名称
+func (o *ObjectField) RelationshipTypeName() string {
+	return o.Def.Description.Kind
 }
 
-// TargetType ...
+// ============================================================
+// 类型相关方法
+// ============================================================
+
+// Type 返回字段的 GraphQL 类型名称
+func (o *ObjectField) Type() string {
+	if namedType, ok := o.Def.Type.(*ast.Named); ok {
+		return namedType.Name.Value
+	}
+	return "unknown"
+}
+
+// TargetType 返回字段的目标类型（解包 NonNull 和 List）
 func (o *ObjectField) TargetType() string {
 	nt := getNamedType(o.Def.Type).(*ast.Named)
 	return nt.Name.Value
 }
 
-func (o *ObjectField) IsColumn() bool {
-	return o.HasDirective("column")
+// GoType 返回字段对应的 Go 类型
+func (o *ObjectField) GoType() string {
+	return o.GoTypeWithPointer()
 }
 
+// GoTypeWithPointer 返回带指针前缀的 Go 类型
+func (o *ObjectField) GoTypeWithPointer() string {
+	t := o.Def.Type
+	st := ""
+
+	// 处理可选类型的指针
+	if o.IsOptional() {
+		st += "*"
+	} else {
+		t = getNullableType(t)
+	}
+
+	// 处理列表类型
+	if isListType(t) {
+		if o.IsRequired() {
+			st = "[]"
+		} else {
+			st += "[]*"
+		}
+	}
+
+	// 映射 Go 类型
+	v, ok := getNamedType(o.Def.Type).(*ast.Named)
+	if ok {
+		if goType, known := goTypeMap[v.Name.Value]; known {
+			st += goType
+		} else {
+			st += v.Name.Value
+		}
+	}
+
+	return st
+}
+
+// InputType 返回字段的输入类型
+func (o *ObjectField) InputType() ast.Type {
+	t := o.Def.Type
+
+	if o.IsIdentifier() {
+		t = nonNull(getNamedType(t))
+	}
+
+	isList := o.IsList()
+	isOptional := o.IsOptional()
+
+	// 处理嵌入式列
+	if o.IsEmbeddedColumn() {
+		nt := getNamedType(t).(*ast.Named)
+		t = namedType(nt.Name.Value + "Input")
+
+		if isList {
+			t = listType(t)
+		}
+		if !isOptional {
+			t = nonNull(t)
+		}
+	}
+
+	// 关系标识符始终可选
+	if o.IsRelationshipIdentifier() {
+		t = getNullableType(t)
+	}
+
+	return t
+}
+
+// ============================================================
+// 类型判断方法
+// ============================================================
+
+// IsScalarType 判断是否为标量类型
+func (o *ObjectField) IsScalarType() bool {
+	return o.Obj.Model.HasScalar(o.TargetType())
+}
+
+// IsEnumType 判断是否为枚举类型
+func (o *ObjectField) IsEnumType() bool {
+	return o.Obj.Model.HasEnum(o.TargetType())
+}
+
+// IsID 判断是否为 ID 类型
+func (o *ObjectField) IsID() bool {
+	return o.TargetType() == "ID"
+}
+
+// IsInt 判断是否为 Int 类型
+func (o *ObjectField) IsInt() bool {
+	return o.TargetType() == "Int"
+}
+
+// IsString 判断是否为 String 类型
+func (o *ObjectField) IsString() bool {
+	return o.TargetType() == "String"
+}
+
+// IsList 判断是否为列表类型
+func (o *ObjectField) IsList() bool {
+	return isListType(o.Def.Type)
+}
+
+// IsListType 判断是否为列表类型（解包 NonNull 后）
 func (o *ObjectField) IsListType() bool {
 	return isListType(getNullableType(o.Def.Type))
 }
 
-func (o *ObjectField) TargetObject() *Object {
-	obj := o.Obj.Model.Object(o.TargetType())
-	return &obj
+// IsOptional 判断是否为可选类型（非 NonNull）
+func (o *ObjectField) IsOptional() bool {
+	return !isNonNullType(o.Def.Type)
 }
 
-func (o *ObjectField) HasTargetObjectExtension() bool {
-	return o.Obj.Model.HasObjectExtension(o.TargetType())
+// IsRequired 判断是否为必填类型
+func (o *ObjectField) IsRequired() bool {
+	return isNonNullType(o.Def.Type)
 }
 
-func (o *ObjectField) TargetObjectExtension() *ObjectExtension {
-	e := o.Obj.Model.ObjectExtension(o.TargetType())
-	return &e
+// IsReadonlyType 判断是否为只读类型
+func (o *ObjectField) IsReadonlyType() bool {
+	if o.IsEmbeddedColumn() {
+		return false
+	}
+	return !(o.IsScalarType() || o.IsEnumType()) || o.Obj.Model.HasObject(o.TargetType())
 }
 
+// IsWritableType 判断是否为可写类型
+func (o *ObjectField) IsWritableType() bool {
+	return !o.IsReadonlyType()
+}
+
+// ============================================================
+// 字段角色判断方法
+// ============================================================
+
+// IsIdentifier 判断是否为 ID 标识符字段
+func (o *ObjectField) IsIdentifier() bool {
+	return o.HasName("id")
+}
+
+// IsRelationshipIdentifier 判断是否为关系 ID 字段（如 userId）
+func (o *ObjectField) IsRelationshipIdentifier() bool {
+	name := o.Name()
+	targetType := o.TargetType()
+	return strings.HasSuffix(name, "Id") && (o.Type() == "ID" || targetType == "ID")
+}
+
+// IsShardingID 判断是否为分片 ID 字段
+func (o *ObjectField) IsShardingID() bool {
+	return o.Name() == "shardingId"
+}
+
+// IsHasUpperId 判断是否为关系字段且包含 Id
+func (o *ObjectField) IsHasUpperId() bool {
+	return strings.Contains(o.Name(), "Id") && o.IsRelationship()
+}
+
+// ============================================================
+// CRUD 权限判断方法
+// ============================================================
+
+// IsCreatable 判断字段是否可用于创建操作
+func (o *ObjectField) IsCreatable() bool {
+	return !nonCreatableFields[o.Name()]
+}
+
+// IsUpdatable 判断字段是否可用于更新操作
+func (o *ObjectField) IsUpdatable() bool {
+	return !nonUpdatableFields[o.Name()]
+}
+
+// IsCreataDocs 判断字段是否应出现在创建文档中
+func (o *ObjectField) IsCreataDocs() bool {
+	return o.IsUpdatable() && !nonDocFields[o.Name()]
+}
+
+// IsSearchable 判断字段是否可搜索
+func (o *ObjectField) IsSearchable() bool {
+	targetType := o.TargetType()
+	return targetType == "String" || targetType == "Int" || targetType == "Float"
+}
+
+// IsSortable 判断字段是否可排序
+func (o *ObjectField) IsSortable() bool {
+	return !o.IsReadonlyType() && o.IsScalarType()
+}
+
+// ============================================================
+// 指令相关方法
+// ============================================================
+
+// Directive 获取字段上的指定指令
 func (o *ObjectField) Directive(name string) *ast.Directive {
 	for _, d := range o.Def.Directives {
 		if d.Name.Value == name {
@@ -104,18 +360,63 @@ func (o *ObjectField) Directive(name string) *ast.Directive {
 	return nil
 }
 
+// IsColumn 判断是否为数据库列
+func (o *ObjectField) IsColumn() bool {
+	return o.HasDirective("column")
+}
+
+// IsRelationship 判断是否为关系字段
 func (o *ObjectField) IsRelationship() bool {
 	return o.HasDirective("relationship")
 }
 
+// IsRelationshipRequired 判断关系是否为必填
 func (o *ObjectField) IsRelationshipRequired() bool {
 	return o.Obj.Field(strcase.ToLowerCamel(o.RelationshipName())).IsRequired()
 }
 
+// IsEmbedded 判断是否为嵌入字段
+func (o *ObjectField) IsEmbedded() bool {
+	return !o.IsColumn() && !o.IsRelationship()
+}
+
+// IsEmbeddedColumn 判断是否为嵌入式列
+func (o *ObjectField) IsEmbeddedColumn() bool {
+	return o.IsColumn() && o.ColumnType() == "embedded"
+}
+
+// NeedsQueryResolver 判断是否需要查询解析器
 func (o *ObjectField) NeedsQueryResolver() bool {
 	return o.IsEmbedded()
 }
 
+// ============================================================
+// 目标对象相关方法
+// ============================================================
+
+// HasTargetObject 判断是否存在目标对象
+func (o *ObjectField) HasTargetObject() bool {
+	return o.Obj.Model.HasObject(o.TargetType())
+}
+
+// TargetObject 返回目标对象
+func (o *ObjectField) TargetObject() *Object {
+	obj := o.Obj.Model.Object(o.TargetType())
+	return &obj
+}
+
+// HasTargetObjectExtension 判断目标对象是否有扩展
+func (o *ObjectField) HasTargetObjectExtension() bool {
+	return o.Obj.Model.HasObjectExtension(o.TargetType())
+}
+
+// TargetObjectExtension 返回目标对象的扩展
+func (o *ObjectField) TargetObjectExtension() *ObjectExtension {
+	e := o.Obj.Model.ObjectExtension(o.TargetType())
+	return &e
+}
+
+// HasTargetTypeWithIDField 判断目标类型是否有 ID 字段
 func (o *ObjectField) HasTargetTypeWithIDField() bool {
 	if o.HasTargetObject() && o.TargetObject().HasField("id") {
 		return true
@@ -126,480 +427,261 @@ func (o *ObjectField) HasTargetTypeWithIDField() bool {
 	return false
 }
 
-func (o *ObjectField) IsHasUpperId() bool {
-	return strings.Contains(o.Name(), "Id") && o.IsRelationship()
-}
+// ============================================================
+// 参数相关方法
+// ============================================================
 
-// IsIdentifier ...
-func (o *ObjectField) IsIdentifier() bool {
-	return o.HasName("id")
-}
-
-func (o *ObjectField) HasName(name string) bool {
-	return o.Name() == name
-}
-
-// IsRelationshipIdentifier ...
-func (o *ObjectField) IsRelationshipIdentifier() bool {
-	return strings.HasSuffix(o.Name(), "Id") && o.Type() == "ID" || strings.HasSuffix(o.Name(), "Id") && o.TargetType() == "ID"
-}
-
-// IsCreatable ...
-func (o *ObjectField) IsCreatable() bool {
-	return !(o.Name() == "id" || o.Name() == "createdAt" || o.Name() == "updatedAt" || o.Name() == "deletedAt" || o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy")
-}
-
-func (o *ObjectField) IsUpdatable() bool {
-	return !(o.Name() == "createdAt" || o.Name() == "updatedAt" || o.Name() == "deletedAt" || o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy")
-}
-
-func (o *ObjectField) IsCreataDocs() bool {
-	return o.IsUpdatable() && !(o.Name() == "isDelete" || o.Name() == "weight" || o.Name() == "state")
-}
-
-// IsReadonlyType ..
-func (o *ObjectField) IsReadonlyType() bool {
-	if o.IsEmbeddedColumn() {
-		return false
+// ArgumentsValue 返回字段的参数列表
+func (o *ObjectField) ArgumentsValue() []ObjectFieldInput {
+	arguments := []ObjectFieldInput{}
+	for _, f := range o.Def.Arguments {
+		arguments = append(arguments, ObjectFieldInput{f, o})
 	}
-	return !(o.IsScalarType() || o.IsEnumType()) || o.Obj.Model.HasObject(o.TargetType())
+	return arguments
 }
 
-// IsEnumType ...
-func (o *ObjectField) IsEnumType() bool {
-	return o.Obj.Model.HasEnum(o.TargetType())
-}
-
-func (o *ObjectField) IsWritableType() bool {
-	return !o.IsReadonlyType()
-}
-
-// IsScalarType ...
-func (o *ObjectField) IsScalarType() bool {
-	return o.Obj.Model.HasScalar(o.TargetType())
-}
-
-// IsOptional ...
-func (o *ObjectField) IsOptional() bool {
-	return !isNonNullType(o.Def.Type)
-}
-
-// IsList ...
-func (o *ObjectField) IsList() bool {
-	return isListType(o.Def.Type)
-}
-
-// IsEmbedded ...
-func (o *ObjectField) IsEmbedded() bool {
-	return !o.IsColumn() && !o.IsRelationship()
-}
-
-// IsShardingID
-func (o *ObjectField) IsShardingID() bool {
-	return o.Name() == "shardingId"
-}
-
-// HasTargetObject ...
-func (o *ObjectField) HasTargetObject() bool {
-	return o.Obj.Model.HasObject(o.TargetType())
-}
-
-// IsEmbeddedColumn ...
-func (o *ObjectField) IsEmbeddedColumn() bool {
-	return (o.IsColumn() && o.ColumnType() == "embedded")
-}
-
-func (o *ObjectField) IsSearchable() bool {
-	t := getNamedType(o.Def.Type).(*ast.Named)
-	return t.Name.Value == "String" || t.Name.Value == "Int" || t.Name.Value == "Float"
-}
-
-func (o *ObjectField) IsSortable() bool {
-	return !o.IsReadonlyType() && o.IsScalarType()
-}
-
-func (o *ObjectField) IsID() bool {
-	t := getNamedType(o.Def.Type).(*ast.Named)
-	return t.Name.Value == "ID"
-}
-
-func (o *ObjectField) IsInt() bool {
-	t := getNamedType(o.Def.Type).(*ast.Named)
-	return t.Name.Value == "Int"
-}
-
-func (o *ObjectField) IsString() bool {
-	t := getNamedType(o.Def.Type).(*ast.Named)
-	return t.Name.Value == "String"
-}
-
-func (o *ObjectField) IsRequired() bool {
-	return isNonNullType(o.Def.Type)
-}
-
-func (m *Model) HasScalar(name string) bool {
-	if _, ok := defaultScalars[name]; ok {
-		return true
-	}
-	for _, def := range m.Doc.Definitions {
-		scalar, ok := def.(*ast.ScalarDefinition)
-		if ok && scalar.Name.Value == name {
-			return true
-		}
-	}
-	return false
-}
-
-func (m *Model) HasEnum(name string) bool {
-	if _, ok := defaultScalars[name]; ok {
-		return true
-	}
-	for _, def := range m.Doc.Definitions {
-		e, ok := def.(*ast.EnumDefinition)
-		if ok && e.Name.Value == name {
-			return true
-		}
-	}
-	return false
-}
-
-// InputType ...
-func (o *ObjectField) InputType() ast.Type {
-	t := o.Def.Type
-	if o.IsIdentifier() {
-		t = nonNull(getNamedType(t))
-	}
-	isList := o.IsList()
-	isOptional := o.IsOptional()
-
-	if o.IsEmbeddedColumn() {
-		_t := getNamedType(t).(*ast.Named)
-		t = namedType(_t.Name.Value + "Input")
-
-		if isList {
-			t = listType(t)
-		}
-		if !isOptional {
-			t = nonNull(t)
-		}
-	}
-	if o.IsRelationshipIdentifier() {
-		t = getNullableType(t)
-	}
-
-	return t
-}
-
-func (o *ObjectField) GoType() string {
-	return o.GoTypeWithPointer()
-}
-
-func (o *ObjectField) GoTypeWithPointer() string {
-	t := o.Def.Type
-	st := ""
-
-	if o.IsOptional() {
-		st += "*"
-	} else {
-		t = getNullableType(t)
-	}
-
-	if isListType(t) {
-		if o.IsRequired() {
-			st = "[]"
-		} else {
-			st += "[]*"
-		}
-	}
-
-	v, ok := getNamedType(o.Def.Type).(*ast.Named)
-	if ok {
-		_t, known := goTypeMap[v.Name.Value]
-		if known {
-			st += _t
-		} else {
-			st += v.Name.Value
-		}
-	}
-
-	return st
-}
-
-func (o *ObjectField) ModelTags() string {
-	_gorm := "default:null"
-
-	if o.IsString() {
-		_gorm = fmt.Sprintf("type:varchar(255);comment:'%s';default:null;", o.ToSnakeName())
-	} else if o.IsID() {
-		_gorm = fmt.Sprintf("type:varchar(36);comment:'%s';default:null;", o.ToSnakeName())
-	} else if o.IsInt() {
-		_gorm = fmt.Sprintf("type:bigint(13);comment:'%s';default:null;", o.ToSnakeName())
-	}
-
-	_valid := ""
-
-	if o.Name() == "createdBy" || o.Name() == "updatedBy" || o.Name() == "deletedBy" {
-		_gorm += fmt.Sprintf("index:%s;", o.ToSnakeName())
-	}
-
-	if o.Name() == "createdAt" {
-		_gorm += " autoCreateTime:milli;"
-	}
-
-	if o.Name() == "updatedAt" {
-		_gorm += " autoUpdateTime:milli;"
-	}
-
-	if o.Name() == "id" {
-		_gorm = "type:varchar(36);comment:'uuid';primaryKey;uniqueIndex;NOT NULL;"
-	}
-
-	if o.Name() == "isDelete" {
-		_gorm = "type:int(2);comment:'是否删除：1/正常、2/删除';default:1;index:is_delete;"
-	}
-
-	if o.Name() == "weight" {
-		_gorm = "type:int(11);comment:'权重：用来排序';default:1;index:weight;"
-	}
-
-	if o.Name() == "state" {
-		_gorm = "type:int(2);comment:'状态：1/正常、2/禁用';default:1;index:state;"
-	}
-
-	for _, d := range o.Def.Directives {
-		if d.Name.Value == "column" {
-			for _, arg := range d.Arguments {
-				if arg.Name.Value == "gorm" {
-					_gorm = fmt.Sprintf("%v", arg.Value.GetValue())
-				}
-			}
-		} else if d.Name.Value == "validator" {
-			for _, arg := range d.Arguments {
-				if arg.Value.GetValue() != nil {
-					_valid += fmt.Sprintf("%v", arg.Name.Value+":"+arg.Value.GetValue().(string)+";")
-				}
-			}
-		}
-	}
-
-	str := fmt.Sprintf(`json:"%s" gorm:"%s"`, o.Name(), _gorm)
-
-	if _valid != "" {
-		str = fmt.Sprintf(`json:"%s" gorm:"%s" validator:"%s"`, o.Name(), _gorm, _valid)
-	}
-
-	return str
-}
-
-func (o *ObjectField) GetArgValue(name string) map[string]map[string]string {
-	for _, d := range o.Def.Directives {
-		if d.Name.Value == name && len(d.Arguments) > 0 {
-			argArr := map[string]map[string]string{
-				name: map[string]string{},
-			}
-			for _, child := range d.Arguments {
-				argArr[name][child.Name.Value] = child.Value.GetValue().(string)
-			}
-			return argArr
-		}
-	}
-
-	return map[string]map[string]string{}
-}
-
-var columnMap = map[string]map[string]string{
-	"id": {
-		"comment": "uuid",
-		"type":    "varchar(36)",
-	},
-	"createdAt": {
-		"comment": "创建时间",
-		"type":    "bigint(13)",
-	},
-	"updatedAt": {
-		"comment": "更新时间",
-		"type":    "bigint(13)",
-	},
-	"deletedAt": {
-		"comment": "删除时间",
-		"type":    "bigint(13)",
-	},
-	"deletedBy": {
-		"comment": "删除人",
-		"type":    "varchar(36)",
-	},
-	"updatedBy": {
-		"comment": "更新人",
-		"type":    "varchar(36)",
-	},
-	"createdBy": {
-		"comment": "创建人",
-		"type":    "varchar(36)",
-	},
-	"state": {
-		"comment": "状态：1/正常、2/禁用",
-		"type":    "int(2)",
-	},
-	"weight": {
-		"comment": "权重：用来排序",
-		"type":    "int(2)",
-	},
-	"isDelete": {
-		"comment": "是否删除：1/正常、2/删除",
-		"type":    "int(2)",
-	},
-}
-
-// 获取字段说明
-func (o *ObjectField) GetComment() string {
-	column := o.GetArgValue("column")
-	value := column["column"]["gorm"]
-	str := ""
-	if value != "" {
-		str = RegexpReplace(value, `comment '`, `';`)
-	} else if o.Name() != "id" && o.TargetType() == "ID" {
-		str = o.RelationshipName() + "实例Id"
-	} else {
-		str = columnMap[o.Name()]["comment"]
-	}
-	return str
-}
-
-// 备注说明字段
-func (o *ObjectField) GetRemark() string {
-	str := ""
-
-	column := o.GetArgValue("column")
-	gorm := column["column"]["gorm"]
-
-	if gorm != "" {
-		value := RegexpReplace(gorm, `default:`, `;`)
-		if value != "" {
-			str = "default:" + value
-		}
-	}
-	switch o.Name() {
-	case "id":
-		str = "create方法不是必填"
-	}
-	return str
-}
-
-// 获取字段说明
-func (o *ObjectField) GetType() string {
-	column := o.GetArgValue("column")
-	value := column["column"]["gorm"]
-	str := ""
-
-	if value != "" {
-		str = RegexpReplace(value, `type:`, ` `)
-	} else if o.Name() != "id" && o.TargetType() == "ID" {
-		str = "varchar(36)"
-	} else {
-		str = columnMap[o.Name()]["type"]
-	}
-	return str
-}
-
-// 获取正则验证
-func (o *ObjectField) GetValidator() string {
-	column := o.GetArgValue("validator")
-	value := column["validator"]["type"]
-	str := ""
-	if value != "" {
-		str = value
-	} else {
-		switch o.Name() {
-		case "state":
-			str = "justInt"
-		case "weight":
-			str = "justInt"
-		}
-	}
-	return str
-}
-
-// 获取Arguments
+// Arguments 返回格式化的 GraphQL 参数字符串
 func (o *ObjectField) Arguments() string {
-	argString := ""
-	for key, child := range o.ArgumentsValue() {
+	args := o.ArgumentsValue()
+	if len(args) == 0 {
+		return ""
+	}
 
-		nullType := child.NonNullType()
-
+	var parts []string
+	for _, child := range args {
 		targetType := child.TargetType()
-
 		if child.IsListType() {
 			targetType = "[" + targetType + "]"
 		}
-		if key != len(o.ArgumentsValue())-1 {
-			argString = argString + "$" + child.Name() + ": " + targetType + nullType + ", "
-		} else {
-			argString = argString + "$" + child.Name() + ": " + targetType + nullType
-		}
+		parts = append(parts, "$"+child.Name()+": "+targetType+child.NonNullType())
 	}
 
-	if argString != "" {
-		argString = "(" + argString + ")"
-	}
-
-	return argString
+	return "(" + strings.Join(parts, ", ") + ")"
 }
 
-// 获取Input
+// Inputs 返回格式化的 GraphQL 输入字符串
 func (o *ObjectField) Inputs() string {
-	argString := ""
+	args := o.ArgumentsValue()
+	if len(args) == 0 {
+		return ""
+	}
 
-	for key, child := range o.ArgumentsValue() {
-		if key != len(o.ArgumentsValue())-1 {
-			argString = argString + child.Name() + ": $" + child.Name() + ", "
-		} else {
-			argString = argString + child.Name() + ": $" + child.Name()
+	var parts []string
+	for _, child := range args {
+		parts = append(parts, child.Name()+": $"+child.Name())
+	}
+
+	return "(" + strings.Join(parts, ", ") + ")"
+}
+
+// ============================================================
+// 指令值获取方法
+// ============================================================
+
+// GetArgValue 获取指令的参数值
+func (o *ObjectField) GetArgValue(name string) map[string]map[string]string {
+	for _, d := range o.Def.Directives {
+		if d.Name.Value == name && len(d.Arguments) > 0 {
+			result := map[string]map[string]string{
+				name: {},
+			}
+			for _, arg := range d.Arguments {
+				if val := arg.Value.GetValue(); val != nil {
+					result[name][arg.Name.Value] = val.(string)
+				}
+			}
+			return result
+		}
+	}
+	return map[string]map[string]string{}
+}
+
+// ============================================================
+// 元数据获取方法
+// ============================================================
+
+// GetComment 获取字段的注释说明
+func (o *ObjectField) GetComment() string {
+	column := o.GetArgValue("column")
+	if gormValue := column["column"]["gorm"]; gormValue != "" {
+		return RegexpReplace(gormValue, `comment '`, `';`)
+	}
+
+	// 关系 ID 字段
+	if o.Name() != "id" && o.TargetType() == "ID" {
+		return o.RelationshipName() + "实例Id"
+	}
+
+	// 系统字段
+	if meta, ok := columnMetadata[o.Name()]; ok {
+		return meta.comment
+	}
+
+	return ""
+}
+
+// GetType 获取字段的数据库类型
+func (o *ObjectField) GetType() string {
+	column := o.GetArgValue("column")
+	if gormValue := column["column"]["gorm"]; gormValue != "" {
+		return RegexpReplace(gormValue, `type:`, ` `)
+	}
+
+	// 关系 ID 字段
+	if o.Name() != "id" && o.TargetType() == "ID" {
+		return "varchar(36)"
+	}
+
+	// 系统字段
+	if meta, ok := columnMetadata[o.Name()]; ok {
+		return meta.dbType
+	}
+
+	return ""
+}
+
+// GetRemark 获取字段的备注说明
+func (o *ObjectField) GetRemark() string {
+	column := o.GetArgValue("column")
+	if gormValue := column["column"]["gorm"]; gormValue != "" {
+		if defaultVal := RegexpReplace(gormValue, `default:`, `;`); defaultVal != "" {
+			return "default:" + defaultVal
 		}
 	}
 
-	if argString != "" {
-		argString = "(" + argString + ")"
+	if o.Name() == "id" {
+		return "create方法不是必填"
 	}
 
-	return argString
+	return ""
 }
 
-// 表名
+// GetValidator 获取字段的验证器类型
+func (o *ObjectField) GetValidator() string {
+	column := o.GetArgValue("validator")
+	if validatorType := column["validator"]["type"]; validatorType != "" {
+		return validatorType
+	}
+
+	// 特殊字段的默认验证器
+	switch o.Name() {
+	case "state", "weight":
+		return "justInt"
+	}
+
+	return ""
+}
+
+// GetDefault 获取字段的默认显示设置
+func (o *ObjectField) GetDefault() string {
+	res := o.GetArgValue("entity")
+	return res["entity"]["default"]
+}
+
+// GetTableName 获取实体的表名
+func (o *ObjectField) GetTableName() string {
+	res := o.GetArgValue("entity")
+	return res["entity"]["title"]
+}
+
+// EntityName 获取实体名称
 func (o *ObjectField) EntityName() string {
 	if len(o.Obj.Def.Directives) > 0 && len(o.Obj.Def.Directives[0].Arguments) > 0 {
-		title := o.Obj.Def.Directives[0].Arguments[0].Value.GetValue()
-		return title.(string)
+		if title := o.Obj.Def.Directives[0].Arguments[0].Value.GetValue(); title != nil {
+			return title.(string)
+		}
 	}
 	return o.Name()
 }
 
-// 获取是否默认显示
-func (o *ObjectField) GetDefault() string {
-	res := o.GetArgValue("entity")
-	entity := res["entity"]
+// ============================================================
+// GORM 标签生成
+// ============================================================
 
-	return entity["default"]
+// ModelTags 生成字段的 GORM 模型标签
+func (o *ObjectField) ModelTags() string {
+	gormTag := o.buildGormTag()
+	validTag := o.buildValidatorTag()
+
+	if validTag != "" {
+		return fmt.Sprintf(`json:"%s" gorm:"%s" validator:"%s"`, o.Name(), gormTag, validTag)
+	}
+	return fmt.Sprintf(`json:"%s" gorm:"%s"`, o.Name(), gormTag)
 }
 
-// 获取是否默认显示
-func (o *ObjectField) GetTableName() string {
-	res := o.GetArgValue("entity")
-	entity := res["entity"]
-	return entity["title"]
+// buildGormTag 构建 GORM 标签
+func (o *ObjectField) buildGormTag() string {
+	// 检查自定义 gorm 指令
+	for _, d := range o.Def.Directives {
+		if d.Name.Value == "column" {
+			for _, arg := range d.Arguments {
+				if arg.Name.Value == "gorm" {
+					return fmt.Sprintf("%v", arg.Value.GetValue())
+				}
+			}
+		}
+	}
+
+	// 系统字段的预定义标签
+	name := o.Name()
+	switch name {
+	case "id":
+		return "type:varchar(36);comment:'uuid';primaryKey;uniqueIndex;NOT NULL;"
+	case "isDelete":
+		return "type:int(2);comment:'是否删除：1/正常、2/删除';default:1;index:is_delete;"
+	case "weight":
+		return "type:int(11);comment:'权重：用来排序';default:1;index:weight;"
+	case "state":
+		return "type:int(2);comment:'状态：1/正常、2/禁用';default:1;index:state;"
+	}
+
+	// 构建默认标签
+	gormTag := ""
+	if o.IsString() {
+		gormTag = fmt.Sprintf("type:varchar(255);comment:'%s';default:null;", o.ToSnakeName())
+	} else if o.IsID() {
+		gormTag = fmt.Sprintf("type:varchar(36);comment:'%s';default:null;", o.ToSnakeName())
+	} else if o.IsInt() {
+		gormTag = fmt.Sprintf("type:bigint(13);comment:'%s';default:null;", o.ToSnakeName())
+	} else {
+		gormTag = "default:null"
+	}
+
+	// 索引字段
+	if indexedFields[name] {
+		gormTag += fmt.Sprintf("index:%s;", o.ToSnakeName())
+	}
+
+	// 时间戳字段
+	if name == "createdAt" {
+		gormTag += " autoCreateTime:milli;"
+	} else if name == "updatedAt" {
+		gormTag += " autoUpdateTime:milli;"
+	}
+
+	return gormTag
 }
 
-func (f *FilterMappingItem) IsLike() bool {
-	return f.SuffixCamel() == "Like"
+// buildValidatorTag 构建验证器标签
+func (o *ObjectField) buildValidatorTag() string {
+	var parts []string
+	for _, d := range o.Def.Directives {
+		if d.Name.Value == "validator" {
+			for _, arg := range d.Arguments {
+				if val := arg.Value.GetValue(); val != nil {
+					parts = append(parts, arg.Name.Value+":"+val.(string))
+				}
+			}
+		}
+	}
+	return strings.Join(parts, ";")
 }
 
-func (f *FilterMappingItem) SuffixCamel() string {
-	return strcase.ToCamel(f.Suffix)
-}
+// ============================================================
+// 过滤器映射
+// ============================================================
 
-func (f *FilterMappingItem) WrapValueVariable(v string) string {
-	return fmt.Sprintf(f.ValueFormat, v)
-}
-
+// FilterMappingItem 表示过滤器映射项
 type FilterMappingItem struct {
 	Suffix      string
 	Operator    string
@@ -607,24 +689,89 @@ type FilterMappingItem struct {
 	ValueFormat string
 }
 
+// SuffixCamel 返回后缀的驼峰形式
+func (f *FilterMappingItem) SuffixCamel() string {
+	return strcase.ToCamel(f.Suffix)
+}
+
+// IsLike 判断是否为 LIKE 操作符
+func (f *FilterMappingItem) IsLike() bool {
+	return f.SuffixCamel() == "Like"
+}
+
+// WrapValueVariable 用格式包装值变量
+func (f *FilterMappingItem) WrapValueVariable(v string) string {
+	return fmt.Sprintf(f.ValueFormat, v)
+}
+
+// FilterMapping 返回字段的过滤器映射列表
 func (o *ObjectField) FilterMapping() []FilterMappingItem {
 	t := getNamedType(o.Def.Type)
+
+	// 基础过滤器
 	mapping := []FilterMappingItem{
-		{"", "= ?", t, "%s"},
-		{"_ne", "!= ?", t, "%s"},
-		{"_gt", "> ?", t, "%s"},
-		{"_lt", "< ?", t, "%s"},
-		{"_gte", ">= ?", t, "%s"},
-		{"_lte", "<= ?", t, "%s"},
-		{"_in", "IN (?)", listType(nonNull(t)), "%s"},
+		{Suffix: "", Operator: "= ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_ne", Operator: "!= ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_gt", Operator: "> ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_lt", Operator: "< ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_gte", Operator: ">= ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_lte", Operator: "<= ?", InputType: t, ValueFormat: "%s"},
+		{Suffix: "_in", Operator: "IN (?)", InputType: listType(nonNull(t)), ValueFormat: "%s"},
 	}
-	_t := t.(*ast.Named)
-	if _t.Name.Value == "String" {
+
+	// 字符串类型特有的过滤器
+	if namedType := t.(*ast.Named); namedType.Name.Value == "String" {
 		mapping = append(mapping,
-			FilterMappingItem{"_like", "LIKE ?", t, "strings.Replace(strings.Replace(*%s,\"?\",\"_\",-1),\"*\",\"%%\",-1)"},
-			FilterMappingItem{"_prefix", "LIKE ?", t, "fmt.Sprintf(\"%%s%%%%\",*%s)"},
-			FilterMappingItem{"_suffix", "LIKE ?", t, "fmt.Sprintf(\"%%%%%%s\",*%s)"},
+			FilterMappingItem{
+				Suffix:      "_like",
+				Operator:    "LIKE ?",
+				InputType:   t,
+				ValueFormat: `strings.Replace(strings.Replace(*%s,"?","_",-1),"*","%%",-1)`,
+			},
+			FilterMappingItem{
+				Suffix:      "_prefix",
+				Operator:    "LIKE ?",
+				InputType:   t,
+				ValueFormat: `fmt.Sprintf("%%s%%%%",*%s)`,
+			},
+			FilterMappingItem{
+				Suffix:      "_suffix",
+				Operator:    "LIKE ?",
+				InputType:   t,
+				ValueFormat: `fmt.Sprintf("%%%%%%s",*%s)`,
+			},
 		)
 	}
+
 	return mapping
+}
+
+// ============================================================
+// Model 上的标量和枚举方法
+// ============================================================
+
+// HasScalar 判断模型是否有指定的标量类型
+func (m *Model) HasScalar(name string) bool {
+	if _, ok := defaultScalars[name]; ok {
+		return true
+	}
+	for _, def := range m.Doc.Definitions {
+		if scalar, ok := def.(*ast.ScalarDefinition); ok && scalar.Name.Value == name {
+			return true
+		}
+	}
+	return false
+}
+
+// HasEnum 判断模型是否有指定的枚举类型
+func (m *Model) HasEnum(name string) bool {
+	if _, ok := defaultScalars[name]; ok {
+		return true
+	}
+	for _, def := range m.Doc.Definitions {
+		if enum, ok := def.(*ast.EnumDefinition); ok && enum.Name.Value == name {
+			return true
+		}
+	}
+	return false
 }

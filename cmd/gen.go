@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -47,6 +46,15 @@ func generate(fileDirPath, p string) error {
 	modelSource := `
 		directive @format on FIELD_DEFINITION
 		directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int) on INPUT_FIELD_DEFINITION
+		directive @hasRole(role: Role!) on FIELD_DEFINITION
+		
+		enum Role {
+			ALL
+			ADMIN
+			USER
+			GUEST
+		}
+
 		input FileField {
 			hash: String!
 			file: Upload!
@@ -54,7 +62,7 @@ func generate(fileDirPath, p string) error {
 	`
 	for _, file := range matches {
 		fmt.Println("Appending content from model file", file)
-		source, err := ioutil.ReadFile(file)
+		source, err := os.ReadFile(file)
 		if err != nil {
 			return err
 		}
@@ -121,7 +129,7 @@ func generate(fileDirPath, p string) error {
 
 	schema = "# This schema is generated, please don't update it manually\n\n" + schema
 
-	if err := ioutil.WriteFile(path.Join(p, "gen/schema.graphqls"), []byte(schema), 0644); err != nil {
+	if err := os.WriteFile(path.Join(p, "gen/schema.graphqls"), []byte(schema), 0644); err != nil {
 		return err
 	}
 

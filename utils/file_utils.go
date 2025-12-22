@@ -1,24 +1,20 @@
-/*
- * @Author: Marlon.M
- * @Email: maiguangyang@163.com
- * @Date: 2024-09-24 17:15:17
- */
 package utils
 
 import "os"
 
-func CreateDirIfNotExists(dir string) {
+// EnsureDir ensures that a directory exists, creating it if necessary.
+func EnsureDir(dir string) error {
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.Mkdir(dir, 0777)
-		if err != nil {
-			panic(err)
-		}
+		return os.MkdirAll(dir, 0755)
 	}
+	return nil
 }
 
+// FileExists checks if a file exists.
 func FileExists(filename string) bool {
-	if _, err := os.Stat(filename); !os.IsNotExist(err) {
-		return true
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
 	}
-	return false
+	return !info.IsDir()
 }

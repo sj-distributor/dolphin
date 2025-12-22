@@ -401,6 +401,9 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 	{{range $rel := .Relationships}}
 	{{if $rel.IsToOne}}
@@ -434,6 +437,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 			item.{{$rel.MethodName}}ID = &v.ID
 			newItem.{{$rel.MethodName}}ID = &v.ID
 			{{end}}
+			changedFields = append(changedFields, "{{$rel.ToSnakeRelationshipName}}_id")
 			isChange = true
 		} else {
 			// 创建新关联对象
@@ -458,6 +462,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 			item.{{$rel.MethodName}}ID = &v.ID
 			newItem.{{$rel.MethodName}}ID = &v.ID
 			{{end}}
+			changedFields = append(changedFields, "{{$rel.ToSnakeRelationshipName}}_id")
 			isChange = true
 		}
 	}
@@ -466,30 +471,41 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 	{{end}}
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
+	
 	{{range $col := .Columns}}
 	{{if and (not $col.IsHasUpperId) $col.IsUpdatable}}
-	{{if $col.IsOptional}}
-	if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}) && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}) && !utils.IsEmpty(input["{{$col.Name}}"]) {
-	{{else}}
-	if _, ok := input["{{$col.Name}}"]; ok && (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-	{{end}}
-		{{if $col.IsRelationshipIdentifier}}
-		if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
-			return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+	if _, ok := input["{{$col.Name}}"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} && (item.{{$col.MethodName}} == nil || changes.{{$col.MethodName}} == nil || *item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
+			{{if $col.IsRelationshipIdentifier}}
+			if !utils.IsNil(input["{{$col.Name}}"]) {
+				if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
+					return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+				}
+			}
+			{{end}}
+			
+			event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
+			event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
+			
+			item.{{$col.MethodName}} = changes.{{$col.MethodName}}
+			newItem.{{$col.MethodName}} = changes.{{$col.MethodName}}
+			changedFields = append(changedFields, "{{$col.ToSnakeName}}")
+			isChange = true
 		}
-		{{end}}
-		event.AddOldValue("{{$col.Name}}", item.{{$col.MethodName}})
-		event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
-		item.{{$col.MethodName}} = changes.{{$col.MethodName}}
-		newItem.{{$col.MethodName}} = changes.{{$col.MethodName}}
-		isChange = true
 	}
 	{{end}}
 	{{end}}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("{{$obj.TableName}}", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("{{$obj.TableName}}", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}

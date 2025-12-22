@@ -11,6 +11,7 @@ import (
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/sj-distributor/dolphin/templates"
 	"github.com/sj-distributor/dolphin/tools"
+	"github.com/sj-distributor/dolphin/utils"
 	"github.com/urfave/cli"
 )
 
@@ -79,7 +80,9 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
-	ensureDir(path.Join(p, "gen"))
+	if err := utils.EnsureDir(path.Join(p, "gen")); err != nil {
+		return err
+	}
 
 	err = model.EnrichModelObjects(&m)
 	if err != nil {
@@ -248,7 +251,9 @@ func createUtilsFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "utils"))
+	if err := utils.EnsureDir(path.Join(p, "utils")); err != nil {
+		return err
+	}
 	if err := templates.WriteTemplate(templates.ResolverSrcUtils, path.Join(p, "utils/utils.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
@@ -265,13 +270,4 @@ func createUtilsFile(p string) error {
 	}
 
 	return nil
-}
-
-func ensureDir(dir string) {
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		err = os.MkdirAll(dir, 0777)
-		if err != nil {
-			panic(err)
-		}
-	}
 }

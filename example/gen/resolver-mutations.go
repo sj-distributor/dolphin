@@ -527,6 +527,9 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 
 	// ---------- OneToOne: profile ----------
@@ -555,6 +558,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			item.ProfileID = &v.ID
 			newItem.ProfileID = &v.ID
 
+			changedFields = append(changedFields, "user_id")
 			isChange = true
 		} else {
 			// 创建新关联对象
@@ -576,109 +580,168 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 			item.ProfileID = &v.ID
 			newItem.ProfileID = &v.ID
 
+			changedFields = append(changedFields, "user_id")
 			isChange = true
 		}
 	}
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
 
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+	if _, ok := input["id"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.ID != changes.ID {
 
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
-		newItem.ID = changes.ID
-		isChange = true
-	}
+			event.AddOldValue("id", item.ID)
+			event.AddNewValue("id", changes.ID)
 
-	if _, ok := input["phone"]; ok && (item.Phone != changes.Phone) {
-
-		event.AddOldValue("phone", item.Phone)
-		event.AddNewValue("phone", changes.Phone)
-		item.Phone = changes.Phone
-		newItem.Phone = changes.Phone
-		isChange = true
-	}
-
-	if _, ok := input["password"]; ok && (item.Password != changes.Password) {
-
-		event.AddOldValue("password", item.Password)
-		event.AddNewValue("password", changes.Password)
-		item.Password = changes.Password
-		newItem.Password = changes.Password
-		isChange = true
-	}
-
-	if _, ok := input["email"]; ok && (item.Email != changes.Email) && (item.Email == nil || changes.Email == nil || *item.Email != *changes.Email) && !utils.IsEmpty(input["email"]) {
-
-		event.AddOldValue("email", item.Email)
-		event.AddNewValue("email", changes.Email)
-		item.Email = changes.Email
-		newItem.Email = changes.Email
-		isChange = true
-	}
-
-	if _, ok := input["nickname"]; ok && (item.Nickname != changes.Nickname) && (item.Nickname == nil || changes.Nickname == nil || *item.Nickname != *changes.Nickname) && !utils.IsEmpty(input["nickname"]) {
-
-		event.AddOldValue("nickname", item.Nickname)
-		event.AddNewValue("nickname", changes.Nickname)
-		item.Nickname = changes.Nickname
-		newItem.Nickname = changes.Nickname
-		isChange = true
-	}
-
-	if _, ok := input["age"]; ok && (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) && !utils.IsEmpty(input["age"]) {
-
-		event.AddOldValue("age", item.Age)
-		event.AddNewValue("age", changes.Age)
-		item.Age = changes.Age
-		newItem.Age = changes.Age
-		isChange = true
-	}
-
-	if _, ok := input["profileId"]; ok && (item.ProfileID != changes.ProfileID) && (item.ProfileID == nil || changes.ProfileID == nil || *item.ProfileID != *changes.ProfileID) && !utils.IsEmpty(input["profileId"]) {
-
-		if err := tx.Select("id").Where("id = ?", input["profileId"]).First(&Profile{}).Error; err != nil {
-			return nil, fmt.Errorf("profileId " + err.Error())
+			item.ID = changes.ID
+			newItem.ID = changes.ID
+			changedFields = append(changedFields, "id")
+			isChange = true
 		}
-
-		event.AddOldValue("profileId", item.ProfileID)
-		event.AddNewValue("profileId", changes.ProfileID)
-		item.ProfileID = changes.ProfileID
-		newItem.ProfileID = changes.ProfileID
-		isChange = true
 	}
 
-	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) && !utils.IsEmpty(input["isDelete"]) {
+	if _, ok := input["phone"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.Phone != changes.Phone {
 
-		event.AddOldValue("isDelete", item.IsDelete)
-		event.AddNewValue("isDelete", changes.IsDelete)
-		item.IsDelete = changes.IsDelete
-		newItem.IsDelete = changes.IsDelete
-		isChange = true
+			event.AddOldValue("phone", item.Phone)
+			event.AddNewValue("phone", changes.Phone)
+
+			item.Phone = changes.Phone
+			newItem.Phone = changes.Phone
+			changedFields = append(changedFields, "phone")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["weight"]; ok && (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) && !utils.IsEmpty(input["weight"]) {
+	if _, ok := input["password"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.Password != changes.Password {
 
-		event.AddOldValue("weight", item.Weight)
-		event.AddNewValue("weight", changes.Weight)
-		item.Weight = changes.Weight
-		newItem.Weight = changes.Weight
-		isChange = true
+			event.AddOldValue("password", item.Password)
+			event.AddNewValue("password", changes.Password)
+
+			item.Password = changes.Password
+			newItem.Password = changes.Password
+			changedFields = append(changedFields, "password")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["state"]; ok && (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) && !utils.IsEmpty(input["state"]) {
+	if _, ok := input["email"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Email != changes.Email) && (item.Email == nil || changes.Email == nil || *item.Email != *changes.Email) {
 
-		event.AddOldValue("state", item.State)
-		event.AddNewValue("state", changes.State)
-		item.State = changes.State
-		newItem.State = changes.State
-		isChange = true
+			event.AddOldValue("email", item.Email)
+			event.AddNewValue("email", changes.Email)
+
+			item.Email = changes.Email
+			newItem.Email = changes.Email
+			changedFields = append(changedFields, "email")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["nickname"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Nickname != changes.Nickname) && (item.Nickname == nil || changes.Nickname == nil || *item.Nickname != *changes.Nickname) {
+
+			event.AddOldValue("nickname", item.Nickname)
+			event.AddNewValue("nickname", changes.Nickname)
+
+			item.Nickname = changes.Nickname
+			newItem.Nickname = changes.Nickname
+			changedFields = append(changedFields, "nickname")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["age"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Age != changes.Age) && (item.Age == nil || changes.Age == nil || *item.Age != *changes.Age) {
+
+			event.AddOldValue("age", item.Age)
+			event.AddNewValue("age", changes.Age)
+
+			item.Age = changes.Age
+			newItem.Age = changes.Age
+			changedFields = append(changedFields, "age")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["profileId"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.ProfileID != changes.ProfileID) && (item.ProfileID == nil || changes.ProfileID == nil || *item.ProfileID != *changes.ProfileID) {
+
+			if !utils.IsNil(input["profileId"]) {
+				if err := tx.Select("id").Where("id = ?", input["profileId"]).First(&Profile{}).Error; err != nil {
+					return nil, fmt.Errorf("profileId " + err.Error())
+				}
+			}
+
+			event.AddOldValue("profileId", item.ProfileID)
+			event.AddNewValue("profileId", changes.ProfileID)
+
+			item.ProfileID = changes.ProfileID
+			newItem.ProfileID = changes.ProfileID
+			changedFields = append(changedFields, "profile_id")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["isDelete"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
+
+			event.AddOldValue("isDelete", item.IsDelete)
+			event.AddNewValue("isDelete", changes.IsDelete)
+
+			item.IsDelete = changes.IsDelete
+			newItem.IsDelete = changes.IsDelete
+			changedFields = append(changedFields, "is_delete")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["weight"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) {
+
+			event.AddOldValue("weight", item.Weight)
+			event.AddNewValue("weight", changes.Weight)
+
+			item.Weight = changes.Weight
+			newItem.Weight = changes.Weight
+			changedFields = append(changedFields, "weight")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["state"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) {
+
+			event.AddOldValue("state", item.State)
+			event.AddNewValue("state", changes.State)
+
+			item.State = changes.State
+			newItem.State = changes.State
+			changedFields = append(changedFields, "state")
+			isChange = true
+		}
 	}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("users", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("users", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}
@@ -1286,6 +1349,9 @@ func UpdateProfileHandler(ctx context.Context, r *GeneratedResolver, id string, 
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 
 	// ---------- OneToOne: user ----------
@@ -1314,6 +1380,7 @@ func UpdateProfileHandler(ctx context.Context, r *GeneratedResolver, id string, 
 			item.UserID = v.ID
 			newItem.UserID = v.ID
 
+			changedFields = append(changedFields, "profile_id")
 			isChange = true
 		} else {
 			// 创建新关联对象
@@ -1335,100 +1402,154 @@ func UpdateProfileHandler(ctx context.Context, r *GeneratedResolver, id string, 
 			item.UserID = v.ID
 			newItem.UserID = v.ID
 
+			changedFields = append(changedFields, "profile_id")
 			isChange = true
 		}
 	}
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
 
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+	if _, ok := input["id"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.ID != changes.ID {
 
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
-		newItem.ID = changes.ID
-		isChange = true
-	}
+			event.AddOldValue("id", item.ID)
+			event.AddNewValue("id", changes.ID)
 
-	if _, ok := input["avatar"]; ok && (item.Avatar != changes.Avatar) && (item.Avatar == nil || changes.Avatar == nil || *item.Avatar != *changes.Avatar) && !utils.IsEmpty(input["avatar"]) {
-
-		event.AddOldValue("avatar", item.Avatar)
-		event.AddNewValue("avatar", changes.Avatar)
-		item.Avatar = changes.Avatar
-		newItem.Avatar = changes.Avatar
-		isChange = true
-	}
-
-	if _, ok := input["bio"]; ok && (item.Bio != changes.Bio) && (item.Bio == nil || changes.Bio == nil || *item.Bio != *changes.Bio) && !utils.IsEmpty(input["bio"]) {
-
-		event.AddOldValue("bio", item.Bio)
-		event.AddNewValue("bio", changes.Bio)
-		item.Bio = changes.Bio
-		newItem.Bio = changes.Bio
-		isChange = true
-	}
-
-	if _, ok := input["birthday"]; ok && (item.Birthday != changes.Birthday) && (item.Birthday == nil || changes.Birthday == nil || *item.Birthday != *changes.Birthday) && !utils.IsEmpty(input["birthday"]) {
-
-		event.AddOldValue("birthday", item.Birthday)
-		event.AddNewValue("birthday", changes.Birthday)
-		item.Birthday = changes.Birthday
-		newItem.Birthday = changes.Birthday
-		isChange = true
-	}
-
-	if _, ok := input["address"]; ok && (item.Address != changes.Address) && (item.Address == nil || changes.Address == nil || *item.Address != *changes.Address) && !utils.IsEmpty(input["address"]) {
-
-		event.AddOldValue("address", item.Address)
-		event.AddNewValue("address", changes.Address)
-		item.Address = changes.Address
-		newItem.Address = changes.Address
-		isChange = true
-	}
-
-	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) {
-
-		if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
-			return nil, fmt.Errorf("userId " + err.Error())
+			item.ID = changes.ID
+			newItem.ID = changes.ID
+			changedFields = append(changedFields, "id")
+			isChange = true
 		}
-
-		event.AddOldValue("userId", item.UserID)
-		event.AddNewValue("userId", changes.UserID)
-		item.UserID = changes.UserID
-		newItem.UserID = changes.UserID
-		isChange = true
 	}
 
-	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) && !utils.IsEmpty(input["isDelete"]) {
+	if _, ok := input["avatar"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Avatar != changes.Avatar) && (item.Avatar == nil || changes.Avatar == nil || *item.Avatar != *changes.Avatar) {
 
-		event.AddOldValue("isDelete", item.IsDelete)
-		event.AddNewValue("isDelete", changes.IsDelete)
-		item.IsDelete = changes.IsDelete
-		newItem.IsDelete = changes.IsDelete
-		isChange = true
+			event.AddOldValue("avatar", item.Avatar)
+			event.AddNewValue("avatar", changes.Avatar)
+
+			item.Avatar = changes.Avatar
+			newItem.Avatar = changes.Avatar
+			changedFields = append(changedFields, "avatar")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["weight"]; ok && (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) && !utils.IsEmpty(input["weight"]) {
+	if _, ok := input["bio"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Bio != changes.Bio) && (item.Bio == nil || changes.Bio == nil || *item.Bio != *changes.Bio) {
 
-		event.AddOldValue("weight", item.Weight)
-		event.AddNewValue("weight", changes.Weight)
-		item.Weight = changes.Weight
-		newItem.Weight = changes.Weight
-		isChange = true
+			event.AddOldValue("bio", item.Bio)
+			event.AddNewValue("bio", changes.Bio)
+
+			item.Bio = changes.Bio
+			newItem.Bio = changes.Bio
+			changedFields = append(changedFields, "bio")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["state"]; ok && (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) && !utils.IsEmpty(input["state"]) {
+	if _, ok := input["birthday"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Birthday != changes.Birthday) && (item.Birthday == nil || changes.Birthday == nil || *item.Birthday != *changes.Birthday) {
 
-		event.AddOldValue("state", item.State)
-		event.AddNewValue("state", changes.State)
-		item.State = changes.State
-		newItem.State = changes.State
-		isChange = true
+			event.AddOldValue("birthday", item.Birthday)
+			event.AddNewValue("birthday", changes.Birthday)
+
+			item.Birthday = changes.Birthday
+			newItem.Birthday = changes.Birthday
+			changedFields = append(changedFields, "birthday")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["address"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Address != changes.Address) && (item.Address == nil || changes.Address == nil || *item.Address != *changes.Address) {
+
+			event.AddOldValue("address", item.Address)
+			event.AddNewValue("address", changes.Address)
+
+			item.Address = changes.Address
+			newItem.Address = changes.Address
+			changedFields = append(changedFields, "address")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["userId"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.UserID != changes.UserID {
+
+			if !utils.IsNil(input["userId"]) {
+				if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
+					return nil, fmt.Errorf("userId " + err.Error())
+				}
+			}
+
+			event.AddOldValue("userId", item.UserID)
+			event.AddNewValue("userId", changes.UserID)
+
+			item.UserID = changes.UserID
+			newItem.UserID = changes.UserID
+			changedFields = append(changedFields, "user_id")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["isDelete"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
+
+			event.AddOldValue("isDelete", item.IsDelete)
+			event.AddNewValue("isDelete", changes.IsDelete)
+
+			item.IsDelete = changes.IsDelete
+			newItem.IsDelete = changes.IsDelete
+			changedFields = append(changedFields, "is_delete")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["weight"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) {
+
+			event.AddOldValue("weight", item.Weight)
+			event.AddNewValue("weight", changes.Weight)
+
+			item.Weight = changes.Weight
+			newItem.Weight = changes.Weight
+			changedFields = append(changedFields, "weight")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["state"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) {
+
+			event.AddOldValue("state", item.State)
+			event.AddNewValue("state", changes.State)
+
+			item.State = changes.State
+			newItem.State = changes.State
+			changedFields = append(changedFields, "state")
+			isChange = true
+		}
 	}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("profiles", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("profiles", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}
@@ -1899,107 +2020,168 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
 
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+	if _, ok := input["id"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.ID != changes.ID {
 
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
-		newItem.ID = changes.ID
-		isChange = true
-	}
+			event.AddOldValue("id", item.ID)
+			event.AddNewValue("id", changes.ID)
 
-	if _, ok := input["title"]; ok && (item.Title != changes.Title) {
-
-		event.AddOldValue("title", item.Title)
-		event.AddNewValue("title", changes.Title)
-		item.Title = changes.Title
-		newItem.Title = changes.Title
-		isChange = true
-	}
-
-	if _, ok := input["description"]; ok && (item.Description != changes.Description) && (item.Description == nil || changes.Description == nil || *item.Description != *changes.Description) && !utils.IsEmpty(input["description"]) {
-
-		event.AddOldValue("description", item.Description)
-		event.AddNewValue("description", changes.Description)
-		item.Description = changes.Description
-		newItem.Description = changes.Description
-		isChange = true
-	}
-
-	if _, ok := input["completed"]; ok && (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) && !utils.IsEmpty(input["completed"]) {
-
-		event.AddOldValue("completed", item.Completed)
-		event.AddNewValue("completed", changes.Completed)
-		item.Completed = changes.Completed
-		newItem.Completed = changes.Completed
-		isChange = true
-	}
-
-	if _, ok := input["dueDate"]; ok && (item.DueDate != changes.DueDate) && (item.DueDate == nil || changes.DueDate == nil || *item.DueDate != *changes.DueDate) && !utils.IsEmpty(input["dueDate"]) {
-
-		event.AddOldValue("dueDate", item.DueDate)
-		event.AddNewValue("dueDate", changes.DueDate)
-		item.DueDate = changes.DueDate
-		newItem.DueDate = changes.DueDate
-		isChange = true
-	}
-
-	if _, ok := input["priority"]; ok && (item.Priority != changes.Priority) && (item.Priority == nil || changes.Priority == nil || *item.Priority != *changes.Priority) && !utils.IsEmpty(input["priority"]) {
-
-		event.AddOldValue("priority", item.Priority)
-		event.AddNewValue("priority", changes.Priority)
-		item.Priority = changes.Priority
-		newItem.Priority = changes.Priority
-		isChange = true
-	}
-
-	if _, ok := input["userId"]; ok && (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) && !utils.IsEmpty(input["userId"]) {
-
-		if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
-			return nil, fmt.Errorf("userId " + err.Error())
+			item.ID = changes.ID
+			newItem.ID = changes.ID
+			changedFields = append(changedFields, "id")
+			isChange = true
 		}
-
-		event.AddOldValue("userId", item.UserID)
-		event.AddNewValue("userId", changes.UserID)
-		item.UserID = changes.UserID
-		newItem.UserID = changes.UserID
-		isChange = true
 	}
 
-	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) && !utils.IsEmpty(input["isDelete"]) {
+	if _, ok := input["title"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.Title != changes.Title {
 
-		event.AddOldValue("isDelete", item.IsDelete)
-		event.AddNewValue("isDelete", changes.IsDelete)
-		item.IsDelete = changes.IsDelete
-		newItem.IsDelete = changes.IsDelete
-		isChange = true
+			event.AddOldValue("title", item.Title)
+			event.AddNewValue("title", changes.Title)
+
+			item.Title = changes.Title
+			newItem.Title = changes.Title
+			changedFields = append(changedFields, "title")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["weight"]; ok && (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) && !utils.IsEmpty(input["weight"]) {
+	if _, ok := input["description"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Description != changes.Description) && (item.Description == nil || changes.Description == nil || *item.Description != *changes.Description) {
 
-		event.AddOldValue("weight", item.Weight)
-		event.AddNewValue("weight", changes.Weight)
-		item.Weight = changes.Weight
-		newItem.Weight = changes.Weight
-		isChange = true
+			event.AddOldValue("description", item.Description)
+			event.AddNewValue("description", changes.Description)
+
+			item.Description = changes.Description
+			newItem.Description = changes.Description
+			changedFields = append(changedFields, "description")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["state"]; ok && (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) && !utils.IsEmpty(input["state"]) {
+	if _, ok := input["completed"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Completed != changes.Completed) && (item.Completed == nil || changes.Completed == nil || *item.Completed != *changes.Completed) {
 
-		event.AddOldValue("state", item.State)
-		event.AddNewValue("state", changes.State)
-		item.State = changes.State
-		newItem.State = changes.State
-		isChange = true
+			event.AddOldValue("completed", item.Completed)
+			event.AddNewValue("completed", changes.Completed)
+
+			item.Completed = changes.Completed
+			newItem.Completed = changes.Completed
+			changedFields = append(changedFields, "completed")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["dueDate"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.DueDate != changes.DueDate) && (item.DueDate == nil || changes.DueDate == nil || *item.DueDate != *changes.DueDate) {
+
+			event.AddOldValue("dueDate", item.DueDate)
+			event.AddNewValue("dueDate", changes.DueDate)
+
+			item.DueDate = changes.DueDate
+			newItem.DueDate = changes.DueDate
+			changedFields = append(changedFields, "due_date")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["priority"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Priority != changes.Priority) && (item.Priority == nil || changes.Priority == nil || *item.Priority != *changes.Priority) {
+
+			event.AddOldValue("priority", item.Priority)
+			event.AddNewValue("priority", changes.Priority)
+
+			item.Priority = changes.Priority
+			newItem.Priority = changes.Priority
+			changedFields = append(changedFields, "priority")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["userId"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.UserID != changes.UserID) && (item.UserID == nil || changes.UserID == nil || *item.UserID != *changes.UserID) {
+
+			if !utils.IsNil(input["userId"]) {
+				if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
+					return nil, fmt.Errorf("userId " + err.Error())
+				}
+			}
+
+			event.AddOldValue("userId", item.UserID)
+			event.AddNewValue("userId", changes.UserID)
+
+			item.UserID = changes.UserID
+			newItem.UserID = changes.UserID
+			changedFields = append(changedFields, "user_id")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["isDelete"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
+
+			event.AddOldValue("isDelete", item.IsDelete)
+			event.AddNewValue("isDelete", changes.IsDelete)
+
+			item.IsDelete = changes.IsDelete
+			newItem.IsDelete = changes.IsDelete
+			changedFields = append(changedFields, "is_delete")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["weight"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) {
+
+			event.AddOldValue("weight", item.Weight)
+			event.AddNewValue("weight", changes.Weight)
+
+			item.Weight = changes.Weight
+			newItem.Weight = changes.Weight
+			changedFields = append(changedFields, "weight")
+			isChange = true
+		}
+	}
+
+	if _, ok := input["state"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) {
+
+			event.AddOldValue("state", item.State)
+			event.AddNewValue("state", changes.State)
+
+			item.State = changes.State
+			newItem.State = changes.State
+			changedFields = append(changedFields, "state")
+			isChange = true
+		}
 	}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("tasks", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("tasks", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}
@@ -2527,76 +2709,120 @@ func UpdateUserRoleHandler(ctx context.Context, r *GeneratedResolver, id string,
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
 
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+	if _, ok := input["id"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.ID != changes.ID {
 
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
-		newItem.ID = changes.ID
-		isChange = true
+			event.AddOldValue("id", item.ID)
+			event.AddNewValue("id", changes.ID)
+
+			item.ID = changes.ID
+			newItem.ID = changes.ID
+			changedFields = append(changedFields, "id")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["name"]; ok && (item.Name != changes.Name) {
+	if _, ok := input["name"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.Name != changes.Name {
 
-		event.AddOldValue("name", item.Name)
-		event.AddNewValue("name", changes.Name)
-		item.Name = changes.Name
-		newItem.Name = changes.Name
-		isChange = true
+			event.AddOldValue("name", item.Name)
+			event.AddNewValue("name", changes.Name)
+
+			item.Name = changes.Name
+			newItem.Name = changes.Name
+			changedFields = append(changedFields, "name")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["description"]; ok && (item.Description != changes.Description) && (item.Description == nil || changes.Description == nil || *item.Description != *changes.Description) && !utils.IsEmpty(input["description"]) {
+	if _, ok := input["description"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Description != changes.Description) && (item.Description == nil || changes.Description == nil || *item.Description != *changes.Description) {
 
-		event.AddOldValue("description", item.Description)
-		event.AddNewValue("description", changes.Description)
-		item.Description = changes.Description
-		newItem.Description = changes.Description
-		isChange = true
+			event.AddOldValue("description", item.Description)
+			event.AddNewValue("description", changes.Description)
+
+			item.Description = changes.Description
+			newItem.Description = changes.Description
+			changedFields = append(changedFields, "description")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["permissions"]; ok && (item.Permissions != changes.Permissions) && (item.Permissions == nil || changes.Permissions == nil || *item.Permissions != *changes.Permissions) && !utils.IsEmpty(input["permissions"]) {
+	if _, ok := input["permissions"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Permissions != changes.Permissions) && (item.Permissions == nil || changes.Permissions == nil || *item.Permissions != *changes.Permissions) {
 
-		event.AddOldValue("permissions", item.Permissions)
-		event.AddNewValue("permissions", changes.Permissions)
-		item.Permissions = changes.Permissions
-		newItem.Permissions = changes.Permissions
-		isChange = true
+			event.AddOldValue("permissions", item.Permissions)
+			event.AddNewValue("permissions", changes.Permissions)
+
+			item.Permissions = changes.Permissions
+			newItem.Permissions = changes.Permissions
+			changedFields = append(changedFields, "permissions")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) && !utils.IsEmpty(input["isDelete"]) {
+	if _, ok := input["isDelete"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
 
-		event.AddOldValue("isDelete", item.IsDelete)
-		event.AddNewValue("isDelete", changes.IsDelete)
-		item.IsDelete = changes.IsDelete
-		newItem.IsDelete = changes.IsDelete
-		isChange = true
+			event.AddOldValue("isDelete", item.IsDelete)
+			event.AddNewValue("isDelete", changes.IsDelete)
+
+			item.IsDelete = changes.IsDelete
+			newItem.IsDelete = changes.IsDelete
+			changedFields = append(changedFields, "is_delete")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["weight"]; ok && (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) && !utils.IsEmpty(input["weight"]) {
+	if _, ok := input["weight"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) {
 
-		event.AddOldValue("weight", item.Weight)
-		event.AddNewValue("weight", changes.Weight)
-		item.Weight = changes.Weight
-		newItem.Weight = changes.Weight
-		isChange = true
+			event.AddOldValue("weight", item.Weight)
+			event.AddNewValue("weight", changes.Weight)
+
+			item.Weight = changes.Weight
+			newItem.Weight = changes.Weight
+			changedFields = append(changedFields, "weight")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["state"]; ok && (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) && !utils.IsEmpty(input["state"]) {
+	if _, ok := input["state"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) {
 
-		event.AddOldValue("state", item.State)
-		event.AddNewValue("state", changes.State)
-		item.State = changes.State
-		newItem.State = changes.State
-		isChange = true
+			event.AddOldValue("state", item.State)
+			event.AddNewValue("state", changes.State)
+
+			item.State = changes.State
+			newItem.State = changes.State
+			changedFields = append(changedFields, "state")
+			isChange = true
+		}
 	}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("user_roles", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("user_roles", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}
@@ -3114,67 +3340,106 @@ func UpdateTagHandler(ctx context.Context, r *GeneratedResolver, id string, inpu
 		newItem.UpdatedBy = principalID
 	}
 
+	// 字段变更追踪
+	changedFields := []string{}
+
 	// ========== 处理 ManyToOne/OneToOne 关系 ==========
 
 	// ========== 处理普通字段 ==========
+	// changedFields := []string{} (Moved to top)
 
-	if _, ok := input["id"]; ok && (item.ID != changes.ID) {
+	if _, ok := input["id"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.ID != changes.ID {
 
-		event.AddOldValue("id", item.ID)
-		event.AddNewValue("id", changes.ID)
-		item.ID = changes.ID
-		newItem.ID = changes.ID
-		isChange = true
+			event.AddOldValue("id", item.ID)
+			event.AddNewValue("id", changes.ID)
+
+			item.ID = changes.ID
+			newItem.ID = changes.ID
+			changedFields = append(changedFields, "id")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["name"]; ok && (item.Name != changes.Name) {
+	if _, ok := input["name"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if item.Name != changes.Name {
 
-		event.AddOldValue("name", item.Name)
-		event.AddNewValue("name", changes.Name)
-		item.Name = changes.Name
-		newItem.Name = changes.Name
-		isChange = true
+			event.AddOldValue("name", item.Name)
+			event.AddNewValue("name", changes.Name)
+
+			item.Name = changes.Name
+			newItem.Name = changes.Name
+			changedFields = append(changedFields, "name")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["color"]; ok && (item.Color != changes.Color) && (item.Color == nil || changes.Color == nil || *item.Color != *changes.Color) && !utils.IsEmpty(input["color"]) {
+	if _, ok := input["color"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Color != changes.Color) && (item.Color == nil || changes.Color == nil || *item.Color != *changes.Color) {
 
-		event.AddOldValue("color", item.Color)
-		event.AddNewValue("color", changes.Color)
-		item.Color = changes.Color
-		newItem.Color = changes.Color
-		isChange = true
+			event.AddOldValue("color", item.Color)
+			event.AddNewValue("color", changes.Color)
+
+			item.Color = changes.Color
+			newItem.Color = changes.Color
+			changedFields = append(changedFields, "color")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["isDelete"]; ok && (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) && !utils.IsEmpty(input["isDelete"]) {
+	if _, ok := input["isDelete"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.IsDelete != changes.IsDelete) && (item.IsDelete == nil || changes.IsDelete == nil || *item.IsDelete != *changes.IsDelete) {
 
-		event.AddOldValue("isDelete", item.IsDelete)
-		event.AddNewValue("isDelete", changes.IsDelete)
-		item.IsDelete = changes.IsDelete
-		newItem.IsDelete = changes.IsDelete
-		isChange = true
+			event.AddOldValue("isDelete", item.IsDelete)
+			event.AddNewValue("isDelete", changes.IsDelete)
+
+			item.IsDelete = changes.IsDelete
+			newItem.IsDelete = changes.IsDelete
+			changedFields = append(changedFields, "is_delete")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["weight"]; ok && (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) && !utils.IsEmpty(input["weight"]) {
+	if _, ok := input["weight"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.Weight != changes.Weight) && (item.Weight == nil || changes.Weight == nil || *item.Weight != *changes.Weight) {
 
-		event.AddOldValue("weight", item.Weight)
-		event.AddNewValue("weight", changes.Weight)
-		item.Weight = changes.Weight
-		newItem.Weight = changes.Weight
-		isChange = true
+			event.AddOldValue("weight", item.Weight)
+			event.AddNewValue("weight", changes.Weight)
+
+			item.Weight = changes.Weight
+			newItem.Weight = changes.Weight
+			changedFields = append(changedFields, "weight")
+			isChange = true
+		}
 	}
 
-	if _, ok := input["state"]; ok && (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) && !utils.IsEmpty(input["state"]) {
+	if _, ok := input["state"]; ok {
+		// 只要 input 中包含该字段，且值发生了变化（包括变为 null），就进行更新
+		if (item.State != changes.State) && (item.State == nil || changes.State == nil || *item.State != *changes.State) {
 
-		event.AddOldValue("state", item.State)
-		event.AddNewValue("state", changes.State)
-		item.State = changes.State
-		newItem.State = changes.State
-		isChange = true
+			event.AddOldValue("state", item.State)
+			event.AddNewValue("state", changes.State)
+
+			item.State = changes.State
+			newItem.State = changes.State
+			changedFields = append(changedFields, "state")
+			isChange = true
+		}
 	}
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		if err := tx.Table(TableName("tags", ctx)).Where("id = ?", id).Updates(newItem).Error; err != nil {
+		// 如果有更新 UpdatedBy，也需要添加到 Select 中
+		if newItem.UpdatedBy != nil {
+			changedFields = append(changedFields, "updated_by")
+		}
+
+		if err := tx.Table(TableName("tags", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
 		}
 	}

@@ -12,6 +12,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/sj-distributor/dolphin/templates"
+	"github.com/sj-distributor/dolphin/utils"
 	"github.com/urfave/cli"
 	"gopkg.in/yaml.v2"
 )
@@ -24,13 +25,13 @@ var initCmd = cli.Command{
 
 		fmt.Printf("Initializing project in %s\n", p)
 
-		if !fileExists(path.Join(p, model.YmlFileName)) {
+		if !utils.FileExists(path.Join(p, model.YmlFileName)) {
 			if err := createYamlFile(p, ctx.Args().First()); err != nil {
 				return cli.NewExitError(err, 1)
 			}
 		}
 
-		if !fileExists(path.Join(p, "model.graphql")) {
+		if !utils.FileExists(path.Join(p, "model.graphql")) {
 			if err := createDummyModelFile(p); err != nil {
 				return cli.NewExitError(err, 1)
 			}
@@ -72,7 +73,7 @@ var initCmd = cli.Command{
 		// 	return cli.NewExitError(err, 1)
 		// }
 
-		if !fileExists(path.Join(p, "go.mod")) {
+		if !utils.FileExists(path.Join(p, "go.mod")) {
 			if err := initModules(p); err != nil {
 				return cli.NewExitError(err, 1)
 			}
@@ -89,13 +90,6 @@ var initCmd = cli.Command{
 
 		return nil
 	},
-}
-
-func fileExists(filename string) bool {
-	if _, err := os.Stat(filename); !os.IsNotExist(err) {
-		return true
-	}
-	return false
 }
 
 func createYamlFile(p, isAuto string) error {
@@ -139,7 +133,9 @@ func createMainFile(p string) error {
 
 func createDummyModelFile(p string) error {
 	data := templates.TemplateData{Model: nil, Config: nil}
-	ensureDir(path.Join(p, "model"))
+	if err := utils.EnsureDir(path.Join(p, "model")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.DummyModel, path.Join(p, "model/test.graphql"), data); err != nil {
 		return err
@@ -186,7 +182,9 @@ func createResolverFile(p string) error {
 		return err
 	}
 
-	ensureDir(path.Join(p, "src"))
+	if err := utils.EnsureDir(path.Join(p, "src")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
@@ -200,7 +198,9 @@ func createAuthFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "auth"))
+	if err := utils.EnsureDir(path.Join(p, "auth")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth_router.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
@@ -226,7 +226,9 @@ func createSrcFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "src"))
+	if err := utils.EnsureDir(path.Join(p, "src")); err != nil {
+		return err
+	}
 
 	// if err := templates.WriteTemplate(templates.UpLoad, path.Join(p, "src/upload.go"), templates.TemplateData{Config: &c}); err != nil {
 	// 	return err
@@ -248,7 +250,9 @@ func createConfigFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "config"))
+	if err := utils.EnsureDir(path.Join(p, "config")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "config/config.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
@@ -262,7 +266,9 @@ func createMiddlewareFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "src/middleware"))
+	if err := utils.EnsureDir(path.Join(p, "src/middleware")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.MiddlewareHandler, path.Join(p, "src/middleware/handler.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
@@ -276,7 +282,9 @@ func createEnumsFile(p string) error {
 	if err != nil {
 		return err
 	}
-	ensureDir(path.Join(p, "enums"))
+	if err := utils.EnsureDir(path.Join(p, "enums")); err != nil {
+		return err
+	}
 
 	if err := templates.WriteTemplate(templates.EnumsConst, path.Join(p, "enums/constants.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err

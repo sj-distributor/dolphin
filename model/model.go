@@ -7,8 +7,9 @@ import (
 )
 
 type Model struct {
-	Doc *ast.Document
-	// Objects []Object
+	Doc       *ast.Document
+	objects   []Object
+	objectMap map[string]Object
 }
 
 func (m *Model) SecretKey() string {
@@ -25,45 +26,43 @@ var defaultScalars map[string]bool = map[string]bool{
 	"Time":    true,
 }
 
-func (m *Model) Objects() []Object {
+func (m *Model) loadObjects() {
+	if m.objects != nil {
+		return
+	}
 	objs := []Object{}
+	objMap := make(map[string]Object)
 	for _, def := range m.Doc.Definitions {
 		def, ok := def.(*ast.ObjectDefinition)
 		if ok {
-			// for _, child := range def.Fields {
-			// 	nt := getNamedType(child.Type).(*ast.Named)
-			// 	fmt.Println(nt.Name.Value)
-			// }
-			// if len(def.Directives[0].Arguments) > 0 {
-			// 	fmt.Println(def.Directives[0].Arguments[0].Value.GetValue())
-			// }
-			objs = append(objs, Object{Def: def, Model: m})
+			obj := Object{Def: def, Model: m}
+			objs = append(objs, obj)
+			objMap[obj.Name()] = obj
 		}
 	}
-	return objs
+	m.objects = objs
+	m.objectMap = objMap
+}
+
+func (m *Model) Objects() []Object {
+	m.loadObjects()
+	return m.objects
 }
 
 func (m *Model) HasObject(name string) bool {
 	if name == "Query" || name == "Mutation" || name == "Subscription" {
 		return true
 	}
-	for _, o := range m.Objects() {
-		if o.Name() == name {
-			return true
-		}
-	}
-	return false
+	m.loadObjects()
+	_, ok := m.objectMap[name]
+	return ok
 }
 
 func (m *Model) ObjectEntities() []Object {
 	objs := []Object{}
-	for _, def := range m.Doc.Definitions {
-		def, ok := def.(*ast.ObjectDefinition)
-		if ok {
-			obj := Object{Def: def, Model: m}
-			if obj.HasDirective("entity") {
-				objs = append(objs, obj)
-			}
+	for _, obj := range m.Objects() {
+		if obj.HasDirective("entity") {
+			objs = append(objs, obj)
 		}
 	}
 	return objs
@@ -71,13 +70,9 @@ func (m *Model) ObjectEntities() []Object {
 
 func (m *Model) ObjectShardings() []Object {
 	objs := []Object{}
-	for _, def := range m.Doc.Definitions {
-		def, ok := def.(*ast.ObjectDefinition)
-		if ok {
-			obj := Object{Def: def, Model: m}
-			if obj.HasDirective("sharding") {
-				objs = append(objs, obj)
-			}
+	for _, obj := range m.Objects() {
+		if obj.HasDirective("sharding") {
+			objs = append(objs, obj)
 		}
 	}
 	return objs
@@ -106,10 +101,9 @@ func (m *Model) ObjectExtensions() []ObjectExtension {
 }
 
 func (m *Model) Object(name string) Object {
-	for _, o := range m.Objects() {
-		if o.Name() == name {
-			return o
-		}
+	m.loadObjects()
+	if o, ok := m.objectMap[name]; ok {
+		return o
 	}
 	panic(fmt.Sprintf("Object with name %s not found in model", name))
 }

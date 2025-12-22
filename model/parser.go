@@ -17,6 +17,6 @@ func Parse(m string) (Model, error) {
 		return model, err
 	}
 
-	model = Model{astDoc}
+	model = Model{Doc: astDoc}
 	return model, nil
 }

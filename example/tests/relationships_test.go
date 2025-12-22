@@ -430,3 +430,42 @@ func TestNestedUpdate(t *testing.T) {
 	}
 	fmt.Println("Nested Update Test Passed")
 }
+
+func TestNullUpdate(t *testing.T) {
+	fmt.Println("Testing Null Update (Set field to NULL)...")
+	db, resolver := SetupTestDB(t)
+	defer db.Close()
+	ctx := GetTestContext(db)
+
+	// Create User with Email
+	userInput := map[string]interface{}{
+		"phone": "13800138007", "password": "password123",
+		"email": "notnull@example.com",
+	}
+	user, err := resolver.Mutation().CreateUser(ctx, userInput)
+	if err != nil {
+		t.Fatalf("CreateUser failed: %v", err)
+	}
+
+	if user.Email == nil || *user.Email != "notnull@example.com" {
+		t.Fatal("Initial email should be set")
+	}
+
+	// Update Email to NULL
+	// Note: In GraphQL/JSON, sending null means "set to null".
+	// In Go map, "email": nil.
+	updateInput := map[string]interface{}{
+		"email": nil,
+	}
+	updatedUser, err := resolver.Mutation().UpdateUser(ctx, user.ID, updateInput)
+	if err != nil {
+		t.Fatalf("UpdateUser to NULL failed: %v", err)
+	}
+
+	// Verify
+	fetchedUser, _ := resolver.Query().User(ctx, &updatedUser.ID, nil)
+	if fetchedUser.Email != nil {
+		t.Errorf("Email should be nil, got: %v", *fetchedUser.Email)
+	}
+	fmt.Println("Null Update Test Passed")
+}

@@ -1,5 +1,5 @@
 
-  # User User 接口字段
+  # 用户管理 User 接口字段
   fragment UsersFields on User {
     id
     phone
@@ -7,7 +7,7 @@
     email
     nickname
     age
-    profileId
+    lastName
     isDelete
     weight
     state
@@ -30,7 +30,7 @@
         email
         nickname
         age
-        profileId
+        lastName
         isDelete
         weight
         state
@@ -40,14 +40,8 @@
         deletedAt
         updatedAt
         createdAt
-        profile {
-          ...ProfilesFields
-        }
         tasks {
           ...TasksFields
-        }
-        userRoles {
-          ...UserRolesFields
         }
         
       }
@@ -67,7 +61,7 @@
       email
       nickname
       age
-      profileId
+      lastName
       isDelete
       weight
       state
@@ -77,14 +71,8 @@
       deletedAt
       updatedAt
       createdAt
-      profile {
-        ...ProfilesFields
-      }
       tasks {
         ...TasksFields
-      }
-      userRoles {
-        ...UserRolesFields
       }
       
     }
@@ -114,114 +102,12 @@
     recoveryUsers(id: $id)
   }
 
-  # Profile Profile 接口字段
-  fragment ProfilesFields on Profile {
-    id
-    avatar
-    bio
-    birthday
-    address
-    userId
-    isDelete
-    weight
-    state
-    deletedBy
-    updatedBy
-    createdBy
-    deletedAt
-    updatedAt
-    createdAt
-    
-  }
-
-  # 列表
-  query Profiles ($currentPage: Int = 1, $perPage: Int = 10, $sort: [ProfileSortType!], $search: String, $filter: ProfileFilterType, $rand: Boolean = false) {
-    profiles(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
-      data {
-        id
-        avatar
-        bio
-        birthday
-        address
-        userId
-        isDelete
-        weight
-        state
-        deletedBy
-        updatedBy
-        createdBy
-        deletedAt
-        updatedAt
-        createdAt
-        user {
-          ...UsersFields
-        }
-        
-      }
-      current_page
-      per_page
-      total
-      total_page
-    }
-  }
-
-  # 详情
-  query ProfileDetail ($id: ID, $search: String, $filter: ProfileFilterType) {
-    profile(id: $id, q: $search, filter: $filter) {
-      id
-      avatar
-      bio
-      birthday
-      address
-      userId
-      isDelete
-      weight
-      state
-      deletedBy
-      updatedBy
-      createdBy
-      deletedAt
-      updatedAt
-      createdAt
-      user {
-        ...UsersFields
-      }
-      
-    }
-  }
-
-  # 新增
-  mutation createProfile ($data: CreateProfileInput!) {
-    createProfile(input: $data) {
-      id
-    }
-  }
-
-  # 修改
-  mutation updateProfile ($id: ID!, $data: UpdateProfileInput!) {
-    updateProfile(id: $id, input: $data) {
-      id
-    }
-  }
-
-  # 删除
-  mutation deleteProfiles ($id: [ID!]!) {
-    deleteProfiles(id: $id)
-  }
-
-  # 恢复删除
-  mutation recoveryProfiles ($id: [ID!]!) {
-    recoveryProfiles(id: $id)
-  }
-
-  # Task Task 接口字段
+  # 任务管理 Task 接口字段
   fragment TasksFields on Task {
     id
     title
-    description
     completed
     dueDate
-    priority
     userId
     isDelete
     weight
@@ -241,10 +127,8 @@
       data {
         id
         title
-        description
         completed
         dueDate
-        priority
         userId
         isDelete
         weight
@@ -257,9 +141,6 @@
         createdAt
         user {
           ...UsersFields
-        }
-        tags {
-          ...TagsFields
         }
         
       }
@@ -275,10 +156,8 @@
     task(id: $id, q: $search, filter: $filter) {
       id
       title
-      description
       completed
       dueDate
-      priority
       userId
       isDelete
       weight
@@ -291,9 +170,6 @@
       createdAt
       user {
         ...UsersFields
-      }
-      tags {
-        ...TagsFields
       }
       
     }
@@ -323,189 +199,9 @@
     recoveryTasks(id: $id)
   }
 
-  # UserRole UserRole 接口字段
-  fragment UserRolesFields on UserRole {
-    id
-    name
-    description
-    permissions
-    isDelete
-    weight
-    state
-    deletedBy
-    updatedBy
-    createdBy
-    deletedAt
-    updatedAt
-    createdAt
-    
+
+  
+  # webSocket 接口
+  subscription webSocket {
+    webSocket
   }
-
-  # 列表
-  query UserRoles ($currentPage: Int = 1, $perPage: Int = 10, $sort: [UserRoleSortType!], $search: String, $filter: UserRoleFilterType, $rand: Boolean = false) {
-    userRoles(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
-      data {
-        id
-        name
-        description
-        permissions
-        isDelete
-        weight
-        state
-        deletedBy
-        updatedBy
-        createdBy
-        deletedAt
-        updatedAt
-        createdAt
-        users {
-          ...UsersFields
-        }
-        
-      }
-      current_page
-      per_page
-      total
-      total_page
-    }
-  }
-
-  # 详情
-  query UserRoleDetail ($id: ID, $search: String, $filter: UserRoleFilterType) {
-    userRole(id: $id, q: $search, filter: $filter) {
-      id
-      name
-      description
-      permissions
-      isDelete
-      weight
-      state
-      deletedBy
-      updatedBy
-      createdBy
-      deletedAt
-      updatedAt
-      createdAt
-      users {
-        ...UsersFields
-      }
-      
-    }
-  }
-
-  # 新增
-  mutation createUserRole ($data: CreateUserRoleInput!) {
-    createUserRole(input: $data) {
-      id
-    }
-  }
-
-  # 修改
-  mutation updateUserRole ($id: ID!, $data: UpdateUserRoleInput!) {
-    updateUserRole(id: $id, input: $data) {
-      id
-    }
-  }
-
-  # 删除
-  mutation deleteUserRoles ($id: [ID!]!) {
-    deleteUserRoles(id: $id)
-  }
-
-  # 恢复删除
-  mutation recoveryUserRoles ($id: [ID!]!) {
-    recoveryUserRoles(id: $id)
-  }
-
-  # Tag Tag 接口字段
-  fragment TagsFields on Tag {
-    id
-    name
-    color
-    isDelete
-    weight
-    state
-    deletedBy
-    updatedBy
-    createdBy
-    deletedAt
-    updatedAt
-    createdAt
-    
-  }
-
-  # 列表
-  query Tags ($currentPage: Int = 1, $perPage: Int = 10, $sort: [TagSortType!], $search: String, $filter: TagFilterType, $rand: Boolean = false) {
-    tags(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
-      data {
-        id
-        name
-        color
-        isDelete
-        weight
-        state
-        deletedBy
-        updatedBy
-        createdBy
-        deletedAt
-        updatedAt
-        createdAt
-        tasks {
-          ...TasksFields
-        }
-        
-      }
-      current_page
-      per_page
-      total
-      total_page
-    }
-  }
-
-  # 详情
-  query TagDetail ($id: ID, $search: String, $filter: TagFilterType) {
-    tag(id: $id, q: $search, filter: $filter) {
-      id
-      name
-      color
-      isDelete
-      weight
-      state
-      deletedBy
-      updatedBy
-      createdBy
-      deletedAt
-      updatedAt
-      createdAt
-      tasks {
-        ...TasksFields
-      }
-      
-    }
-  }
-
-  # 新增
-  mutation createTag ($data: CreateTagInput!) {
-    createTag(input: $data) {
-      id
-    }
-  }
-
-  # 修改
-  mutation updateTag ($id: ID!, $data: UpdateTagInput!) {
-    updateTag(id: $id, input: $data) {
-      id
-    }
-  }
-
-  # 删除
-  mutation deleteTags ($id: [ID!]!) {
-    deleteTags(id: $id)
-  }
-
-  # 恢复删除
-  mutation recoveryTags ($id: [ID!]!) {
-    recoveryTags(id: $id)
-  }
-
-

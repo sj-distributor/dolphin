@@ -105,11 +105,8 @@ var ShardingArray = []string{}
 var ShardingStruct = []any{}
 
 var TableMap = map[string]interface{}{
-	"users":      User{},
-	"profiles":   Profile{},
-	"tasks":      Task{},
-	"user_roles": UserRole{},
-	"tags":       Tag{},
+	"users": User{},
+	"tasks": Task{},
 }
 
 // 获取表名
@@ -154,10 +151,7 @@ func (db *DB) Query() *gorm.DB {
 func (db *DB) AutoMigrate() error {
 	return db.db.AutoMigrate(
 		User{},
-		Profile{},
 		Task{},
-		UserRole{},
-		Tag{},
 	)
 }
 

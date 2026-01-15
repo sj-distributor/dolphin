@@ -52,22 +52,6 @@ func (r *Resolver) User() gen.UserResolver {
 	return &UserResolver{&gen.GeneratedUserResolver{GeneratedResolver: r.GeneratedResolver}}
 }
 
-type ProfileResultTypeResolver struct {
-	*gen.GeneratedProfileResultTypeResolver
-}
-
-func (r *Resolver) ProfileResultType() gen.ProfileResultTypeResolver {
-	return &ProfileResultTypeResolver{&gen.GeneratedProfileResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type ProfileResolver struct {
-	*gen.GeneratedProfileResolver
-}
-
-func (r *Resolver) Profile() gen.ProfileResolver {
-	return &ProfileResolver{&gen.GeneratedProfileResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
 type TaskResultTypeResolver struct {
 	*gen.GeneratedTaskResultTypeResolver
 }
@@ -82,36 +66,4 @@ type TaskResolver struct {
 
 func (r *Resolver) Task() gen.TaskResolver {
 	return &TaskResolver{&gen.GeneratedTaskResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type UserRoleResultTypeResolver struct {
-	*gen.GeneratedUserRoleResultTypeResolver
-}
-
-func (r *Resolver) UserRoleResultType() gen.UserRoleResultTypeResolver {
-	return &UserRoleResultTypeResolver{&gen.GeneratedUserRoleResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type UserRoleResolver struct {
-	*gen.GeneratedUserRoleResolver
-}
-
-func (r *Resolver) UserRole() gen.UserRoleResolver {
-	return &UserRoleResolver{&gen.GeneratedUserRoleResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TagResultTypeResolver struct {
-	*gen.GeneratedTagResultTypeResolver
-}
-
-func (r *Resolver) TagResultType() gen.TagResultTypeResolver {
-	return &TagResultTypeResolver{&gen.GeneratedTagResultTypeResolver{GeneratedResolver: r.GeneratedResolver}}
-}
-
-type TagResolver struct {
-	*gen.GeneratedTagResolver
-}
-
-func (r *Resolver) Tag() gen.TagResolver {
-	return &TagResolver{&gen.GeneratedTagResolver{GeneratedResolver: r.GeneratedResolver}}
 }

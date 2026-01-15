@@ -1,62 +1,30 @@
-# User entity - central entity
-type User @entity(title: "User") {
-  phone: String! @column(gorm: "type:varchar(32);comment:'phone';NOT NULL;index:phone;") @validator(required: "true", type: "phone")
-  password: String! @column(gorm: "type:varchar(64);comment:'password';NOT NULL;") @validator(required: "true", type: "password")
-  email: String @column(gorm: "type:varchar(64);comment:'email';default:null;") @validator(type: "email")
-  nickname: String @column(gorm: "type:varchar(64);comment:'nickname';DEFAULT NULL;index:nickname;")
-  age: Int @column(gorm: "type:int(3);comment:'age';default:1;") @validator(type: "int")
 
-  # OneToOne: one user has one profile (foreign key in Profile.user_id)
-  profile: Profile @relationship(inverse: "user")
+directive @hasRole(role: Role!) on FIELD_DEFINITION
 
-  # OneToMany: one user has many tasks (foreign key in Task.user_id)
-  tasks: [Task!]! @relationship(inverse: "user")
-
-  # ManyToMany: one user can have many user roles (join table user_userRoles)
-  userRoles: [UserRole!]! @relationship(inverse: "users")
+enum Role {
+  ALL
+  ADMIN
+  USER
+  GUEST
 }
 
-# Profile entity - OneToOne test
-type Profile @entity(title: "Profile") {
-  avatar: String @column(gorm: "type:varchar(255);comment:'avatar url';default:null;")
-  bio: String @column(gorm: "type:text;comment:'bio';")
-  birthday: Time @column(gorm: "comment:'birthday';")
-  address: String @column(gorm: "type:varchar(255);comment:'address';default:null;")
-
-  # OneToOne: profile belongs to one user (current table holds foreign key profile.user_id)
-  user: User! @relationship(inverse: "profile")
+type User @entity(title: "用户管理") {
+  phone: String! @column(gorm: "type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;") @validator(required: "true", type: "phone")
+  password: String! @column(gorm: "type:varchar(64) comment '登录密码';NOT NULL;") @validator(required: "true", type: "password")
+	email: String @column(gorm: "type:varchar(64) comment '用户邮箱地址';default:null;") @validator(required: "true", type: "email")
+	nickname: String @column(gorm: "type:varchar(64) comment '昵称';DEFAULT NULL;index:nickname;")
+	age: Int @column(gorm: "type:int(3) comment '年龄';default:1;") @validator(type: "int")
+	lastName: String @column
+	tasks: [Task!]! @relationship(inverse:"user")
 }
 
-# Task entity - ManyToOne test
-type Task @entity(title: "Task") {
-  title: String! @column(gorm: "type:varchar(128);comment:'title';NOT NULL;")
-  description: String @column(gorm: "type:text;comment:'description';")
-  completed: Boolean @column(gorm: "type:tinyint(1);comment:'completed';default:0;")
-  dueDate: Time @column(gorm: "comment:'due date';")
-  priority: Int @column(gorm: "type:int(2);comment:'priority';default:2;")
-
-  # ManyToOne: many tasks belong to one user (current table holds foreign key task.user_id)
-  user: User @relationship(inverse: "tasks")
-
-  # ManyToMany: one task can have many tags (join table task_tags)
-  tags: [Tag!]! @relationship(inverse: "tasks")
+type Task @entity(title: "任务管理") {
+	title: String @column
+	completed: Boolean @column
+	dueDate: Time @column
+	user: User @relationship(inverse:"tasks")
 }
 
-# UserRole entity - ManyToMany test (renamed from Role to avoid conflict with hasRole directive)
-type UserRole @entity(title: "UserRole") {
-  name: String! @column(gorm: "type:varchar(64);comment:'name';NOT NULL;uniqueIndex;")
-  description: String @column(gorm: "type:varchar(255);comment:'description';default:null;")
-  permissions: String @column(gorm: "type:text;comment:'permissions';")
-
-  # ManyToMany: one role can be owned by many users (join table user_userRoles)
-  users: [User!]! @relationship(inverse: "userRoles")
-}
-
-# Tag entity - ManyToMany test
-type Tag @entity(title: "Tag") {
-  name: String! @column(gorm: "type:varchar(32);comment:'name';NOT NULL;uniqueIndex;")
-  color: String @column(gorm: "type:varchar(16);comment:'color';default:'blue';")
-
-  # ManyToMany: one tag can belong to many tasks (join table task_tags)
-  tasks: [Task!]! @relationship(inverse: "tags")
+extend type Subscription {
+  webSocket: Any
 }

@@ -42,11 +42,7 @@ models:
   User:
     model: github.com/sj-distributor/dolphin-example/gen.User
     fields:
-      profile:
-        resolver: true
       tasks:
-        resolver: true
-      userRoles:
         resolver: true
   UserResultType:
     model: github.com/sj-distributor/dolphin-example/gen.UserResultType
@@ -66,35 +62,10 @@ models:
   UpdateUserInput:
     model: "map[string]interface{}"
   
-  Profile:
-    model: github.com/sj-distributor/dolphin-example/gen.Profile
-    fields:
-      user:
-        resolver: true
-  ProfileResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.ProfileResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  CreateProfileInput:
-    model: "map[string]interface{}"
-  UpdateProfileInput:
-    model: "map[string]interface{}"
-  
   Task:
     model: github.com/sj-distributor/dolphin-example/gen.Task
     fields:
       user:
-        resolver: true
-      tags:
         resolver: true
   TaskResultType:
     model: github.com/sj-distributor/dolphin-example/gen.TaskResultType
@@ -112,52 +83,6 @@ models:
   CreateTaskInput:
     model: "map[string]interface{}"
   UpdateTaskInput:
-    model: "map[string]interface{}"
-  
-  UserRole:
-    model: github.com/sj-distributor/dolphin-example/gen.UserRole
-    fields:
-      users:
-        resolver: true
-  UserRoleResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.UserRoleResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  CreateUserRoleInput:
-    model: "map[string]interface{}"
-  UpdateUserRoleInput:
-    model: "map[string]interface{}"
-  
-  Tag:
-    model: github.com/sj-distributor/dolphin-example/gen.Tag
-    fields:
-      tasks:
-        resolver: true
-  TagResultType:
-    model: github.com/sj-distributor/dolphin-example/gen.TagResultType
-    fields:
-      data:
-        resolver: true
-      total:
-        resolver: true
-      current_page:
-        resolver: true
-      per_page:
-        resolver: true
-      total_page:
-        resolver: true
-  CreateTagInput:
-    model: "map[string]interface{}"
-  UpdateTagInput:
     model: "map[string]interface{}"
   
   _Any:

@@ -8,35 +8,45 @@ import (
 	"strings"
 	"time"
 
-	jwtgo "github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/sj-distributor/dolphin-example/config"
 )
 
-var USER_JWT_TOKEN _JWTToken
-
-type JWTClaims struct {
-	jwtgo.RegisteredClaims
+// 用户token
+var USER_JWT_TOKEN = JWTToken{
+	TokenExpTime: config.USER_TOKEN_EXP_TIME,
+	SecretKey:    config.USER_TOKEN_SECRET_KEY,
 }
 
-type _JWTToken struct {
+// 管理员token
+var ADMIN_JWT_TOKEN = JWTToken{
+	TokenExpTime: config.ADMIN_TOKEN_EXP_TIME,
+	SecretKey:    config.ADMIN_TOKEN_SECRET_KEY,
+}
+
+type JWTClaims struct {
+	jwt.RegisteredClaims
+}
+
+type JWTToken struct {
 	TokenExpTime int64
 	SecretKey    string
 }
 
 // 設置JWT
-func (j *_JWTToken) SetToken(str interface{}) string {
+func (j *JWTToken) SetToken(str interface{}) (string, error) {
 	timeNow := time.Now().Unix()
-	token := jwtgo.NewWithClaims(jwtgo.SigningMethodHS256, jwtgo.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"content": str,
 		"nbf":     int64(timeNow),
 		"exp":     int64(timeNow + 60*60*24*j.TokenExpTime),
 	})
 
-	ss, _ := token.SignedString([]byte(j.SecretKey))
-	return ss
+	return token.SignedString([]byte(j.SecretKey))
 }
 
 // 驗證JWT有效性
-func (j *_JWTToken) Verify(token string) error {
+func (j *JWTToken) Verify(token string) error {
 	_, err := j.GetTokenContent(token)
 	if err != nil {
 		return err
@@ -53,7 +63,7 @@ func (j *_JWTToken) Verify(token string) error {
 /**
  * token解密
  */
-func (j *_JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
+func (j *JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
 	claims, err := j.GetTokenContent(token)
 
 	if claims == nil || err != nil {
@@ -68,7 +78,7 @@ func (j *_JWTToken) DecryptToken(token string) (map[string]interface{}, error) {
 /**
  * 获取token内容
  */
-func (j *_JWTToken) GetTokenContent(token string) (interface{}, error) {
+func (j *JWTToken) GetTokenContent(token string) (interface{}, error) {
 	if len(token) < 7 {
 		return nil, errors.New("Invalid Authorization")
 	}
@@ -82,8 +92,8 @@ func (j *_JWTToken) GetTokenContent(token string) (interface{}, error) {
 /**
  * 校验token是否有效
  */
-func (j *_JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error) {
-	token, err := jwtgo.Parse(data, func(token *jwtgo.Token) (interface{}, error) {
+func (j *JWTToken) ParseToken(data string, key []byte) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(data, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
 
@@ -91,12 +101,12 @@ func (j *_JWTToken) ParseToken(data string, key []byte) (jwtgo.MapClaims, error)
 		return nil, err
 	}
 
-	claims := token.Claims.(jwtgo.MapClaims)
+	claims := token.Claims.(jwt.MapClaims)
 
 	return claims, nil
 }
 
-// ParseJWT 解析 JWT 中间部分（Payload）
+// 解析 JWT 中间部分（Payload）
 func ParseJWT(token string) (map[string]interface{}, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {

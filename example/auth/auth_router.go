@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
@@ -10,43 +9,85 @@ import (
 	"github.com/sj-distributor/dolphin-example/utils"
 )
 
-// 检测路由是否需要登录
-func CheckRouterAuth(ctx context.Context, checkAuth bool) error {
-	if checkAuth == false {
-		return nil
-	}
-
+// 获取当前请求的方法名
+func GetMethodName(ctx context.Context) (*string, error) {
 	var colName string = ""
-	resolver := graphql.GetResolverContext(ctx)
+	resolver := graphql.GetFieldContext(ctx)
 	path := utils.StrToArr(resolver.Path().String(), ".")
 	if len(path) > 0 {
 		colName = path[0]
 	}
 
 	if colName == "" {
-		return fmt.Errorf("request path is error")
+		return nil, fmt.Errorf("request path is error")
 	}
 
 	colName = strcase.ToCamel(colName)
 
-	err := CheckAuthorization(ctx, colName)
-	return err
+	return &colName, nil
 }
 
-// CheckAuthorization ....
-func CheckAuthorization(ctx context.Context, colName string) error {
-	index := utils.StrIndexOf(NoAuthRoutes, colName)
+// 权限校验
+func CheckAuthorization(ctx context.Context, methodName string) (err error) {
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
 
 	if index != -1 {
 		return nil
 	}
 
-	authorization := ctx.Value("Authorization")
-	if authorization == nil {
-		return errors.New("Invalid Authorization")
+	data, err := UserTokenToMap(ctx)
+	if err != nil {
+		return err
 	}
 
-	// 校验url权限
-	err := USER_JWT_TOKEN.Verify(authorization.(string))
-	return err
+	content := data["content"].(map[string]interface{})
+
+	if content["role"] == "ADMIN" {
+		return AdminTokenVerify(ctx, methodName)
+	}
+
+	return UserTokenVerify(ctx, methodName)
+}
+
+// 用户token校验
+func UserTokenVerify(ctx context.Context, methodName string) error {
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
+
+	if index != -1 {
+		return nil
+	}
+
+	data, err := UserTokenToMap(ctx)
+	if err != nil {
+		return err
+	}
+
+	content := data["content"].(map[string]interface{})
+
+	// 管理员角色不需要校验
+	if content["role"] == "ADMIN" {
+		return nil
+	}
+
+	token := data["token"].(string)
+
+	return USER_JWT_TOKEN.Verify(token)
+}
+
+// 管理员token校验
+func AdminTokenVerify(ctx context.Context, methodName string) error {
+	index := utils.StrIndexOf(NoAuthRoutes, methodName)
+
+	if index != -1 {
+		return nil
+	}
+
+	data, err := UserTokenToMap(ctx)
+	if err != nil {
+		return err
+	}
+
+	token := data["token"].(string)
+
+	return ADMIN_JWT_TOKEN.Verify(token)
 }

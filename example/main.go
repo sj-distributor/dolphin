@@ -14,6 +14,7 @@ import (
 
 	"github.com/sj-distributor/dolphin-example/gen"
 	"github.com/sj-distributor/dolphin-example/src"
+	"github.com/sj-distributor/dolphin-example/src/middleware"
 )
 
 // const defaultPort = "8080"
@@ -85,20 +86,13 @@ func startServer(enableCors bool, port string) error {
 	db := gen.NewDBFromEnvVars("")
 	defer db.Close()
 
-	// 加载配置文件
-	src.Config()
-
 	eventController, err := gen.NewEventController()
 	if err != nil {
 		return err
 	}
 
-	resolver := src.New(db, &eventController)
-	config := gen.Config{
-		Resolvers: resolver,
-	}
-
-	mux := gen.GetHTTPServeMux(config, db)
+	mux := gen.GetHTTPServeMux(src.New(db, &eventController), db)
+	mux.Use(middleware.Handler)
 
 	var handler http.Handler
 	if enableCors {

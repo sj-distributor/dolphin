@@ -1,6 +1,7 @@
 package model
 
 import (
+	"log"
 	"os"
 	"path"
 	"time"
@@ -54,7 +55,7 @@ func (c *Config) ConnMaxLifetime() float64 {
 		val := *(*c.Connection).ConnMaxLifetime
 		dur, err := time.ParseDuration(val)
 		if err != nil {
-			panic("failed to parse config connMaxLifetime duration, error: " + err.Error())
+			log.Fatalf("failed to parse config connMaxLifetime duration, error: %s", err.Error())
 		}
 		return dur.Seconds()
 	}

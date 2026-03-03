@@ -135,7 +135,7 @@ func prompt(text string, key *string, masked bool) string {
 	if masked {
 		val, err := gopass.GetPasswdMasked()
 		if err != nil {
-			panic(err)
+			log.Fatalf("failed to read password: %s", err.Error())
 		}
 		return string(val)
 	}

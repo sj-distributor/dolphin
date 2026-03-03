@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"log"
 	"os"
 
 	"github.com/urfave/cli"
 )
 
-// Execute ...
+// Execute 初始化并运行 dolphin CLI 应用程序。
+// 它设置命令行解析器、注册子命令，并将 generate 作为默认操作。
 func Execute() {
 	app := cli.NewApp()
 	app.Name = "dolphin"
@@ -21,9 +23,7 @@ func Execute() {
 		initCmd,
 	}
 
-	err := app.Run(os.Args)
-	if err != nil {
-		panic(err)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatalf("dolphin: %s", err.Error())
 	}
-
 }

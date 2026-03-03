@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
 	"github.com/graphql-go/graphql/language/ast"
@@ -154,7 +154,8 @@ func (o *Object) Relationship(name string) *ObjectRelationship {
 			return rel
 		}
 	}
-	panic(fmt.Sprintf("relationship %s->%s not found", o.Name(), name))
+	log.Fatalf("relationship %s->%s not found", o.Name(), name)
+	return nil
 }
 
 func (o *Object) HasRelationship(name string) bool {

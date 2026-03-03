@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/jinzhu/inflection"
@@ -60,7 +61,7 @@ func (o *ObjectRelationship) StringForRelationshipDirectiveAttribute(name string
 	}
 	val, ok = value.(string)
 	if !ok {
-		panic(fmt.Sprintf("invalid %s value for %s->%s relationship", name, o.Obj.Name(), o.Name()))
+		log.Fatalf("invalid %s value for %s->%s relationship", name, o.Obj.Name(), o.Name())
 	}
 	return
 }
@@ -71,14 +72,14 @@ func (o *ObjectRelationship) BoolForRelationshipDirectiveAttribute(name string) 
 	}
 	val, ok = value.(bool)
 	if !ok {
-		panic(fmt.Sprintf("invalid %s value for %s->%s relationship", name, o.Obj.Name(), o.Name()))
+		log.Fatalf("invalid %s value for %s->%s relationship", name, o.Obj.Name(), o.Name())
 	}
 	return
 }
 func (o *ObjectRelationship) InverseRelationshipName() string {
 	val, ok := o.StringForRelationshipDirectiveAttribute("inverse")
 	if !ok {
-		panic(fmt.Sprintf("missing inverse value for %s->%s relationship", o.Obj.Name(), o.Name()))
+		log.Fatalf("missing inverse value for %s->%s relationship", o.Obj.Name(), o.Name())
 	}
 	return val
 }

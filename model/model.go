@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/graphql-go/graphql/language/ast"
 )
@@ -93,7 +93,8 @@ func (m *Model) Object(name string) Object {
 	if o, ok := m.objectMap[name]; ok {
 		return o
 	}
-	panic(fmt.Sprintf("Object with name %s not found in model", name))
+	log.Fatalf("Object with name %s not found in model", name)
+	return Object{}
 }
 
 func (m *Model) ObjectExtension(name string) ObjectExtension {
@@ -102,7 +103,8 @@ func (m *Model) ObjectExtension(name string) ObjectExtension {
 			return e
 		}
 	}
-	panic(fmt.Sprintf("Extension for object with name %s not found in model", name))
+	log.Fatalf("Extension for object with name %s not found in model", name)
+	return ObjectExtension{}
 }
 
 func (m *Model) HasObjectExtension(name string) bool {

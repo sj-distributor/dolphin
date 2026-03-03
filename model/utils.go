@@ -29,15 +29,24 @@ func GetRandomString(n int) string {
 	return string(result)
 }
 
-// 正则截取
+// RegexpReplace 正则截取：提取 start 和 end 之间的内容
 func RegexpReplace(str, start string, end string) string {
-	reg, _ := regexp.Compile(start + ".+?" + end)
+	reg, err := regexp.Compile(start + ".+?" + end)
+	if err != nil {
+		return str
+	}
 	value := reg.FindString(str)
 
-	reg = regexp.MustCompile(start)
-	value = reg.ReplaceAllString(value, "")
+	regStart, err := regexp.Compile(start)
+	if err != nil {
+		return str
+	}
+	value = regStart.ReplaceAllString(value, "")
 
-	reg = regexp.MustCompile(end)
-	value = reg.ReplaceAllString(value, "")
+	regEnd, err := regexp.Compile(end)
+	if err != nil {
+		return str
+	}
+	value = regEnd.ReplaceAllString(value, "")
 	return value
 }

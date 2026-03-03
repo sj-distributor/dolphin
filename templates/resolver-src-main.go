@@ -78,9 +78,11 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 	 * @param {*int} maxLength - 最大长度，用于字符串长度的验证。
 	 * @param {*int} minValue - 最小值，用于数值范围的验证。
 	 * @param {*int} maxValue - 最大值，用于数值范围的验证。
+	 * @param {*string} unique - 是否唯一。如果设置为 "true"，则该字段值不能重复。
+	 * @param {*string} uniqueScope - 唯一性范围字段（可选）。例如 "uid" 表示在同一 uid 下唯一。
 	 *
 	 */
-	c.Directives.Validator = func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int) (res any, err error) {
+	c.Directives.Validator = func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int, unique *string, uniqueScope *string) (res any, err error) {
 		value, err := next(ctx)
 
 		if err != nil {
@@ -89,7 +91,34 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 
 		fieldName := utils.GetFieldName(obj, value)
 
-		if err := utils.ValidateField(ctx, fieldName, value, required, immutable, typeArg, minLength, maxLength, minValue, maxValue); err != nil {
+		// 注入数据库关联，用于 unique 校验
+		if unique != nil && *unique == "true" {
+			fc := graphql.GetFieldContext(ctx)
+			if fc != nil {
+				name := fc.Field.Name
+				if strings.HasPrefix(name, "create") {
+					name = strings.TrimPrefix(name, "create")
+				} else if strings.HasPrefix(name, "update") {
+					name = strings.TrimPrefix(name, "update")
+				}
+				if name != "" && name != fc.Field.Name {
+					// 遍历匹配对应的结构体模型，避免直接用字符串转换带来的复数、下划线问题
+					var modelStruct any
+					for _, v := range gen.TableMap {
+						if fmt.Sprintf("%T", v) == "gen."+name {
+							modelStruct = v
+							break
+						}
+					}
+					if modelStruct != nil {
+						ctx = context.WithValue(ctx, "db", db.Query())
+						ctx = context.WithValue(ctx, "modelStruct", modelStruct)
+					}
+				}
+			}
+		}
+
+		if err := utils.ValidateField(ctx, obj, fieldName, value, required, immutable, typeArg, minLength, maxLength, minValue, maxValue, unique, uniqueScope); err != nil {
 			return nil, err
 		}
 

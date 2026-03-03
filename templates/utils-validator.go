@@ -173,18 +173,18 @@ func validateUnique(ctx context.Context, obj any, fieldName string, value any, u
 		return nil // 空值不做唯一性校验
 	}
 
-	// 从 context 获取 db 和 tableName
+	// 从 context 获取 db 和 modelStruct
 	db, ok := ctx.Value("db").(*gorm.DB)
 	if !ok || db == nil {
 		return nil // 无数据库连接时跳过校验
 	}
 
-	tableName, ok := ctx.Value("tableName").(string)
-	if !ok || tableName == "" {
-		return nil // 无表名时跳过校验
+	modelStruct, ok := ctx.Value("modelStruct").(any)
+	if !ok || modelStruct == nil {
+		return nil // 无表模型时跳过校验
 	}
 
-	query := db.Table(tableName).Where(fieldName+" = ?", value)
+	query := db.Model(modelStruct).Where(fieldName+" = ?", value)
 
 	// 可选的唯一性条件范围字段
 	if uniqueScope != nil && *uniqueScope != "" {

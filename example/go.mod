@@ -17,7 +17,7 @@ require (
 	github.com/maiguangyang/cloudevents-aws-transport v0.0.0-20200430035158-c952a06ccf03
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/rs/cors v1.11.1
-	github.com/sj-distributor/dolphin v0.0.0-20251222055500-f6ce0c2e7b82
+	github.com/sj-distributor/dolphin v0.0.0-20260115020321-77e96012d9e5
 	github.com/urfave/cli v1.22.15
 	github.com/vektah/gqlparser/v2 v2.5.31
 	gorm.io/driver/mysql v1.6.0

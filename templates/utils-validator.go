@@ -9,6 +9,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/duke-git/lancet/v2/convertor"
+	"gorm.io/gorm"
 )
 
 // 获取字段名
@@ -24,7 +25,7 @@ func GetFieldName(obj any, value any) string {
 }
 
 // 通用校验方法
-func ValidateField(ctx context.Context, fieldName string, value any, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int) error {
+func ValidateField(ctx context.Context, obj any, fieldName string, value any, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int, unique *string, uniqueScope *string) error {
 
 	fieldContext := graphql.GetFieldContext(ctx)
 	if !strings.Contains(fieldContext.Field.Name, "create") && immutable != nil && *immutable == "true" {
@@ -53,6 +54,13 @@ func ValidateField(ctx context.Context, fieldName string, value any, required *s
 	// 数值范围校验
 	if minValue != nil || maxValue != nil {
 		if err := validateNumberRange(fieldName, value, minValue, maxValue); err != nil {
+			return err
+		}
+	}
+
+	// 唯一性校验
+	if unique != nil && *unique == "true" {
+		if err := validateUnique(ctx, obj, fieldName, value, uniqueScope); err != nil {
 			return err
 		}
 	}
@@ -152,6 +160,51 @@ func validateNumberRange(fieldName string, value any, minValue *int, maxValue *i
 		if err := Max(intValue, *minValue); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+// validateUnique 唯一性校验
+// 通过查询数据库确认该字段值是否已存在
+// uniqueScope 为可选条件字段，如 "uid"，表示在同一 uid 下唯一
+func validateUnique(ctx context.Context, obj any, fieldName string, value any, uniqueScope *string) error {
+	if isEmpty(value) {
+		return nil // 空值不做唯一性校验
+	}
+
+	// 从 context 获取 db 和 tableName
+	db, ok := ctx.Value("db").(*gorm.DB)
+	if !ok || db == nil {
+		return nil // 无数据库连接时跳过校验
+	}
+
+	tableName, ok := ctx.Value("tableName").(string)
+	if !ok || tableName == "" {
+		return nil // 无表名时跳过校验
+	}
+
+	query := db.Table(tableName).Where(fieldName+" = ?", value)
+
+	// 可选的唯一性条件范围字段
+	if uniqueScope != nil && *uniqueScope != "" {
+		if objMap, ok := obj.(map[string]interface{}); ok {
+			if scopeValue, exists := objMap[*uniqueScope]; exists && scopeValue != nil {
+				query = query.Where(*uniqueScope+" = ?", scopeValue)
+			}
+		}
+	}
+
+	// 排除软删除的记录
+	query = query.Where("is_delete = ?", 1)
+
+	var count int64
+	if err := query.Count(&count).Error; err != nil {
+		return nil // 查询出错时不阻塞正常请求
+	}
+
+	if count > 0 {
+		return fmt.Errorf("%s already exists", fieldName)
 	}
 
 	return nil

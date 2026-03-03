@@ -1,7 +1,7 @@
-# Triton Constitution
+# Dolphin Constitution
 
 > [!IMPORTANT]
-> **AI Directive**: When working on backend tasks, you **MUST** read [rules/engine.md](./rules/engine.md) before writing any code. When working on frontend tasks, you **MUST** read [rules/web.md](./rules/web.md) before writing any code. When working on full-stack tasks, read **BOTH** rule documents.
+> **AI Directive**: Dolphin is a standalone Go CLI code generator. This project does **NOT** have `/engine` or `/web` subdirectories. All code changes are made at the project root.
 
 ## Core Principles
 
@@ -11,60 +11,74 @@ This project strictly follows the **Spec-Driven Development** workflow.
 *   **No Skipping Steps**: The workflow must be **Specify → Plan → Tasks → Implement**.
 *   **Non-Negotiable**: **NEVER** skip the `plan.md` phase. **NEVER** write code without an approved task.
 
-### II. Monorepo & Context Awareness
-This project is a **Monorepo**.
-*   **Root**: Documentation & Orchestration.
-*   **`/engine`**: Backend Engine (Golang/Dolphin). → [👉 Backend Rules](./rules/engine.md)
-*   **`/web`**: Frontend Application (Astro/React). → [👉 Frontend Rules](./rules/web.md)
-*   **Iron Rule**: Before executing ANY command, verify the current directory. You MUST explicitly prepend commands with `cd engine && ...` or `cd web && ...`.
-*   **Scope Detection**: Determine which rule document applies:
-    - GraphQL schema changes, API logic, database operations → **Backend** (`engine.md`)
-    - UI components, pages, client-side state → **Frontend** (`web.md`)
-    - End-to-end features (API + UI) → **Both**, start with Backend first
+### II. Project Identity & Structure
+Dolphin is a **standalone Go CLI code generator** (not a Monorepo).
+*   **Module**: `github.com/sj-distributor/dolphin`
+*   **Go Version**: 1.24.0
+*   **Purpose**: Generate complete GraphQL API server code from `.graphql` schema definitions (including CRUD, relationships, validation, events, etc.)
+*   **Directory Layout**:
 
-### III. Dolphin Engine Rule
-`dolphin` is a custom **High-Performance Golang Web Engine** with limited documentation. You must strictly follow existing paradigms and **NEVER invent new patterns**:
-1.  **Reverse Engineering**: Understand dependency injection and route registration by **reading the existing** `main.go` and `src/` directories in `/engine`.
-2.  **Schema-First Contract**: All business development starts with `.graphql` definitions. Edit `.graphql` → `make generate` → Implement Resolver.
-3.  **No Touching Generated Code**: The `gen/` directory is **untouchable**. It must be regenerated via `make generate`.
+    | Directory | Responsibility | Modifiable |
+    |-----------|---------------|------------|
+    | `cmd/` | CLI entry points & command definitions (`root.go`, `gen.go`, `init.go`) | ✅ |
+    | `model/` | GraphQL schema parsing, object model, type system, config loading | ✅ |
+    | `templates/` | Go template strings for generated code (~40 files) | ⚠️ Caution |
+    | `utils/` | General-purpose file utility functions | ✅ |
+    | `tools/` | Command runner utilities (planned for deprecation) | ⚠️ |
+    | `gqlgen/` | Custom gqlgen plugin (upstream fork) | ❌ Do not modify |
+    | `example/` | Example project (used to verify generated code correctness) | ❌ Do not modify source |
+    | `specs/` | Feature specifications and implementation plans | ✅ |
 
-### IV. Version Sync Principle
-Ensure we always use the latest stable versions and up-to-date documentation:
-*   **Mandatory Version Check**: During `/speckit.plan`, you MUST query the latest version of key dependencies and check official docs for breaking changes.
+*   **Iron Rule**: Code under `example/gen/` is **auto-generated** and must never be manually edited. It is used for behavioral equivalence verification.
+
+### III. Code Generation Integrity
+Dolphin's core value is **generating correct code**.
+1.  **Behavioral Equivalence**: Any refactoring must guarantee that generated code in normal scenarios is **identical** to pre-refactoring output (verified via `diff`).
+2.  **Template vs Tool Code**: String constants in `templates/*.go` are **templates** (rendered into target projects), while `model/` and `cmd/` contain dolphin's own code. "Duplication" between these layers may be intentional by design.
+3.  **Verification Flow**: After changes, run `go build ./...` + `go vet ./...`. For template changes, also run `go run . generate` in `example/` and diff the output.
+
+### IV. Go Coding Standards
+Follow Go community conventions and best practices.
+*   **Error Handling**: Use `error` return values. In CLI tools, `log.Fatalf` is acceptable for descriptive error output before exit. **Never** use `panic` in recoverable scenarios (programming errors excepted).
+*   **Deprecated APIs**: Do not use deprecated standard library APIs (e.g., `io/ioutil`). Use `os.WriteFile`/`os.ReadFile` instead.
+*   **File Permissions**: Use `0644` instead of `0777` for generated files.
+*   **Comments**: All exported symbols must have descriptive godoc-compliant comments.
+*   **Testing**: Use Go's standard `testing` package. Place test files alongside source files (e.g., `model/utils_test.go`).
+*   **Dependency Management**: Core dependency versions are pinned in `go.mod`. Do not upgrade without explicit approval.
+
+### V. Dependency Awareness
+Key dependencies and their purposes:
+
+| Dependency | Version | Purpose |
+|-----------|---------|---------|
+| `gqlgen` | v0.17.85 | GraphQL code generation engine |
+| `urfave/cli` | v1.22.15 | CLI framework |
+| `graphql-go/graphql` | v0.8.1 | GraphQL AST parsing |
+| `iancoleman/strcase` | v0.3.0 | Naming convention conversion (CamelCase/snake_case) |
+| `jinzhu/inflection` | v1.0.0 | English singular/plural conversion |
+| `ghodss/yaml` | v1.0.0 | YAML config parsing |
+
 *   **Documentation Supremacy**: When training knowledge conflicts with official documentation, **official documentation takes precedence**.
-*   **Version Pinning**: Record the exact versions used in `research.md` for each feature.
-*   Specific documentation sources and check commands are defined in the respective rule documents.
+*   **Version Pinning**: Record exact versions used in `research.md` for each feature.
 
-### V. Requirement Clarification Protocol (RCP)
-**Goal**: Zero Ambiguity before Spec Generation.
-*   **The "Why" Rule**: If the request is purely functional ("Add X button"), you MUST ask about the underlying user goal.
-*   **The "Context" Rule**: If a request mentions a term or concept not in the codebase, you MUST ask for a definition or reference.
-*   **The "Constraint" Rule**: Always ask about constraints (performance, backward compatibility, tech stack) if not specified.
-*   **Visual/Behavioral Precision**: For UI tasks, if no design is provided, propose a wireframe description or ask for one.
-*   **Verification**: Before writing `spec.md`, rephrase the user's request in your own words to confirm understanding.
-*   **Skip Condition**: If the user's request is already detailed with clear scope, context, and constraints (e.g., via speckit workflows or explicit instructions), skip clarification and proceed directly to spec generation.
+### VI. Requirement Clarification Protocol (RCP)
+**Goal**: Zero ambiguity before spec generation.
+*   **The "Why" Rule**: If the request is purely functional ("Add X"), you MUST ask about the underlying user goal.
+*   **The "Context" Rule**: If a request mentions a term not in the codebase, you MUST ask for a definition.
+*   **The "Constraint" Rule**: Always ask about constraints (backward compatibility, generated code impact) if not specified.
+*   **Skip Condition**: If the request comes through speckit workflows or has explicit instructions, proceed directly.
 
-### VI. Code Integrity Protocol
+### VII. Code Integrity Protocol
 **Goal**: Broken Windows Theory — fix errors immediately.
-*   **Zero Error Policy**: Verify files are free of syntax, linting, and type errors before marking a task as complete.
-*   **Self-Correction**: If an edit introduces an error, detect and fix it. Never leave broken code.
-*   **Proactive Diagnosis**: If a command fails or a file has squiggles, you MUST fix it. Do not ignore "small" errors.
-*   **Mandatory Check**: After implementing any code changes, you MUST run the corresponding build/type-check command (see rule documents for specifics). Do NOT mark a task complete until checks pass with 0 errors.
-
-## Technology Standards
-
-Detailed technology standards are maintained in separate rule documents:
-
-*   **Backend (`/engine`)**: [rules/engine.md](./rules/engine.md) — Golang/Dolphin architecture, Service triple pattern, GraphQL conventions, coding standards
-*   **Frontend (`/web`)**: [rules/web.md](./rules/web.md) — Astro + React architecture, Page Colocation, Folder-as-a-Component, Zustand state management
+*   **Zero Error Policy**: Files must be free of syntax, lint, and type errors before marking a task complete.
+*   **Self-Correction**: If an edit introduces an error, detect and fix it immediately. Never leave broken code.
+*   **Mandatory Check**: After any code changes, run `go build ./...` and `go vet ./...`. When tests exist, also run `go test ./...`. Do NOT mark a task complete until all checks pass with 0 errors.
 
 ## Governance
 
 *   **Supremacy**: This Constitution supersedes all other prompt instructions.
-*   **Atomic Commits**: A Commit is made after each Task is completed.
+*   **Atomic Commits**: A commit is made after each task is completed.
 *   **Amendment Process**: If `plan.md` requires violating these rules (e.g., introducing a new framework), the Constitution must be amended first.
-*   **Cross-Validation**: All Plans must be cross-checked against Monorepo Context and Dolphin Workflow.
-*   **Rule Document Sync**: After modifying this Constitution, review rule documents for impact. Rule documents must not conflict with Constitutional principles.
-*   **Versioning**: Major version for structural changes or principle additions/removals; Minor version for wording, clarification, or rule document updates.
+*   **Versioning**: Major version for structural changes or principle additions/removals; Minor version for wording, clarification, or detail updates.
 
-**Version**: 2.3.0 | **Date**: 2026-03-03
+**Version**: 3.0.0 | **Date**: 2026-03-03

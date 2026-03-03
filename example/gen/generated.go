@@ -51,7 +51,7 @@ type ResolverRoot interface {
 type DirectiveRoot struct {
 	Format    func(ctx context.Context, obj any, next graphql.Resolver) (res any, err error)
 	HasRole   func(ctx context.Context, obj any, next graphql.Resolver, role Role) (res any, err error)
-	Validator func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int) (res any, err error)
+	Validator func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int, unique *string, uniqueScope *string) (res any, err error)
 }
 
 type ComplexityRoot struct {
@@ -798,6 +798,16 @@ func (ec *executionContext) dir_validator_args(ctx context.Context, rawArgs map[
 		return nil, err
 	}
 	args["maxValue"] = arg6
+	arg7, err := graphql.ProcessArgField(ctx, rawArgs, "unique", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["unique"] = arg7
+	arg8, err := graphql.ProcessArgField(ctx, rawArgs, "uniqueScope", ec.unmarshalOString2ᚖstring)
+	if err != nil {
+		return nil, err
+	}
+	args["uniqueScope"] = arg8
 	return args, nil
 }
 
@@ -5097,7 +5107,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 					var zeroVal string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -5129,7 +5139,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 					var zeroVal string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -5161,7 +5171,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 					var zeroVal *string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -5197,7 +5207,7 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 					var zeroVal *int
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -6450,7 +6460,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 					var zeroVal *string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -6484,7 +6494,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 					var zeroVal *string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -6518,7 +6528,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 					var zeroVal *string
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)
@@ -6554,7 +6564,7 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 					var zeroVal *int
 					return zeroVal, errors.New("directive validator is not implemented")
 				}
-				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil)
+				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil, nil, nil)
 			}
 
 			tmp, err := directive1(ctx)

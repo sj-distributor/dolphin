@@ -99,6 +99,10 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 	if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Ids"]) {
 		return nil, fmt.Errorf("{{$rel.Name}}Ids and {{$rel.Name}} cannot coexist")
 	}
+	{{else}}
+	if !utils.IsNil(input["{{$rel.Name}}"]) && !utils.IsNil(input["{{$rel.Name}}Id"]) {
+		return nil, fmt.Errorf("{{$rel.Name}}Id and {{$rel.Name}} cannot coexist")
+	}
 	{{end}}
 	{{end}}
 
@@ -116,15 +120,15 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 			v.UpdatedBy = principalID
 
 			if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+				return item, fmt.Errorf("Update{{$rel.TargetType}}: %w", err)
 			}
 			if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
 			}
 
 			{{$rel.Name}}Input := utils.StructToMap(*v)
 			if _, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input); err != nil {
-				return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} ID %s: %w", v.ID, err)
 			}
 			
 			// 设置外键
@@ -136,7 +140,7 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 		} else {
 			// 创建新关联对象
 			if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+				return item, fmt.Errorf("Create{{$rel.TargetType}}: %w", err)
 			}
 			
 			v.ID = uuid.Must(uuid.NewV4()).String()
@@ -170,22 +174,20 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 	{{if $col.IsOptional}}
 	if _, ok := input["{{$col.Name}}"]; ok && changes.{{$col.MethodName}} != nil {
 	{{else}}
-	if _, ok := input["{{$col.Name}}"]; ok && !utils.IsEmpty(input["{{$col.Name}}"]) {
+	if _, ok := input["{{$col.Name}}"]; ok {
 	{{end}}
-		if (item.{{$col.MethodName}} != changes.{{$col.MethodName}}){{if $col.IsOptional}} || (*item.{{$col.MethodName}} != *changes.{{$col.MethodName}}){{end}} {
-			{{if $col.IsRelationshipIdentifier}}
-			if !utils.IsNil(input["{{$col.Name}}"]) {
-				if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
-					return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
-				}
+		{{if $col.IsRelationshipIdentifier}}
+		if !utils.IsNil(input["{{$col.Name}}"]) {
+			if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
+				return nil, fmt.Errorf("{{$col.Name}}: %w", err)
 			}
-			{{end}}
-			item.{{$col.MethodName}} = changes.{{$col.MethodName}}
-			{{if $col.IsIdentifier}}
-			event.EntityID = item.{{$col.MethodName}}
-			{{end}}
-			event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 		}
+		{{end}}
+		item.{{$col.MethodName}} = changes.{{$col.MethodName}}
+		{{if $col.IsIdentifier}}
+		event.EntityID = item.{{$col.MethodName}}
+		{{end}}
+		event.AddNewValue("{{$col.Name}}", changes.{{$col.MethodName}})
 	}
 	{{end}}
 	{{end}}
@@ -213,7 +215,7 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 		if len(itemIds) > 0 {
 			// 权限检查
 			if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
 			}
 
 			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
@@ -227,7 +229,7 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 			// 验证所有 ID 都存在
 			differenceIds := utils.Difference(itemIds, findIds)
 			if len(differenceIds) > 0 {
-				return item, fmt.Errorf("{{$rel.Name}}Ids " + strings.Join(differenceIds, ",") + " not found")
+				return item, fmt.Errorf("{{$rel.Name}}Ids %s not found", strings.Join(differenceIds, ","))
 			}
 
 			{{if $rel.IsManyToMany}}
@@ -252,6 +254,9 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 		new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 		update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 
+		hasCreate{{$rel.MethodName}} := false
+		hasUpdate{{$rel.MethodName}} := false
+
 		for index, v := range changes.{{$rel.MethodName}} {
 			weight := int64(index + 1)
 			v.Weight = &weight
@@ -261,16 +266,19 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 				v.UpdatedAt = &timestampMillis
 				v.UpdatedBy = principalID
 
-				if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
-				}
-				if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				if !hasUpdate{{$rel.MethodName}} {
+					if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("Update{{$rel.TargetType}}: %w", err)
+					}
+					if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
+					}
+					hasUpdate{{$rel.MethodName}} = true
 				}
 
 				{{$rel.Name}}Input := utils.StructToMap(*v)
 				if _, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input); err != nil {
-					return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+					return item, fmt.Errorf("{{$rel.TargetType}} ID %s: %w", v.ID, err)
 				}
 				
 				{{if not $rel.IsManyToMany}}
@@ -283,8 +291,11 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 				update{{$rel.MethodName}} = append(update{{$rel.MethodName}}, v)
 			} else {
 				// 创建新记录
-				if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+				if !hasCreate{{$rel.MethodName}} {
+					if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("Create{{$rel.TargetType}}: %w", err)
+					}
+					hasCreate{{$rel.MethodName}} = true
 				}
 				
 				v.ID = uuid.Must(uuid.NewV4()).String()
@@ -396,10 +407,9 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 		return nil, err
 	}
 
-	// 更新 UpdatedBy
-	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
-		newItem.UpdatedBy = principalID
-	}
+	// 设置审计字段
+	newItem.UpdatedAt = &timestampMillis
+	newItem.UpdatedBy = principalID
 
 	// 字段变更追踪
 	changedFields := []string{}
@@ -412,21 +422,31 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 	if _, ok := input["{{$rel.Name}}"]; ok && !utils.IsNil(input["{{$rel.Name}}"]) {
 		v := changes.{{$rel.MethodName}}
 
+		// 解绑旧关联对象的反向外键
+		{{if $rel.InverseRelationship}}
+		if item.{{$rel.MethodName}}ID != {{if not $rel.IsNonNull}}nil && *item.{{$rel.MethodName}}ID != {{end}}"" {
+			oldID := {{if $rel.IsNonNull}}item.{{$rel.MethodName}}ID{{else}}*item.{{$rel.MethodName}}ID{{end}}
+			if err := tx.Model(&{{$rel.TargetType}}{}).Where("id = ?", oldID).Update("{{$rel.InverseRelationship.ToSnakeRelationshipName}}_id", nil).Error; err != nil {
+				return item, err
+			}
+		}
+		{{end}}
+
 		if !utils.IsEmpty(v.ID) {
 			// 更新现有关联对象
 			v.UpdatedAt = &timestampMillis
 			v.UpdatedBy = principalID
 
 			if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
+				return item, fmt.Errorf("Update{{$rel.TargetType}}: %w", err)
 			}
 			if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
 			}
 
 			{{$rel.Name}}Input := utils.StructToMap(*v)
 			if _, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, v.ID, {{$rel.Name}}Input); err != nil {
-				return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} ID %s: %w", v.ID, err)
 			}
 
 			// 更新外键
@@ -442,7 +462,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 		} else {
 			// 创建新关联对象
 			if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+				return item, fmt.Errorf("Create{{$rel.TargetType}}: %w", err)
 			}
 			
 			v.ID = uuid.Must(uuid.NewV4()).String()
@@ -481,7 +501,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 			{{if $col.IsRelationshipIdentifier}}
 			if !utils.IsNil(input["{{$col.Name}}"]) {
 				if err := tx.Select("id").Where("id = ?", input["{{$col.Name}}"]).First(&{{$col.RelationshipTypeName}}{}).Error; err != nil {
-					return nil, fmt.Errorf("{{$col.Name}} " + err.Error())
+					return nil, fmt.Errorf("{{$col.Name}}: %w", err)
 				}
 			}
 			{{end}}
@@ -500,10 +520,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		// 如果有更新 UpdatedBy，也需要添加到 Select 中
-		if newItem.UpdatedBy != nil {
-			changedFields = append(changedFields, "updated_by")
-		}
+		changedFields = append(changedFields, "updated_at", "updated_by")
 
 		if err := tx.Table(TableName("{{$obj.TableName}}", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
@@ -527,7 +544,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 
 		if len(itemIds) > 0 {
 			if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-				return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
 			}
 			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
 				return item, err
@@ -538,7 +555,7 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 
 			differenceIds := utils.Difference(itemIds, findIds)
 			if len(differenceIds) > 0 {
-				return item, fmt.Errorf("{{$rel.Name}}Ids " + strings.Join(differenceIds, ",") + " not found")
+				return item, fmt.Errorf("{{$rel.Name}}Ids %s not found", strings.Join(differenceIds, ","))
 			}
 
 			{{if $rel.IsManyToMany}}
@@ -576,6 +593,16 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 		new{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 		update{{$rel.MethodName}} := []*{{$rel.TargetType}}{}
 
+		{{if not $rel.IsManyToMany}}
+		// OneToMany: 先清除旧关联（与 IDs 方式行为一致）
+		if err := tx.Model(&{{$rel.TargetType}}{}).Where("{{$rel.ToSnakeRelationshipName}}_id = ?", item.ID).Update("{{$rel.ToSnakeRelationshipName}}_id", nil).Error; err != nil {
+			return item, err
+		}
+		{{end}}
+
+		hasCreate{{$rel.MethodName}} := false
+		hasUpdate{{$rel.MethodName}} := false
+
 		for index, v := range changes.{{$rel.MethodName}} {
 			weight := int64(index + 1)
 			v.Weight = &weight
@@ -585,16 +612,19 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 				v.UpdatedAt = &timestampMillis
 				v.UpdatedBy = principalID
 
-				if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("Update{{$rel.TargetType}} " + err.Error())
-				}
-				if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("{{$rel.TargetType}} Detail " + err.Error())
+				if !hasUpdate{{$rel.MethodName}} {
+					if err := auth.CheckAuthorization(ctx, "Update{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("Update{{$rel.TargetType}}: %w", err)
+					}
+					if err := auth.CheckAuthorization(ctx, "{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("{{$rel.TargetType}} Detail: %w", err)
+					}
+					hasUpdate{{$rel.MethodName}} = true
 				}
 
 				{{$rel.Name}}Input := utils.StructToMap(*v)
 				if _, err := r.Handlers.Update{{$rel.TargetType}}(ctx, r, {{$rel.Name}}Input["id"].(string), {{$rel.Name}}Input); err != nil {
-					return item, errors.New("{{$rel.TargetType}} ID " + v.ID + " " + err.Error())
+					return item, fmt.Errorf("{{$rel.TargetType}} ID %s: %w", v.ID, err)
 				}
 
 				{{if not $rel.IsManyToMany}}
@@ -606,8 +636,11 @@ func Update{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, id st
 				update{{$rel.MethodName}} = append(update{{$rel.MethodName}}, v)
 			} else {
 				// 创建新记录
-				if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
-					return item, errors.New("Create{{$rel.TargetType}} " + err.Error())
+				if !hasCreate{{$rel.MethodName}} {
+					if err := auth.CheckAuthorization(ctx, "Create{{$rel.TargetType}}"); err != nil {
+						return item, fmt.Errorf("Create{{$rel.TargetType}}: %w", err)
+					}
+					hasCreate{{$rel.MethodName}} = true
 				}
 				
 				v.ID = uuid.Must(uuid.NewV4()).String()

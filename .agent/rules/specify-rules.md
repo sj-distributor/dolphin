@@ -33,6 +33,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-15
 - MySQL (via GORM/dolphin DAL) + **Redis** (Active Token store) (018-user-login)
 - Go 1.25.5 + golang-jwt/v5, gqlgen (existing, no new deps) (019-auth-refactor)
 - N/A (no storage changes) (019-auth-refactor)
+- Go 1.24.0 (dolphin CLI) — generates Go code for target projects + gqlgen v0.17.85, urfave/cli v1.22.15 (003-optimize-mutation-template)
+- N/A (code generator, not a database application) (003-optimize-mutation-template)
 
 - TypeScript 5.x (via Astro defaults) + Astro 5.x, React 18.x, Tailwind CSS 3.x, shadcn/ui utilities (001-astro-frontend-setup)
 
@@ -53,9 +55,9 @@ npm test && npm run lint
 TypeScript 5.x (via Astro defaults): Follow standard conventions
 
 ## Recent Changes
+- 003-optimize-mutation-template: Added Go 1.24.0 (dolphin CLI) — generates Go code for target projects + gqlgen v0.17.85, urfave/cli v1.22.15
+- 003-optimize-mutation-template: Added Go 1.24.0 (dolphin CLI) — generates Go code for target projects + gqlgen v0.17.85, urfave/cli v1.22.15
 - 019-auth-refactor: Added Go 1.25.5 + golang-jwt/v5, gqlgen (existing, no new deps)
-- 018-user-login: Added Go 1.25.5 + dolphin (code generation), gqlgen, golang-jwt/v5, **go-redis/redis/v9** (NEW)
-- 001-folder-component-arch: Added TypeScript 5.x (via Astro) + Astro 5.x, React 19.x, @tanstack/react-table, react-hook-form, @apollo/clien
 
 
 <!-- MANUAL ADDITIONS START -->

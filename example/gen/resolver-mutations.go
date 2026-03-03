@@ -2,7 +2,6 @@ package gen
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -89,94 +88,67 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 
 	// ========== 处理普通字段 ==========
 
-	if _, ok := input["phone"]; ok && !utils.IsEmpty(input["phone"]) {
+	if _, ok := input["phone"]; ok {
 
-		if item.Phone != changes.Phone {
+		item.Phone = changes.Phone
 
-			item.Phone = changes.Phone
-
-			event.AddNewValue("phone", changes.Phone)
-		}
+		event.AddNewValue("phone", changes.Phone)
 	}
 
-	if _, ok := input["password"]; ok && !utils.IsEmpty(input["password"]) {
+	if _, ok := input["password"]; ok {
 
-		if item.Password != changes.Password {
+		item.Password = changes.Password
 
-			item.Password = changes.Password
-
-			event.AddNewValue("password", changes.Password)
-		}
+		event.AddNewValue("password", changes.Password)
 	}
 
 	if _, ok := input["email"]; ok && changes.Email != nil {
 
-		if (item.Email != changes.Email) || (*item.Email != *changes.Email) {
+		item.Email = changes.Email
 
-			item.Email = changes.Email
-
-			event.AddNewValue("email", changes.Email)
-		}
+		event.AddNewValue("email", changes.Email)
 	}
 
 	if _, ok := input["nickname"]; ok && changes.Nickname != nil {
 
-		if (item.Nickname != changes.Nickname) || (*item.Nickname != *changes.Nickname) {
+		item.Nickname = changes.Nickname
 
-			item.Nickname = changes.Nickname
-
-			event.AddNewValue("nickname", changes.Nickname)
-		}
+		event.AddNewValue("nickname", changes.Nickname)
 	}
 
 	if _, ok := input["age"]; ok && changes.Age != nil {
 
-		if (item.Age != changes.Age) || (*item.Age != *changes.Age) {
+		item.Age = changes.Age
 
-			item.Age = changes.Age
-
-			event.AddNewValue("age", changes.Age)
-		}
+		event.AddNewValue("age", changes.Age)
 	}
 
 	if _, ok := input["lastName"]; ok && changes.LastName != nil {
 
-		if (item.LastName != changes.LastName) || (*item.LastName != *changes.LastName) {
+		item.LastName = changes.LastName
 
-			item.LastName = changes.LastName
-
-			event.AddNewValue("lastName", changes.LastName)
-		}
+		event.AddNewValue("lastName", changes.LastName)
 	}
 
 	if _, ok := input["isDelete"]; ok && changes.IsDelete != nil {
 
-		if (item.IsDelete != changes.IsDelete) || (*item.IsDelete != *changes.IsDelete) {
+		item.IsDelete = changes.IsDelete
 
-			item.IsDelete = changes.IsDelete
-
-			event.AddNewValue("isDelete", changes.IsDelete)
-		}
+		event.AddNewValue("isDelete", changes.IsDelete)
 	}
 
 	if _, ok := input["weight"]; ok && changes.Weight != nil {
 
-		if (item.Weight != changes.Weight) || (*item.Weight != *changes.Weight) {
+		item.Weight = changes.Weight
 
-			item.Weight = changes.Weight
-
-			event.AddNewValue("weight", changes.Weight)
-		}
+		event.AddNewValue("weight", changes.Weight)
 	}
 
 	if _, ok := input["state"]; ok && changes.State != nil {
 
-		if (item.State != changes.State) || (*item.State != *changes.State) {
+		item.State = changes.State
 
-			item.State = changes.State
-
-			event.AddNewValue("state", changes.State)
-		}
+		event.AddNewValue("state", changes.State)
 	}
 
 	// ========== 保存主实体 ==========
@@ -201,7 +173,7 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		if len(itemIds) > 0 {
 			// 权限检查
 			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
-				return item, errors.New("Task Detail " + err.Error())
+				return item, fmt.Errorf("Task Detail: %w", err)
 			}
 
 			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
@@ -215,7 +187,7 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 			// 验证所有 ID 都存在
 			differenceIds := utils.Difference(itemIds, findIds)
 			if len(differenceIds) > 0 {
-				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
+				return item, fmt.Errorf("tasksIds %s not found", strings.Join(differenceIds, ","))
 			}
 
 			// OneToMany: 更新关联记录的外键
@@ -234,6 +206,9 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		newTasks := []*Task{}
 		updateTasks := []*Task{}
 
+		hasCreateTasks := false
+		hasUpdateTasks := false
+
 		for index, v := range changes.Tasks {
 			weight := int64(index + 1)
 			v.Weight = &weight
@@ -243,16 +218,19 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 				v.UpdatedAt = &timestampMillis
 				v.UpdatedBy = principalID
 
-				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
-					return item, errors.New("UpdateTask " + err.Error())
-				}
-				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
-					return item, errors.New("Task Detail " + err.Error())
+				if !hasUpdateTasks {
+					if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+						return item, fmt.Errorf("UpdateTask: %w", err)
+					}
+					if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+						return item, fmt.Errorf("Task Detail: %w", err)
+					}
+					hasUpdateTasks = true
 				}
 
 				tasksInput := utils.StructToMap(*v)
 				if _, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput); err != nil {
-					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+					return item, fmt.Errorf("Task ID %s: %w", v.ID, err)
 				}
 
 				// OneToMany: 设置外键指向当前实体
@@ -263,8 +241,11 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 				updateTasks = append(updateTasks, v)
 			} else {
 				// 创建新记录
-				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
-					return item, errors.New("CreateTask " + err.Error())
+				if !hasCreateTasks {
+					if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+						return item, fmt.Errorf("CreateTask: %w", err)
+					}
+					hasCreateTasks = true
 				}
 
 				v.ID = uuid.Must(uuid.NewV4()).String()
@@ -355,10 +336,9 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	// 更新 UpdatedBy
-	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
-		newItem.UpdatedBy = principalID
-	}
+	// 设置审计字段
+	newItem.UpdatedAt = &timestampMillis
+	newItem.UpdatedBy = principalID
 
 	// 字段变更追踪
 	changedFields := []string{}
@@ -510,10 +490,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		// 如果有更新 UpdatedBy，也需要添加到 Select 中
-		if newItem.UpdatedBy != nil {
-			changedFields = append(changedFields, "updated_by")
-		}
+		changedFields = append(changedFields, "updated_at", "updated_by")
 
 		if err := tx.Table(TableName("users", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err
@@ -536,7 +513,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 		if len(itemIds) > 0 {
 			if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
-				return item, errors.New("Task Detail " + err.Error())
+				return item, fmt.Errorf("Task Detail: %w", err)
 			}
 			if err := tx.Find(&items, "id IN (?)", itemIds).Error; err != nil {
 				return item, err
@@ -547,7 +524,7 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 			differenceIds := utils.Difference(itemIds, findIds)
 			if len(differenceIds) > 0 {
-				return item, fmt.Errorf("tasksIds " + strings.Join(differenceIds, ",") + " not found")
+				return item, fmt.Errorf("tasksIds %s not found", strings.Join(differenceIds, ","))
 			}
 
 			// OneToMany: 先清除旧关联，再设置新关联
@@ -576,6 +553,14 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		newTasks := []*Task{}
 		updateTasks := []*Task{}
 
+		// OneToMany: 先清除旧关联（与 IDs 方式行为一致）
+		if err := tx.Model(&Task{}).Where("user_id = ?", item.ID).Update("user_id", nil).Error; err != nil {
+			return item, err
+		}
+
+		hasCreateTasks := false
+		hasUpdateTasks := false
+
 		for index, v := range changes.Tasks {
 			weight := int64(index + 1)
 			v.Weight = &weight
@@ -585,16 +570,19 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 				v.UpdatedAt = &timestampMillis
 				v.UpdatedBy = principalID
 
-				if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
-					return item, errors.New("UpdateTask " + err.Error())
-				}
-				if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
-					return item, errors.New("Task Detail " + err.Error())
+				if !hasUpdateTasks {
+					if err := auth.CheckAuthorization(ctx, "UpdateTask"); err != nil {
+						return item, fmt.Errorf("UpdateTask: %w", err)
+					}
+					if err := auth.CheckAuthorization(ctx, "Task"); err != nil {
+						return item, fmt.Errorf("Task Detail: %w", err)
+					}
+					hasUpdateTasks = true
 				}
 
 				tasksInput := utils.StructToMap(*v)
 				if _, err := r.Handlers.UpdateTask(ctx, r, tasksInput["id"].(string), tasksInput); err != nil {
-					return item, errors.New("Task ID " + v.ID + " " + err.Error())
+					return item, fmt.Errorf("Task ID %s: %w", v.ID, err)
 				}
 
 				if err := tx.Model(v).Update("user_id", item.ID).Error; err != nil {
@@ -604,8 +592,11 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 				updateTasks = append(updateTasks, v)
 			} else {
 				// 创建新记录
-				if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
-					return item, errors.New("CreateTask " + err.Error())
+				if !hasCreateTasks {
+					if err := auth.CheckAuthorization(ctx, "CreateTask"); err != nil {
+						return item, fmt.Errorf("CreateTask: %w", err)
+					}
+					hasCreateTasks = true
 				}
 
 				v.ID = uuid.Must(uuid.NewV4()).String()
@@ -807,84 +798,67 @@ func CreateTaskHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 
 	// ========== 验证关系字段冲突 ==========
 
+	if !utils.IsNil(input["user"]) && !utils.IsNil(input["userId"]) {
+		return nil, fmt.Errorf("userId and user cannot coexist")
+	}
+
 	// ========== 处理 ManyToOne/OneToOne 关系（当前实体持有外键） ==========
 
 	// ========== 处理普通字段 ==========
 
 	if _, ok := input["title"]; ok && changes.Title != nil {
 
-		if (item.Title != changes.Title) || (*item.Title != *changes.Title) {
+		item.Title = changes.Title
 
-			item.Title = changes.Title
-
-			event.AddNewValue("title", changes.Title)
-		}
+		event.AddNewValue("title", changes.Title)
 	}
 
 	if _, ok := input["completed"]; ok && changes.Completed != nil {
 
-		if (item.Completed != changes.Completed) || (*item.Completed != *changes.Completed) {
+		item.Completed = changes.Completed
 
-			item.Completed = changes.Completed
-
-			event.AddNewValue("completed", changes.Completed)
-		}
+		event.AddNewValue("completed", changes.Completed)
 	}
 
 	if _, ok := input["dueDate"]; ok && changes.DueDate != nil {
 
-		if (item.DueDate != changes.DueDate) || (*item.DueDate != *changes.DueDate) {
+		item.DueDate = changes.DueDate
 
-			item.DueDate = changes.DueDate
-
-			event.AddNewValue("dueDate", changes.DueDate)
-		}
+		event.AddNewValue("dueDate", changes.DueDate)
 	}
 
 	if _, ok := input["userId"]; ok && changes.UserID != nil {
 
-		if (item.UserID != changes.UserID) || (*item.UserID != *changes.UserID) {
-
-			if !utils.IsNil(input["userId"]) {
-				if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
-					return nil, fmt.Errorf("userId " + err.Error())
-				}
+		if !utils.IsNil(input["userId"]) {
+			if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
+				return nil, fmt.Errorf("userId: %w", err)
 			}
-
-			item.UserID = changes.UserID
-
-			event.AddNewValue("userId", changes.UserID)
 		}
+
+		item.UserID = changes.UserID
+
+		event.AddNewValue("userId", changes.UserID)
 	}
 
 	if _, ok := input["isDelete"]; ok && changes.IsDelete != nil {
 
-		if (item.IsDelete != changes.IsDelete) || (*item.IsDelete != *changes.IsDelete) {
+		item.IsDelete = changes.IsDelete
 
-			item.IsDelete = changes.IsDelete
-
-			event.AddNewValue("isDelete", changes.IsDelete)
-		}
+		event.AddNewValue("isDelete", changes.IsDelete)
 	}
 
 	if _, ok := input["weight"]; ok && changes.Weight != nil {
 
-		if (item.Weight != changes.Weight) || (*item.Weight != *changes.Weight) {
+		item.Weight = changes.Weight
 
-			item.Weight = changes.Weight
-
-			event.AddNewValue("weight", changes.Weight)
-		}
+		event.AddNewValue("weight", changes.Weight)
 	}
 
 	if _, ok := input["state"]; ok && changes.State != nil {
 
-		if (item.State != changes.State) || (*item.State != *changes.State) {
+		item.State = changes.State
 
-			item.State = changes.State
-
-			event.AddNewValue("state", changes.State)
-		}
+		event.AddNewValue("state", changes.State)
 	}
 
 	// ========== 保存主实体 ==========
@@ -960,10 +934,9 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		return nil, err
 	}
 
-	// 更新 UpdatedBy
-	if item.UpdatedBy != nil && principalID != nil && *item.UpdatedBy != *principalID {
-		newItem.UpdatedBy = principalID
-	}
+	// 设置审计字段
+	newItem.UpdatedAt = &timestampMillis
+	newItem.UpdatedBy = principalID
 
 	// 字段变更追踪
 	changedFields := []string{}
@@ -1035,7 +1008,7 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 			if !utils.IsNil(input["userId"]) {
 				if err := tx.Select("id").Where("id = ?", input["userId"]).First(&User{}).Error; err != nil {
-					return nil, fmt.Errorf("userId " + err.Error())
+					return nil, fmt.Errorf("userId: %w", err)
 				}
 			}
 
@@ -1093,10 +1066,7 @@ func UpdateTaskHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 
 	// ========== 保存主实体变更 ==========
 	if isChange {
-		// 如果有更新 UpdatedBy，也需要添加到 Select 中
-		if newItem.UpdatedBy != nil {
-			changedFields = append(changedFields, "updated_by")
-		}
+		changedFields = append(changedFields, "updated_at", "updated_by")
 
 		if err := tx.Table(TableName("tasks", ctx)).Where("id = ?", id).Select(changedFields).Updates(newItem).Error; err != nil {
 			return item, err

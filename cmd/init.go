@@ -37,31 +37,37 @@ var initCmd = cli.Command{
 			}
 		}
 
-		if err := createGitignoreFile(p); err != nil {
+		// 统一加载一次 Config，传递给所有需要的函数
+		c, err := model.LoadConfigFromPath(p)
+		if err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createMainFile(p); err != nil {
+		if err := createGitignoreFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createAuthFile(p); err != nil {
+		if err := createMainFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createSrcFile(p); err != nil {
+		if err := createAuthFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createConfigFile(p); err != nil {
+		if err := createSrcFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createMiddlewareFile(p); err != nil {
+		if err := createConfigFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
-		if err := createEnumsFile(p); err != nil {
+		if err := createMiddlewareFile(p, &c); err != nil {
+			return cli.NewExitError(err, 1)
+		}
+
+		if err := createEnumsFile(p, &c); err != nil {
 			return cli.NewExitError(err, 1)
 		}
 
@@ -69,12 +75,8 @@ var initCmd = cli.Command{
 			return cli.NewExitError(err, 1)
 		}
 
-		// if err := createDockerFile(p); err != nil {
-		// 	return cli.NewExitError(err, 1)
-		// }
-
 		if !utils.FileExists(path.Join(p, "go.mod")) {
-			if err := initModules(p); err != nil {
+			if err := initModules(p, &c); err != nil {
 				return cli.NewExitError(err, 1)
 			}
 		}
@@ -115,20 +117,12 @@ func createYamlFile(p, isAuto string) error {
 	return err
 }
 
-func createGitignoreFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
-	return templates.WriteTemplate(templates.Gitignore, path.Join(p, ".gitignore"), templates.TemplateData{Config: &c})
+func createGitignoreFile(p string, c *model.Config) error {
+	return templates.WriteTemplate(templates.Gitignore, path.Join(p, ".gitignore"), templates.TemplateData{Config: c})
 }
 
-func createMainFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
-	return templates.WriteTemplate(templates.Main, path.Join(p, "main.go"), templates.TemplateData{Config: &c})
+func createMainFile(p string, c *model.Config) error {
+	return templates.WriteTemplate(templates.Main, path.Join(p, "main.go"), templates.TemplateData{Config: c})
 }
 
 func createDummyModelFile(p string) error {
@@ -140,10 +134,6 @@ func createDummyModelFile(p string) error {
 	if err := templates.WriteTemplate(templates.DummyModel, path.Join(p, "model/test.graphql"), data); err != nil {
 		return err
 	}
-
-	// if err := templates.WriteTemplate(templates.UploadModel, path.Join(p, "model/upload.graphql"), data); err != nil {
-	// 	return err
-	// }
 
 	return nil
 }
@@ -159,134 +149,92 @@ func createMakeFile(p string) error {
 	return templates.WriteTemplate(templates.Makefile(databaseName), path.Join(p, "makefile"), data)
 }
 
-// func createDockerFile(p string) error {
-// 	c, err := model.LoadConfigFromPath(p)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	data := templates.TemplateData{Model: nil, Config: &c}
-// 	return templates.WriteTemplate(templates.Dockerfile, path.Join(p, "Dockerfile"), data)
-// }
-
-func initModules(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func initModules(p string, c *model.Config) error {
 	return templates.RunInteractiveInDir(fmt.Sprintf("go mod init %s", c.Package), p)
 }
 
-func createResolverFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
-
+func createResolverFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "src")); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createAuthFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func createAuthFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "auth")); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth_router.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthRouter, path.Join(p, "auth/auth_router.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthJWT, path.Join(p, "auth/jwt.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthJWT, path.Join(p, "auth/jwt.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthUser, path.Join(p, "auth/user.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthUser, path.Join(p, "auth/user.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open_routes.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.AuthOpenRouters, path.Join(p, "auth/open_routes.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createSrcFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func createSrcFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "src")); err != nil {
 		return err
 	}
 
-	// if err := templates.WriteTemplate(templates.UpLoad, path.Join(p, "src/upload.go"), templates.TemplateData{Config: &c}); err != nil {
-	// 	return err
-	// }
-
-	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.ResolverSrc, path.Join(p, "src/resolver.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.ResolverSrcContext, path.Join(p, "src/context.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.ResolverSrcContext, path.Join(p, "src/context.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createConfigFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func createConfigFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "config")); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "config/config.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.ResolverSrcConfig, path.Join(p, "config/config.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createMiddlewareFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func createMiddlewareFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "src/middleware")); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.MiddlewareHandler, path.Join(p, "src/middleware/handler.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.MiddlewareHandler, path.Join(p, "src/middleware/handler.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createEnumsFile(p string) error {
-	c, err := model.LoadConfigFromPath(p)
-	if err != nil {
-		return err
-	}
+func createEnumsFile(p string, c *model.Config) error {
 	if err := utils.EnsureDir(path.Join(p, "enums")); err != nil {
 		return err
 	}
 
-	if err := templates.WriteTemplate(templates.EnumsConst, path.Join(p, "enums/constants.go"), templates.TemplateData{Config: &c}); err != nil {
+	if err := templates.WriteTemplate(templates.EnumsConst, path.Join(p, "enums/constants.go"), templates.TemplateData{Config: c}); err != nil {
 		return err
 	}
 

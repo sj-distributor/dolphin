@@ -15,7 +15,6 @@ func createObjectFilterType(obj Object) *ast.InputObjectDefinition {
 		filterInputValue("AND", listType(nonNull(namedType(name)))),
 		filterInputValue("OR", listType(nonNull(namedType(name)))),
 	}
-	// fields = append(fields, filterInputValues("id", namedType("ID"))...)
 
 	for _, col := range obj.Columns() {
 		if obj.IsToManyColumn(col) || col.IsReadonlyType() {
@@ -49,10 +48,7 @@ func filterInputValue(name string, t ast.Type) *ast.InputValueDefinition {
 	return &ast.InputValueDefinition{
 		Kind: kinds.InputValueDefinition,
 		Name: nameNode(name),
-		// Description: &ast.StringValue{
-		// 	Kind:  kinds.StringValue,
-		// 	Value: "Entity identifier. If not specified, the generated UUID is used.",
-		// },
+
 		Type: t,
 	}
 }

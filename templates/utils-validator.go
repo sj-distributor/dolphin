@@ -121,7 +121,7 @@ func Min[T int64 | float64](value T, min interface{}) error {
 	}
 
 	if int64(value) < minValue {
-		return fmt.Errorf("must be at least %s" + convertor.ToString(min))
+		return fmt.Errorf("must be at least %s", convertor.ToString(min))
 	}
 	return nil
 }
@@ -134,7 +134,7 @@ func Max[T int64 | float64](value T, max interface{}) error {
 	}
 
 	if int64(value) > maxValue {
-		return fmt.Errorf("must be at most %s" + convertor.ToString(max))
+		return fmt.Errorf("must be at most %s", convertor.ToString(max))
 	}
 	return nil
 }
@@ -157,7 +157,7 @@ func validateNumberRange(fieldName string, value any, minValue *int, maxValue *i
 			}
 		}
 
-		if err := Max(intValue, *minValue); err != nil {
+		if err := Max(intValue, *maxValue); err != nil {
 			return err
 		}
 	}

@@ -23,7 +23,6 @@ func EnrichModelObjects(m *Model) error {
 		for _, rel := range o.Relationships() {
 			if rel.IsToOne() {
 				o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", "ID", rel.Target().Name(), rel.IsNonNull()))
-				// o.Def.Fields = append(o.Def.Fields, columnDefinition(rel.Name()+"Id", rel.Target().Name(), false))
 			}
 		}
 		o.Def.Fields = append(o.Def.Fields, isDelete, weight, state, deletedBy, updatedBy, createdBy, deletedAt, updatedAt, createdAt)
@@ -62,7 +61,6 @@ func EnrichModel(m *Model) error {
 	}
 	m.Doc.Definitions = append(schemaHeaderNodes, m.Doc.Definitions...)
 	m.Doc.Definitions = append(m.Doc.Definitions, definitions...)
-	// m.Doc.Definitions = append(m.Doc.Definitions, createFederationServiceObject())
 
 	return nil
 }

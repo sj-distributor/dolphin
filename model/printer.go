@@ -1,6 +1,8 @@
 package model
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql/language/ast"
 	"github.com/graphql-go/graphql/language/printer"
 )
@@ -104,7 +106,9 @@ func PrintSchema(model Model) (string, error) {
 	deduplicateDefinitions(model.Doc)
 
 	printed := printer.Print(model.Doc)
-	printedString, _ := printed.(string)
-
+	printedString, ok := printed.(string)
+	if !ok {
+		return "", fmt.Errorf("printer.Print returned unexpected type %T", printed)
+	}
 	return printedString, nil
 }

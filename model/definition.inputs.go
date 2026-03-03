@@ -82,25 +82,6 @@ func objectRelationshipFunc(obj Object, name string) *ast.InputObjectDefinition 
 		} else {
 			t = getNullableType(t)
 		}
-		// if strings.Contains(name, CREATE) {
-		// 	if !col.IsCreatable() || col.IsReadonlyType() || col.Name() == "id" {
-		// 		continue
-		// 	}
-
-		// 	if col.Name() == "id" {
-		// 		t = getNamedType(t)
-		// 	}
-		// }
-
-		// if strings.Contains(name, UPDATE) {
-		// 	if !col.IsUpdatable() || col.IsReadonlyType() || col.Name() == "id" {
-		// 		continue
-		// 	}
-		// }
-
-		// if isListType(getNullableType(t)) {
-		// 	t = getNullableType(t)
-		// }
 
 		fields = append(fields, &ast.InputValueDefinition{
 			Kind:        kinds.InputValueDefinition,

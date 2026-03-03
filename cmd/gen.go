@@ -10,7 +10,6 @@ import (
 
 	"github.com/sj-distributor/dolphin/model"
 	"github.com/sj-distributor/dolphin/templates"
-	"github.com/sj-distributor/dolphin/tools"
 	"github.com/sj-distributor/dolphin/utils"
 	"github.com/urfave/cli"
 )
@@ -120,11 +119,6 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
-	// err = model.BuildFederatedModel(&m)
-	// if err != nil {
-	// 	return err
-	// }
-
 	schema, err := model.PrintSchema(m)
 	if err != nil {
 		return err
@@ -156,7 +150,7 @@ func generate(fileDirPath, p string) error {
 
 	fmt.Printf("Running gqlgen generator in %s ...\n", path.Join(p, "gen"))
 
-	if err := tools.RunInteractiveInDir("go mod tidy && go run github.com/99designs/gqlgen", path.Join(p, "gen")); err != nil {
+	if err := templates.RunInteractiveInDir("go mod tidy && go run github.com/99designs/gqlgen", path.Join(p, "gen")); err != nil {
 		return err
 	}
 
@@ -229,10 +223,6 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.ResolverSrcGen, path.Join(p, "src/resolver_gen.go"), data); err != nil {
 		return err
 	}
-
-	// if err := templates.WriteTemplate(templates.ResolverSrcContext, path.Join(p, "src/context.go"), data); err != nil {
-	// 	return err
-	// }
 
 	if err := templates.WriteTemplate(templates.Validator, path.Join(p, "utils/validator.go"), data); err != nil {
 		return err

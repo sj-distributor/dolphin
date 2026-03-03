@@ -8,9 +8,7 @@ import (
 )
 
 func queryDefinition(m *Model) *ast.ObjectDefinition {
-	fields := []*ast.FieldDefinition{
-		// createFederationServiceQueryField(),
-	}
+	fields := []*ast.FieldDefinition{}
 
 	if m.HasFederatedTypes() {
 		fields = append(fields, createFederationEntitiesQueryField())
@@ -43,14 +41,12 @@ func fetchFieldDefinition(obj Object) *ast.FieldDefinition {
 			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("id"),
-				// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "Input for searching by object ID"}, // 这是描述说明
 				Type: namedType("ID"),
 			},
 			{
 				Kind: kinds.InputValueDefinition,
 				Name: nameNode("filter"),
 				Type: namedType(obj.Name() + "FilterType"),
-				// Description: &ast.StringValue{Kind: kinds.StringValue, Value: "Query" + inflection.Singular(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}
@@ -97,7 +93,6 @@ func listFieldDefinition(obj Object) *ast.FieldDefinition {
 				Name:         nameNode("rand"),
 				DefaultValue: &ast.IntValue{Kind: kinds.IntValue, Value: "false"},
 				Type:         namedType("Boolean"),
-				// Description:  &ast.StringValue{Kind: kinds.StringValue, Value: "Query" + inflection.Plural(strcase.ToCamel(obj.Name())) + "Args"},
 			},
 		},
 	}

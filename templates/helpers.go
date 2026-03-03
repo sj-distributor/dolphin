@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -39,17 +38,6 @@ func WriteInterfaceTemplateRaw(t, filename string, data interface{}) error {
 		return err
 	}
 
-	// type Inventory struct {
-	//   Material string
-	//   Count    uint
-	// }
-
-	// sweaters := Inventory{"wool", 17}
-	// temp, err := template.New("test").Parse("{{.Count}} items are made of {{.Material}}")
-	// if err != nil {
-	//   return err
-	// }
-
 	var content bytes.Buffer
 	writer := io.Writer(&content)
 
@@ -57,7 +45,7 @@ func WriteInterfaceTemplateRaw(t, filename string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(filename, content.Bytes(), 0777)
+	err = os.WriteFile(filename, content.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
@@ -66,7 +54,7 @@ func WriteInterfaceTemplateRaw(t, filename string, data interface{}) error {
 
 func WriterOriginalFile(data interface{}, filename string) error {
 	content := []byte(fmt.Sprintf("%v", data))
-	err := ioutil.WriteFile(filename, content, 0777)
+	err := os.WriteFile(filename, content, 0644)
 	if err != nil {
 		return err
 	}
@@ -92,7 +80,7 @@ func WriteTemplateRaw(t, filename string, data interface{}) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filename, content.Bytes(), 0777)
+	err = os.WriteFile(filename, content.Bytes(), 0644)
 	if err != nil {
 		return err
 	}
@@ -113,7 +101,6 @@ func RunInteractiveInDir(cmd, dir string) error {
 		log.Println(cmd)
 	}
 
-	// command := exec.Command("sh", "-c", "set -o pipefail && " + cmd)
 	command := exec.Command("sh", "-c", cmd)
 	if err := command.Run(); err != nil {
 		return cli.NewExitError(err, 1)
@@ -170,8 +157,8 @@ func createFile(filePath string) error {
 	return nil
 }
 
-// 判断所给路径文件/文件夹是否存在(返回true是存在)
+// isExist 判断所给路径文件/文件夹是否存在(返回true是存在)
 func isExist(path string) bool {
 	_, err := os.Stat(path)
-	return os.IsExist(err)
+	return err == nil
 }

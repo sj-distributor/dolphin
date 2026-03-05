@@ -208,8 +208,8 @@ func Create{{$obj.Name}}Handler(ctx context.Context, r *GeneratedResolver, input
 		itemIds := []string{}
 		findIds := []string{}
 
-		for _, v := range ids.([]interface{}) {
-			itemIds = append(itemIds, v.(string))
+		for _, v := range ids.([]string) {
+			itemIds = append(itemIds, v)
 		}
 
 		if len(itemIds) > 0 {

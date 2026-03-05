@@ -1,7 +1,7 @@
 package templates
 
 var cdnHostUrl = "https://cdnjs.webstatic.cn/ajax/libs"
-var graphiqlVersion = "3.7.1"
+var graphiqlVersion = "6.0.0-canary-d779fd3f.0"
 var reactVersion = "18.3.1"
 
 var Playground = `package gen

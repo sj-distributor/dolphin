@@ -4,6 +4,7 @@ var Validator = `package utils
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -12,11 +13,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// 获取字段名
+// 使用 reflect.DeepEqual 进行深度比较，以正确处理 *string 等指针类型
 func GetFieldName(obj any, value any) string {
 	if objMap, ok := obj.(map[string]interface{}); ok {
 		for key, val := range objMap {
-			if val == value {
+			if reflect.DeepEqual(val, value) {
 				return key
 			}
 		}
@@ -171,6 +172,10 @@ func validateNumberRange(fieldName string, value any, minValue *int, maxValue *i
 func validateUnique(ctx context.Context, obj any, fieldName string, value any, uniqueScope *string) error {
 	if isEmpty(value) {
 		return nil // 空值不做唯一性校验
+	}
+
+	if fieldName == "unknown_field" {
+		return nil // 字段名解析失败时跳过校验，不生成无效 SQL
 	}
 
 	// 从 context 获取 db 和 modelStruct

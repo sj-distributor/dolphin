@@ -103,23 +103,6 @@ func PrintSchema(model Model) (string, error) {
 		o.Object.Def.Fields = fields
 	}
 
-	for _, o := range model.InputObjects() {
-		fields := []*ast.InputValueDefinition{}
-		for _, f := range o.Def.Fields {
-			f.Directives = filterDirective(f.Directives, "relationship")
-			f.Directives = filterDirective(f.Directives, "column")
-			f.Directives = filterDirective(f.Directives, "validator")
-			f.Directives = filterDirective(f.Directives, "hasPermission")
-			f.Directives = filterDirective(f.Directives, "entity")
-			fields = append(fields, f)
-		}
-		o.Def.Fields = fields
-		o.Def.Directives = filterDirective(o.Def.Directives, "skip")
-		o.Def.Directives = filterDirective(o.Def.Directives, "entity")
-		o.Def.Directives = filterDirective(o.Def.Directives, "hasRole")
-		o.Def.Directives = filterDirective(o.Def.Directives, "sharding")
-	}
-
 	// Deduplicate directive and enum definitions to prevent redeclaration errors
 	deduplicateDefinitions(model.Doc)
 

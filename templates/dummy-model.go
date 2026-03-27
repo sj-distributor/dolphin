@@ -6,7 +6,9 @@
 package templates
 
 var DummyModel = `
-directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @hasPermission(action: String!) on FIELD_DEFINITION
+directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int, unique: String, uniqueScope: String) on INPUT_FIELD_DEFINITION
 
 enum Role {
   ALL

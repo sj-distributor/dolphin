@@ -15,21 +15,21 @@ schema {
 }
 
 type Query {
-  user(id: ID, filter: UserFilterType): User
-  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
-  task(id: ID, filter: TaskFilterType): Task
-  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType
+  user(id: ID, filter: UserFilterType): User @hasRole(role: ALL)
+  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType @hasRole(role: ALL)
+  task(id: ID, filter: TaskFilterType): Task @hasRole(role: ALL)
+  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType @hasRole(role: ALL)
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User!
-  updateUser(id: ID!, input: UpdateUserInput!): User!
-  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean!
-  recoveryUsers(id: [ID!]!): Boolean!
-  createTask(input: CreateTaskInput!): Task!
-  updateTask(id: ID!, input: UpdateTaskInput!): Task!
-  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean!
-  recoveryTasks(id: [ID!]!): Boolean!
+  createUser(input: CreateUserInput!): User! @hasRole(role: ALL)
+  updateUser(id: ID!, input: UpdateUserInput!): User! @hasRole(role: ALL)
+  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryUsers(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createTask(input: CreateTaskInput!): Task! @hasRole(role: ALL)
+  updateTask(id: ID!, input: UpdateTaskInput!): Task! @hasRole(role: ALL)
+  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
+  recoveryTasks(id: [ID!]!): Boolean! @hasRole(role: ALL)
 }
 
 type Subscription {
@@ -59,42 +59,12 @@ input FileField {
   file: Upload!
 }
 
-enum ClientType {
-  WEB
-  MOBILE
-  DESKTOP
-}
-
-enum Platform {
-  IOS
-  ANDROID
-  WINDOWS
-  MACOS
-  LINUX
-}
+directive @hasPermission(action: String!) on FIELD_DEFINITION
 
 input loginParams {
   phone: String!
   password: String!
-  clientType: ClientType!
-  platform: Platform!
   deviceId: String!
-}
-
-type LoginResult {
-  token: String
-  permissions: [String]
-  needSelectCompany: Boolean!
-  currentCompanyId: String
-  companies: [LoginCompanyOption]
-}
-
-type LoginCompanyOption {
-  companyId: String
-  companyName: String
-  companyMemberId: String
-  isDefault: Boolean
-  roleCodes: [String]
 }
 
 type User {
@@ -137,7 +107,7 @@ type Task {
 }
 
 extend type Query {
-  login(input: loginParams!): LoginResult
+  login(input: loginParams!): Any
 }
 
 input CreateUserInput {

@@ -12,20 +12,20 @@ var page = template.Must(template.New("graphiql").Parse(`<!DOCTYPE html>
     <title>{{.title}}</title>
     <link
 		rel="stylesheet"
-		href="https://cdnjs.webstatic.cn/ajax/libs/graphiql/6.0.0-canary-d779fd3f.0/graphiql.min.css"
+		href="https://cdn.jsdelivr.net/npm/graphiql@3.7.1/graphiql.min.css"
 	/>
   </head>
   <body style="margin: 0;">
     <div id="graphiql" style="height: 100vh;"></div>
 
 	<script
-		src="https://cdnjs.webstatic.cn/ajax/libs/react/18.3.1/umd/react.production.min.js"
+		src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"
 	></script>
 	<script
-		src="https://cdnjs.webstatic.cn/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"
+		src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
 	></script>
 	<script
-		src="https://cdnjs.webstatic.cn/ajax/libs/graphiql/6.0.0-canary-d779fd3f.0/graphiql.js"
+		src="https://cdn.jsdelivr.net/npm/graphiql@3.7.1/graphiql.min.js"
 	></script>
 
     <script>

@@ -80,7 +80,7 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 	 * @param {*int} maxValue - 最大值，用于数值范围的验证。
 	 *
 	 */
-	c.Directives.Validator = func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int) (res any, err error) {
+	c.Directives.Validator = func(ctx context.Context, obj any, next graphql.Resolver, required *string, immutable *string, typeArg *string, minLength *int, maxLength *int, minValue *int, maxValue *int, unique *string, uniqueScope *string) (res any, err error) {
 		value, err := next(ctx)
 
 		if err != nil {
@@ -89,7 +89,7 @@ func New(db *gen.DB, ec *gen.EventController) gen.Config {
 
 		fieldName := utils.GetFieldName(obj, value)
 
-		if err := utils.ValidateField(ctx, fieldName, value, required, immutable, typeArg, minLength, maxLength, minValue, maxValue); err != nil {
+		if err := utils.ValidateField(ctx, obj, fieldName, value, required, immutable, typeArg, minLength, maxLength, minValue, maxValue, unique, uniqueScope); err != nil {
 			return nil, err
 		}
 

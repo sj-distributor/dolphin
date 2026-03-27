@@ -17,22 +17,6 @@ type FileField struct {
 	File graphql.Upload `json:"file"`
 }
 
-type LoginCompanyOption struct {
-	CompanyID       *string   `json:"companyId,omitempty"`
-	CompanyName     *string   `json:"companyName,omitempty"`
-	CompanyMemberID *string   `json:"companyMemberId,omitempty"`
-	IsDefault       *bool     `json:"isDefault,omitempty"`
-	RoleCodes       []*string `json:"roleCodes,omitempty"`
-}
-
-type LoginResult struct {
-	Token             *string               `json:"token,omitempty"`
-	Permissions       []*string             `json:"permissions,omitempty"`
-	NeedSelectCompany bool                  `json:"needSelectCompany"`
-	CurrentCompanyID  *string               `json:"currentCompanyId,omitempty"`
-	Companies         []*LoginCompanyOption `json:"companies,omitempty"`
-}
-
 type Mutation struct {
 }
 
@@ -376,68 +360,9 @@ type UserSortType struct {
 }
 
 type LoginParams struct {
-	Phone      string     `json:"phone"`
-	Password   string     `json:"password"`
-	ClientType ClientType `json:"clientType"`
-	Platform   Platform   `json:"platform"`
-	DeviceID   string     `json:"deviceId"`
-}
-
-type ClientType string
-
-const (
-	ClientTypeWeb     ClientType = "WEB"
-	ClientTypeMobile  ClientType = "MOBILE"
-	ClientTypeDesktop ClientType = "DESKTOP"
-)
-
-var AllClientType = []ClientType{
-	ClientTypeWeb,
-	ClientTypeMobile,
-	ClientTypeDesktop,
-}
-
-func (e ClientType) IsValid() bool {
-	switch e {
-	case ClientTypeWeb, ClientTypeMobile, ClientTypeDesktop:
-		return true
-	}
-	return false
-}
-
-func (e ClientType) String() string {
-	return string(e)
-}
-
-func (e *ClientType) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ClientType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ClientType", str)
-	}
-	return nil
-}
-
-func (e ClientType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *ClientType) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e ClientType) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+	DeviceID string `json:"deviceId"`
 }
 
 type ObjectSortType string
@@ -490,67 +415,6 @@ func (e *ObjectSortType) UnmarshalJSON(b []byte) error {
 }
 
 func (e ObjectSortType) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-type Platform string
-
-const (
-	PlatformIos     Platform = "IOS"
-	PlatformAndroid Platform = "ANDROID"
-	PlatformWindows Platform = "WINDOWS"
-	PlatformMacos   Platform = "MACOS"
-	PlatformLinux   Platform = "LINUX"
-)
-
-var AllPlatform = []Platform{
-	PlatformIos,
-	PlatformAndroid,
-	PlatformWindows,
-	PlatformMacos,
-	PlatformLinux,
-}
-
-func (e Platform) IsValid() bool {
-	switch e {
-	case PlatformIos, PlatformAndroid, PlatformWindows, PlatformMacos, PlatformLinux:
-		return true
-	}
-	return false
-}
-
-func (e Platform) String() string {
-	return string(e)
-}
-
-func (e *Platform) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = Platform(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid Platform", str)
-	}
-	return nil
-}
-
-func (e Platform) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *Platform) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e Platform) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

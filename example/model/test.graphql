@@ -1,5 +1,7 @@
 
-directive @hasRole(role: Role!) on FIELD_DEFINITION
+directive @hasRole(role: Role!) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @hasPermission(action: String!) on FIELD_DEFINITION
+directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int, unique: String, uniqueScope: String) on INPUT_FIELD_DEFINITION
 
 enum Role {
   ALL @entity(title: "全部")
@@ -8,42 +10,10 @@ enum Role {
   GUEST @entity(title: "游客")
 }
 
-enum ClientType {
-  WEB @entity(title: "网页")
-  MOBILE @entity(title: "手机")
-  DESKTOP @entity(title: "桌面")
-}
-
-enum Platform {
-  IOS @entity(title: "iOS")
-  ANDROID @entity(title: "Android")
-  WINDOWS @entity(title: "Windows")
-  MACOS @entity(title: "MacOS")
-  LINUX @entity(title: "Linux")
-}
-
 input loginParams {
-  phone: String! @entity(title: "登录账号") @validator(required: "true", type: "phone")
-  password: String! @entity(title: "登录密码") @validator(required: "true", type: "password")
-  clientType: ClientType! @entity(title: "客户端类型") @validator(required: "true")
-  platform: Platform! @entity(title: "平台") @validator(required: "true")
+  phone: String!
+  password: String!
   deviceId: String! @entity(title: "设备ID") @validator(required: "true")
-}
-
-type LoginResult @skip {
-  token: String @entity(title: "token")
-  permissions: [String] @entity(title: "权限")
-  needSelectCompany: Boolean! @entity(title: "是否需要选择公司")
-  currentCompanyId: String @entity(title: "当前公司ID")
-  companies: [LoginCompanyOption] @entity(title: "公司列表")
-}
-
-type LoginCompanyOption @skip {
-  companyId: String @entity(title: "公司ID")
-  companyName: String @entity(title: "公司名称")
-  companyMemberId: String @entity(title: "公司成员ID")
-  isDefault: Boolean @entity(title: "是否默认")
-  roleCodes: [String] @entity(title: "角色代码")
 }
 
 type User @entity(title: "用户管理") {
@@ -64,7 +34,7 @@ type Task @entity(title: "任务管理") {
 }
 
 extend type Query {
-  login(input: loginParams!): LoginResult @entity(title: "用户登录", default: 1)
+  login(input: loginParams!): Any @entity(title: "用户登录", default: 1)
 }
 
 extend type Subscription {

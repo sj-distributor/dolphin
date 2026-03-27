@@ -69,56 +69,16 @@
     ],
 		"typeData": [
 			{
-				"name": "LoginResult",
-				"fields": [
-					{ "name": "token", "desc": "token", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "permissions", "desc": "权限", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "needSelectCompany", "desc": "是否需要选择公司", "type": "Boolean", "required": "true", "validator": "", "remark": "" },
-					{ "name": "currentCompanyId", "desc": "当前公司ID", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "companies", "desc": "公司列表", "type": "LoginCompanyOption", "required": "false", "validator": "", "remark": "" }
-				]
-			},
-			{
 				"name": "loginParams",
 				"fields": [
-					{ "name": "phone", "desc": "登录账号", "type": "String", "required": "true", "validator": "phone", "remark": "" },
-					{ "name": "password", "desc": "登录密码", "type": "String", "required": "true", "validator": "password", "remark": "" },
-					{ "name": "clientType", "desc": "客户端类型", "type": "ClientType", "required": "true", "validator": "", "remark": "" },
-					{ "name": "platform", "desc": "平台", "type": "Platform", "required": "true", "validator": "", "remark": "" },
+					{ "name": "phone", "desc": "phone", "type": "String", "required": "true", "validator": "", "remark": "" },
+					{ "name": "password", "desc": "password", "type": "String", "required": "true", "validator": "", "remark": "" },
 					{ "name": "deviceId", "desc": "设备ID", "type": "String", "required": "true", "validator": "", "remark": "" }
-				]
-			},
-			{
-				"name": "LoginCompanyOption",
-				"fields": [
-					{ "name": "companyId", "desc": "公司ID", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "companyName", "desc": "公司名称", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "companyMemberId", "desc": "公司成员ID", "type": "String", "required": "false", "validator": "", "remark": "" },
-					{ "name": "isDefault", "desc": "是否默认", "type": "Boolean", "required": "false", "validator": "", "remark": "" },
-					{ "name": "roleCodes", "desc": "角色代码", "type": "String", "required": "false", "validator": "", "remark": "" }
-				]
-			},
-			{
-				"name": "ClientType",
-				"fields": [
-					{ "name": "WEB", "desc": "网页", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "MOBILE", "desc": "手机", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "DESKTOP", "desc": "桌面", "type": "Enum", "required": "false", "validator": "", "remark": "" }
-				]
-			},
-			{
-				"name": "Platform",
-				"fields": [
-					{ "name": "IOS", "desc": "iOS", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "ANDROID", "desc": "Android", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "WINDOWS", "desc": "Windows", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "MACOS", "desc": "MacOS", "type": "Enum", "required": "false", "validator": "", "remark": "" },
-					{ "name": "LINUX", "desc": "Linux", "type": "Enum", "required": "false", "validator": "", "remark": "" }
 				]
 			}
 		],
     "data": [
-      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query", "code": "login(input: loginParams!): LoginResult" }
+      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query", "code": "login(input: loginParams!): Any @entity(title: \"用户登录\", default: 1)" }
     ]
   },
 	{
@@ -131,7 +91,7 @@
 		"typeData": [
 		],
     "data": [
-      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription", "code": "webSocket: Any" }
+      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription", "code": "webSocket: Any @entity(title: \"webSocket\", default: 1)" }
     ]
   }
 ]

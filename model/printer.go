@@ -7,61 +7,14 @@ import (
 	"github.com/graphql-go/graphql/language/printer"
 )
 
-func cleanDirectives(ds []*ast.Directive) []*ast.Directive {
+func filterDirective(ds []*ast.Directive, name string) []*ast.Directive {
 	res := []*ast.Directive{}
-	skipList := []string{"relationship", "column", "validator", "skip", "entity", "hasRole", "sharding", "hasPermission"}
 	for _, d := range ds {
-		isInternal := false
-		for _, name := range skipList {
-			if d.Name.Value == name {
-				isInternal = true
-				break
-			}
-		}
-		if !isInternal {
+		if d.Name.Value != name {
 			res = append(res, d)
 		}
 	}
 	return res
-}
-
-func cleanNode(node ast.Node) {
-	if node == nil {
-		return
-	}
-	switch n := node.(type) {
-	case *ast.ObjectDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-		for _, f := range n.Fields {
-			cleanNode(f)
-		}
-	case *ast.InputObjectDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-		for _, f := range n.Fields {
-			cleanNode(f)
-		}
-	case *ast.InterfaceDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-		for _, f := range n.Fields {
-			cleanNode(f)
-		}
-	case *ast.FieldDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-		for _, arg := range n.Arguments {
-			cleanNode(arg)
-		}
-	case *ast.InputValueDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-	case *ast.TypeExtensionDefinition:
-		cleanNode(n.Definition)
-	case *ast.EnumDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-		for _, v := range n.Values {
-			cleanNode(v)
-		}
-	case *ast.EnumValueDefinition:
-		n.Directives = cleanDirectives(n.Directives)
-	}
 }
 
 // deduplicateDefinitions removes duplicate DirectiveDefinition and EnumDefinition
@@ -123,8 +76,48 @@ func deduplicateDefinitions(doc *ast.Document) {
 
 // PrintSchema
 func PrintSchema(model Model) (string, error) {
-	for _, def := range model.Doc.Definitions {
-		cleanNode(def)
+	for _, o := range model.Objects() {
+		fields := []*ast.FieldDefinition{}
+		for _, f := range o.Def.Fields {
+			f.Directives = filterDirective(f.Directives, "relationship")
+			f.Directives = filterDirective(f.Directives, "column")
+			f.Directives = filterDirective(f.Directives, "validator")
+			f.Directives = filterDirective(f.Directives, "hasPermission")
+			fields = append(fields, f)
+		}
+		o.Def.Fields = fields
+		o.Def.Directives = filterDirective(o.Def.Directives, "skip")
+		o.Def.Directives = filterDirective(o.Def.Directives, "entity")
+		o.Def.Directives = filterDirective(o.Def.Directives, "hasRole")
+		o.Def.Directives = filterDirective(o.Def.Directives, "sharding")
+	}
+
+	for _, o := range model.ObjectExtensions() {
+		fields := []*ast.FieldDefinition{}
+		for _, f := range o.Object.Def.Fields {
+			f.Directives = filterDirective(f.Directives, "entity")
+			f.Directives = filterDirective(f.Directives, "hasRole")
+			f.Directives = filterDirective(f.Directives, "sharding")
+			fields = append(fields, f)
+		}
+		o.Object.Def.Fields = fields
+	}
+
+	for _, o := range model.InputObjects() {
+		fields := []*ast.InputValueDefinition{}
+		for _, f := range o.Def.Fields {
+			f.Directives = filterDirective(f.Directives, "relationship")
+			f.Directives = filterDirective(f.Directives, "column")
+			f.Directives = filterDirective(f.Directives, "validator")
+			f.Directives = filterDirective(f.Directives, "hasPermission")
+			f.Directives = filterDirective(f.Directives, "entity")
+			fields = append(fields, f)
+		}
+		o.Def.Fields = fields
+		o.Def.Directives = filterDirective(o.Def.Directives, "skip")
+		o.Def.Directives = filterDirective(o.Def.Directives, "entity")
+		o.Def.Directives = filterDirective(o.Def.Directives, "hasRole")
+		o.Def.Directives = filterDirective(o.Def.Directives, "sharding")
 	}
 
 	// Deduplicate directive and enum definitions to prevent redeclaration errors

@@ -148,13 +148,11 @@ func (o *ObjectField) Signature() string {
 
 	// 备份原始指令
 	origFieldDirectives := o.Def.Directives
-	o.Def.Directives = cleanDirectives(o.Def.Directives)
 
 	// 备份参数原始指令
 	origArgDirectives := make([][]*ast.Directive, len(o.Def.Arguments))
 	for i, arg := range o.Def.Arguments {
 		origArgDirectives[i] = arg.Directives
-		arg.Directives = cleanDirectives(arg.Directives)
 	}
 
 	// 打印签名

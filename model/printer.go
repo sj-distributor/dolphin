@@ -9,7 +9,7 @@ import (
 
 func cleanDirectives(ds []*ast.Directive) []*ast.Directive {
 	res := []*ast.Directive{}
-	skipList := []string{"relationship", "column", "validator", "skip", "entity", "hasRole", "sharding"}
+	skipList := []string{"relationship", "column", "validator", "skip", "entity", "hasRole", "sharding", "hasPermission"}
 	for _, d := range ds {
 		isInternal := false
 		for _, name := range skipList {

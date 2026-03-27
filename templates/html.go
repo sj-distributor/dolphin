@@ -1,7 +1,7 @@
 package templates
 
-var cdnHostUrl = "https://cdnjs.webstatic.cn/ajax/libs"
-var graphiqlVersion = "6.0.0-canary-d779fd3f.0"
+var cdnHostUrl = "https://cdn.jsdelivr.net/npm"
+var graphiqlVersion = "3.7.1"
 var reactVersion = "18.3.1"
 
 var Playground = `package gen
@@ -20,20 +20,20 @@ var Html = `<!DOCTYPE html>
     <title>{{.title}}</title>
     <link
 		rel="stylesheet"
-		href="` + cdnHostUrl + `/graphiql/` + graphiqlVersion + `/graphiql.min.css"
+		href="` + cdnHostUrl + `/graphiql@` + graphiqlVersion + `/graphiql.min.css"
 	/>
   </head>
   <body style="margin: 0;">
     <div id="graphiql" style="height: 100vh;"></div>
 
 	<script
-		src="` + cdnHostUrl + `/react/` + reactVersion + `/umd/react.production.min.js"
+		src="` + cdnHostUrl + `/react@` + reactVersion + `/umd/react.production.min.js"
 	></script>
 	<script
-		src="` + cdnHostUrl + `/react-dom/` + reactVersion + `/umd/react-dom.production.min.js"
+		src="` + cdnHostUrl + `/react-dom@` + reactVersion + `/umd/react-dom.production.min.js"
 	></script>
 	<script
-		src="` + cdnHostUrl + `/graphiql/` + graphiqlVersion + `/graphiql.js"
+		src="` + cdnHostUrl + `/graphiql@` + graphiqlVersion + `/graphiql.min.js"
 	></script>
 
     <script>

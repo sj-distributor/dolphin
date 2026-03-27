@@ -118,7 +118,7 @@
 			}
 		],
     "data": [
-      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query" }
+      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query", "code": "login(input: loginParams!): LoginResult" }
     ]
   },
 	{
@@ -131,7 +131,7 @@
 		"typeData": [
 		],
     "data": [
-      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription" }
+      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription", "code": "webSocket: Any" }
     ]
   }
 ]

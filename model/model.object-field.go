@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/gqlgen/codegen/templates"
 	"github.com/graphql-go/graphql/language/ast"
+	"github.com/graphql-go/graphql/language/printer"
 	"github.com/iancoleman/strcase"
 )
 
@@ -137,6 +138,40 @@ func (o *ObjectField) RelationshipName() string {
 // RelationshipTypeName 返回关系的类型名称
 func (o *ObjectField) RelationshipTypeName() string {
 	return o.Def.Description.Kind
+}
+
+// Signature 返回字段的 GraphQL 签名字符串（不含 Dolphin 指令）
+func (o *ObjectField) Signature() string {
+	if o.Def == nil {
+		return ""
+	}
+
+	// 备份原始指令
+	origFieldDirectives := o.Def.Directives
+	o.Def.Directives = cleanDirectives(o.Def.Directives)
+
+	// 备份参数原始指令
+	origArgDirectives := make([][]*ast.Directive, len(o.Def.Arguments))
+	for i, arg := range o.Def.Arguments {
+		origArgDirectives[i] = arg.Directives
+		arg.Directives = cleanDirectives(arg.Directives)
+	}
+
+	// 打印签名
+	printed := printer.Print(o.Def)
+
+	// 还原原始指令
+	o.Def.Directives = origFieldDirectives
+	for i, arg := range o.Def.Arguments {
+		arg.Directives = origArgDirectives[i]
+	}
+
+	if s, ok := printed.(string); ok {
+		// 移除可能存在的末尾换行符或空格，并对双引号进行转义以确保 JSON 安全
+		res := strings.TrimSpace(s)
+		return strings.ReplaceAll(res, "\"", "\\\"")
+	}
+	return ""
 }
 
 // ============================================================

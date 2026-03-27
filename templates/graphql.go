@@ -134,7 +134,7 @@ var GraphqlApi = `[
 			}{{$typeComma = ","}}{{end}}
 		],
     "data": [
-      { "name": "{{$col.GetTableName}}", "title": "{{$col.GetTableName}}", "api": "{{$col.Name}}", "type": "detail", "method": "{{$obj.ToCamel}}" }
+      { "name": "{{$col.GetTableName}}", "title": "{{$col.GetTableName}}", "api": "{{$col.Name}}", "type": "detail", "method": "{{$obj.ToCamel}}", "code": "{{$col.Signature}}" }
     ]
   }{{ $extComma = "," }}{{end}}{{end}}
 ]

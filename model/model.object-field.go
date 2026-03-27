@@ -496,6 +496,16 @@ func (o *ObjectField) GetTypeData() []TypeData {
 					Validator: o.getValidatorFromDirectives(field.Directives),
 				})
 			}
+		case *ast.EnumDefinition:
+			for _, val := range d.Values {
+				typeData.Fields = append(typeData.Fields, FieldMetadata{
+					Name:      val.Name.Value,
+					Type:      "Enum",
+					Desc:      o.getEnumTitle(val),
+					Required:  "false",
+					Validator: "",
+				})
+			}
 		}
 		result = append(result, typeData)
 	}
@@ -546,6 +556,21 @@ func (o *ObjectField) getValidatorFromDirectives(directives []*ast.Directive) st
 		}
 	}
 	return ""
+}
+
+func (o *ObjectField) getEnumTitle(v *ast.EnumValueDefinition) string {
+	for _, d := range v.Directives {
+		if d.Name.Value == "entity" {
+			for _, arg := range d.Arguments {
+				if arg.Name.Value == "title" {
+					if val, ok := arg.Value.GetValue().(string); ok {
+						return val
+					}
+				}
+			}
+		}
+	}
+	return v.Name.Value
 }
 
 // Arguments 返回格式化的 GraphQL 参数字符串

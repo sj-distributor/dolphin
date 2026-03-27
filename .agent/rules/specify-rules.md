@@ -56,9 +56,9 @@ npm test && npm run lint
 TypeScript 5.x (via Astro defaults): Follow standard conventions
 
 ## Recent Changes
+- 006-enum-api-metadata: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
 - 005-extension-api-metadata: Added Go 1.25.5 + gqlgen v0.17.85, graphql-go/graphql v0.8.1
 - 004-fix-input-directive: Added Go 1.25.5 + gqlgen v0.17.85, graphql-go/graphql v0.8.1
-- 003-optimize-mutation-template: Added Go 1.24.0 (dolphin CLI) — generates Go code for target projects + gqlgen v0.17.85, urfave/cli v1.22.15
 
 
 <!-- MANUAL ADDITIONS START -->

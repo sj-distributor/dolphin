@@ -83,9 +83,9 @@
 				"fields": [
 					{ "name": "phone", "desc": "登录账号", "type": "String", "required": "true", "validator": "phone", "remark": "" },
 					{ "name": "password", "desc": "登录密码", "type": "String", "required": "true", "validator": "password", "remark": "" },
-					{ "name": "clientType", "desc": "客户端类型", "type": "ClientType", "required": "true", "validator": "enum", "remark": "" },
-					{ "name": "platform", "desc": "平台", "type": "Platform", "required": "true", "validator": "enum", "remark": "" },
-					{ "name": "deviceId", "desc": "设备ID", "type": "String", "required": "true", "validator": "string", "remark": "" }
+					{ "name": "clientType", "desc": "客户端类型", "type": "ClientType", "required": "true", "validator": "", "remark": "" },
+					{ "name": "platform", "desc": "平台", "type": "Platform", "required": "true", "validator": "", "remark": "" },
+					{ "name": "deviceId", "desc": "设备ID", "type": "String", "required": "true", "validator": "", "remark": "" }
 				]
 			},
 			{
@@ -101,11 +101,19 @@
 			{
 				"name": "ClientType",
 				"fields": [
+					{ "name": "WEB", "desc": "网页", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "MOBILE", "desc": "手机", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "DESKTOP", "desc": "桌面", "type": "Enum", "required": "false", "validator": "", "remark": "" }
 				]
 			},
 			{
 				"name": "Platform",
 				"fields": [
+					{ "name": "IOS", "desc": "iOS", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "ANDROID", "desc": "Android", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "WINDOWS", "desc": "Windows", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "MACOS", "desc": "MacOS", "type": "Enum", "required": "false", "validator": "", "remark": "" },
+					{ "name": "LINUX", "desc": "Linux", "type": "Enum", "required": "false", "validator": "", "remark": "" }
 				]
 			}
 		],

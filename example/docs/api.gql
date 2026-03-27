@@ -1,4 +1,102 @@
 
+  # LoginResult LoginResult 接口字段
+  fragment LoginResultsFields on LoginResult {
+    
+  }
+
+  # 列表
+  query LoginResults ($currentPage: Int = 1, $perPage: Int = 10, $sort: [LoginResultSortType!], $search: String, $filter: LoginResultFilterType, $rand: Boolean = false) {
+    loginResults(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
+      data {
+        
+      }
+      current_page
+      per_page
+      total
+      total_page
+    }
+  }
+
+  # 详情
+  query LoginResultDetail ($id: ID, $search: String, $filter: LoginResultFilterType) {
+    loginResult(id: $id, q: $search, filter: $filter) {
+      
+    }
+  }
+
+  # 新增
+  mutation createLoginResult ($data: CreateLoginResultInput!) {
+    createLoginResult(input: $data) {
+      id
+    }
+  }
+
+  # 修改
+  mutation updateLoginResult ($id: ID!, $data: UpdateLoginResultInput!) {
+    updateLoginResult(id: $id, input: $data) {
+      id
+    }
+  }
+
+  # 删除
+  mutation deleteLoginResults ($id: [ID!]!) {
+    deleteLoginResults(id: $id)
+  }
+
+  # 恢复删除
+  mutation recoveryLoginResults ($id: [ID!]!) {
+    recoveryLoginResults(id: $id)
+  }
+
+  # LoginCompanyOption LoginCompanyOption 接口字段
+  fragment LoginCompanyOptionsFields on LoginCompanyOption {
+    
+  }
+
+  # 列表
+  query LoginCompanyOptions ($currentPage: Int = 1, $perPage: Int = 10, $sort: [LoginCompanyOptionSortType!], $search: String, $filter: LoginCompanyOptionFilterType, $rand: Boolean = false) {
+    loginCompanyOptions(current_page: $currentPage, per_page: $perPage, sort: $sort, q: $search, filter: $filter, rand: $rand) {
+      data {
+        
+      }
+      current_page
+      per_page
+      total
+      total_page
+    }
+  }
+
+  # 详情
+  query LoginCompanyOptionDetail ($id: ID, $search: String, $filter: LoginCompanyOptionFilterType) {
+    loginCompanyOption(id: $id, q: $search, filter: $filter) {
+      
+    }
+  }
+
+  # 新增
+  mutation createLoginCompanyOption ($data: CreateLoginCompanyOptionInput!) {
+    createLoginCompanyOption(input: $data) {
+      id
+    }
+  }
+
+  # 修改
+  mutation updateLoginCompanyOption ($id: ID!, $data: UpdateLoginCompanyOptionInput!) {
+    updateLoginCompanyOption(id: $id, input: $data) {
+      id
+    }
+  }
+
+  # 删除
+  mutation deleteLoginCompanyOptions ($id: [ID!]!) {
+    deleteLoginCompanyOptions(id: $id)
+  }
+
+  # 恢复删除
+  mutation recoveryLoginCompanyOptions ($id: [ID!]!) {
+    recoveryLoginCompanyOptions(id: $id)
+  }
+
   # 用户管理 User 接口字段
   fragment UsersFields on User {
     id
@@ -200,6 +298,13 @@
   }
 
 
+  
+  # login 接口
+  query login($input: loginParams!) {
+    login(input: $input) {
+      ...LoginResultsFields
+    }
+  }
   
   # webSocket 接口
   subscription webSocket {

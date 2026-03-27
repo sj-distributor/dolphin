@@ -15,21 +15,21 @@ schema {
 }
 
 type Query {
-  user(id: ID, filter: UserFilterType): User @hasRole(role: ALL)
-  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType @hasRole(role: ALL)
-  task(id: ID, filter: TaskFilterType): Task @hasRole(role: ALL)
-  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType @hasRole(role: ALL)
+  user(id: ID, filter: UserFilterType): User
+  users(current_page: Int = 1, per_page: Int = 10, q: String, sort: [UserSortType!], filter: UserFilterType, rand: Boolean = false): UserResultType
+  task(id: ID, filter: TaskFilterType): Task
+  tasks(current_page: Int = 1, per_page: Int = 10, q: String, sort: [TaskSortType!], filter: TaskFilterType, rand: Boolean = false): TaskResultType
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): User! @hasRole(role: ALL)
-  updateUser(id: ID!, input: UpdateUserInput!): User! @hasRole(role: ALL)
-  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
-  recoveryUsers(id: [ID!]!): Boolean! @hasRole(role: ALL)
-  createTask(input: CreateTaskInput!): Task! @hasRole(role: ALL)
-  updateTask(id: ID!, input: UpdateTaskInput!): Task! @hasRole(role: ALL)
-  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean! @hasRole(role: ALL)
-  recoveryTasks(id: [ID!]!): Boolean! @hasRole(role: ALL)
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUsers(id: [ID!]!, unscoped: Boolean = false): Boolean!
+  recoveryUsers(id: [ID!]!): Boolean!
+  createTask(input: CreateTaskInput!): Task!
+  updateTask(id: ID!, input: UpdateTaskInput!): Task!
+  deleteTasks(id: [ID!]!, unscoped: Boolean = false): Boolean!
+  recoveryTasks(id: [ID!]!): Boolean!
 }
 
 type Subscription {
@@ -57,6 +57,44 @@ enum Role {
 input FileField {
   hash: String!
   file: Upload!
+}
+
+enum ClientType {
+  WEB
+  MOBILE
+  DESKTOP
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  WINDOWS
+  MACOS
+  LINUX
+}
+
+input loginParams {
+  phone: String!
+  password: String!
+  clientType: ClientType!
+  platform: Platform!
+  deviceId: String!
+}
+
+type LoginResult {
+  token: String
+  permissions: [String]
+  needSelectCompany: Boolean!
+  currentCompanyId: String
+  companies: [LoginCompanyOption]
+}
+
+type LoginCompanyOption {
+  companyId: String
+  companyName: String
+  companyMemberId: String
+  isDefault: Boolean
+  roleCodes: [String]
 }
 
 type User {
@@ -98,12 +136,16 @@ type Task {
   createdAt: Int!
 }
 
+extend type Query {
+  login(input: loginParams!): LoginResult
+}
+
 input CreateUserInput {
-  phone: String! @validator(required: "true", type: "phone")
-  password: String! @validator(required: "true", type: "password")
-  email: String @validator(required: "true", type: "email")
+  phone: String!
+  password: String!
+  email: String
   nickname: String
-  age: Int @validator(type: "int")
+  age: Int
   lastName: String
   tasks: [TaskRelationship]
   isDelete: Int
@@ -113,11 +155,11 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  phone: String @validator(required: "true", type: "phone")
-  password: String @validator(required: "true", type: "password")
-  email: String @validator(required: "true", type: "email")
+  phone: String
+  password: String
+  email: String
   nickname: String
-  age: Int @validator(type: "int")
+  age: Int
   lastName: String
   tasks: [TaskRelationship]
   isDelete: Int

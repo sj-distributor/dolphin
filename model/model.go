@@ -44,6 +44,13 @@ func (m *Model) loadObjects() {
 	m.objectMap = objMap
 }
 
+func (m *Model) DocObjects() []Object {
+	m.loadObjects()
+	return Filter(m.objects, func(o Object) bool {
+		return !o.IsSkip()
+	})
+}
+
 func (m *Model) Objects() []Object {
 	m.loadObjects()
 	return m.objects

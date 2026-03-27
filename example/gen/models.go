@@ -120,6 +120,9 @@ func ApplyChanges(changes map[string]interface{}, to interface{}) error {
 		ZeroFields:  true,
 		// This is needed to get mapstructure to call the gqlgen unmarshaler func for custom scalars (eg Date)
 		DecodeHook: func(a reflect.Type, b reflect.Type, v interface{}) (interface{}, error) {
+			if a == b {
+				return v, nil
+			}
 
 			if b == reflect.TypeOf(time.Time{}) {
 				switch a.Kind() {

@@ -8,6 +8,44 @@ enum Role {
   GUEST
 }
 
+enum ClientType {
+  WEB
+  MOBILE
+  DESKTOP
+}
+
+enum Platform {
+  IOS
+  ANDROID
+  WINDOWS
+  MACOS
+  LINUX
+}
+
+input loginParams {
+  phone: String! @entity(title: "登录账号")
+  password: String! @entity(title: "登录密码")
+  clientType: ClientType! @entity(title: "客户端类型")
+  platform: Platform! @entity(title: "平台")
+  deviceId: String! @entity(title: "设备ID")
+}
+
+type LoginResult @skip {
+  token: String @entity(title: "token")
+  permissions: [String] @entity(title: "权限")
+  needSelectCompany: Boolean! @entity(title: "是否需要选择公司")
+  currentCompanyId: String @entity(title: "当前公司ID")
+  companies: [LoginCompanyOption] @entity(title: "公司列表")
+}
+
+type LoginCompanyOption @skip {
+  companyId: String @entity(title: "公司ID")
+  companyName: String @entity(title: "公司名称")
+  companyMemberId: String @entity(title: "公司成员ID")
+  isDefault: Boolean @entity(title: "是否默认")
+  roleCodes: [String] @entity(title: "角色代码")
+}
+
 type User @entity(title: "用户管理") {
   phone: String! @column(gorm: "type:varchar(32) comment '账号：使用手机号码';NOT NULL;index:phone;") @validator(required: "true", type: "phone")
   password: String! @column(gorm: "type:varchar(64) comment '登录密码';NOT NULL;") @validator(required: "true", type: "password")
@@ -25,6 +63,10 @@ type Task @entity(title: "任务管理") {
 	user: User @relationship(inverse:"tasks")
 }
 
+extend type Query {
+  login(input: loginParams!): LoginResult @entity(title: "用户登录", default: 1)
+}
+
 extend type Subscription {
-  webSocket: Any
+  webSocket: Any @entity(title: "webSocket", default: 1)
 }

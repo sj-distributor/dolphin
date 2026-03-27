@@ -166,8 +166,8 @@ func CreateUserHandler(ctx context.Context, r *GeneratedResolver, input map[stri
 		itemIds := []string{}
 		findIds := []string{}
 
-		for _, v := range ids.([]interface{}) {
-			itemIds = append(itemIds, v.(string))
+		for _, v := range ids.([]string) {
+			itemIds = append(itemIds, v)
 		}
 
 		if len(itemIds) > 0 {
@@ -507,8 +507,8 @@ func UpdateUserHandler(ctx context.Context, r *GeneratedResolver, id string, inp
 		itemIds := []string{}
 		findIds := []string{}
 
-		for _, v := range ids.([]interface{}) {
-			itemIds = append(itemIds, v.(string))
+		for _, v := range ids.([]string) {
+			itemIds = append(itemIds, v)
 		}
 
 		if len(itemIds) > 0 {

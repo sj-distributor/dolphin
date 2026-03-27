@@ -55,6 +55,22 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	LoginCompanyOption struct {
+		CompanyID       func(childComplexity int) int
+		CompanyMemberID func(childComplexity int) int
+		CompanyName     func(childComplexity int) int
+		IsDefault       func(childComplexity int) int
+		RoleCodes       func(childComplexity int) int
+	}
+
+	LoginResult struct {
+		Companies         func(childComplexity int) int
+		CurrentCompanyID  func(childComplexity int) int
+		NeedSelectCompany func(childComplexity int) int
+		Permissions       func(childComplexity int) int
+		Token             func(childComplexity int) int
+	}
+
 	Mutation struct {
 		CreateTask    func(childComplexity int, input map[string]any) int
 		CreateUser    func(childComplexity int, input map[string]any) int
@@ -67,6 +83,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
+		Login func(childComplexity int, input LoginParams) int
 		Task  func(childComplexity int, id *string, filter *TaskFilterType) int
 		Tasks func(childComplexity int, currentPage *int, perPage *int, q *string, sort []*TaskSortType, filter *TaskFilterType, rand *bool) int
 		User  func(childComplexity int, id *string, filter *UserFilterType) int
@@ -148,6 +165,7 @@ type QueryResolver interface {
 	Users(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*UserSortType, filter *UserFilterType, rand *bool) (*UserResultType, error)
 	Task(ctx context.Context, id *string, filter *TaskFilterType) (*Task, error)
 	Tasks(ctx context.Context, currentPage *int, perPage *int, q *string, sort []*TaskSortType, filter *TaskFilterType, rand *bool) (*TaskResultType, error)
+	Login(ctx context.Context, input LoginParams) (*LoginResult, error)
 }
 type SubscriptionResolver interface {
 	WebSocket(ctx context.Context) (<-chan any, error)
@@ -193,6 +211,68 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "LoginCompanyOption.companyId":
+		if e.complexity.LoginCompanyOption.CompanyID == nil {
+			break
+		}
+
+		return e.complexity.LoginCompanyOption.CompanyID(childComplexity), true
+	case "LoginCompanyOption.companyMemberId":
+		if e.complexity.LoginCompanyOption.CompanyMemberID == nil {
+			break
+		}
+
+		return e.complexity.LoginCompanyOption.CompanyMemberID(childComplexity), true
+	case "LoginCompanyOption.companyName":
+		if e.complexity.LoginCompanyOption.CompanyName == nil {
+			break
+		}
+
+		return e.complexity.LoginCompanyOption.CompanyName(childComplexity), true
+	case "LoginCompanyOption.isDefault":
+		if e.complexity.LoginCompanyOption.IsDefault == nil {
+			break
+		}
+
+		return e.complexity.LoginCompanyOption.IsDefault(childComplexity), true
+	case "LoginCompanyOption.roleCodes":
+		if e.complexity.LoginCompanyOption.RoleCodes == nil {
+			break
+		}
+
+		return e.complexity.LoginCompanyOption.RoleCodes(childComplexity), true
+
+	case "LoginResult.companies":
+		if e.complexity.LoginResult.Companies == nil {
+			break
+		}
+
+		return e.complexity.LoginResult.Companies(childComplexity), true
+	case "LoginResult.currentCompanyId":
+		if e.complexity.LoginResult.CurrentCompanyID == nil {
+			break
+		}
+
+		return e.complexity.LoginResult.CurrentCompanyID(childComplexity), true
+	case "LoginResult.needSelectCompany":
+		if e.complexity.LoginResult.NeedSelectCompany == nil {
+			break
+		}
+
+		return e.complexity.LoginResult.NeedSelectCompany(childComplexity), true
+	case "LoginResult.permissions":
+		if e.complexity.LoginResult.Permissions == nil {
+			break
+		}
+
+		return e.complexity.LoginResult.Permissions(childComplexity), true
+	case "LoginResult.token":
+		if e.complexity.LoginResult.Token == nil {
+			break
+		}
+
+		return e.complexity.LoginResult.Token(childComplexity), true
 
 	case "Mutation.createTask":
 		if e.complexity.Mutation.CreateTask == nil {
@@ -283,6 +363,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.UpdateUser(childComplexity, args["id"].(string), args["input"].(map[string]any)), true
 
+	case "Query.login":
+		if e.complexity.Query.Login == nil {
+			break
+		}
+
+		args, err := ec.field_Query_login_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Login(childComplexity, args["input"].(LoginParams)), true
 	case "Query.task":
 		if e.complexity.Query.Task == nil {
 			break
@@ -616,6 +707,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputUserFilterType,
 		ec.unmarshalInputUserRelationship,
 		ec.unmarshalInputUserSortType,
+		ec.unmarshalInputloginParams,
 	)
 	first := true
 
@@ -930,6 +1022,17 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_login_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "input", ec.unmarshalNloginParams2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginParams)
+	if err != nil {
+		return nil, err
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_task_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
@@ -1086,6 +1189,308 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
+func (ec *executionContext) _LoginCompanyOption_companyId(ctx context.Context, field graphql.CollectedField, obj *LoginCompanyOption) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginCompanyOption_companyId,
+		func(ctx context.Context) (any, error) {
+			return obj.CompanyID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginCompanyOption_companyId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginCompanyOption",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginCompanyOption_companyName(ctx context.Context, field graphql.CollectedField, obj *LoginCompanyOption) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginCompanyOption_companyName,
+		func(ctx context.Context) (any, error) {
+			return obj.CompanyName, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginCompanyOption_companyName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginCompanyOption",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginCompanyOption_companyMemberId(ctx context.Context, field graphql.CollectedField, obj *LoginCompanyOption) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginCompanyOption_companyMemberId,
+		func(ctx context.Context) (any, error) {
+			return obj.CompanyMemberID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginCompanyOption_companyMemberId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginCompanyOption",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginCompanyOption_isDefault(ctx context.Context, field graphql.CollectedField, obj *LoginCompanyOption) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginCompanyOption_isDefault,
+		func(ctx context.Context) (any, error) {
+			return obj.IsDefault, nil
+		},
+		nil,
+		ec.marshalOBoolean2ᚖbool,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginCompanyOption_isDefault(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginCompanyOption",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginCompanyOption_roleCodes(ctx context.Context, field graphql.CollectedField, obj *LoginCompanyOption) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginCompanyOption_roleCodes,
+		func(ctx context.Context) (any, error) {
+			return obj.RoleCodes, nil
+		},
+		nil,
+		ec.marshalOString2ᚕᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginCompanyOption_roleCodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginCompanyOption",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginResult_token(ctx context.Context, field graphql.CollectedField, obj *LoginResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginResult_token,
+		func(ctx context.Context) (any, error) {
+			return obj.Token, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginResult_token(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginResult_permissions(ctx context.Context, field graphql.CollectedField, obj *LoginResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginResult_permissions,
+		func(ctx context.Context) (any, error) {
+			return obj.Permissions, nil
+		},
+		nil,
+		ec.marshalOString2ᚕᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginResult_permissions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginResult_needSelectCompany(ctx context.Context, field graphql.CollectedField, obj *LoginResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginResult_needSelectCompany,
+		func(ctx context.Context) (any, error) {
+			return obj.NeedSelectCompany, nil
+		},
+		nil,
+		ec.marshalNBoolean2bool,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginResult_needSelectCompany(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginResult_currentCompanyId(ctx context.Context, field graphql.CollectedField, obj *LoginResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginResult_currentCompanyId,
+		func(ctx context.Context) (any, error) {
+			return obj.CurrentCompanyID, nil
+		},
+		nil,
+		ec.marshalOString2ᚖstring,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginResult_currentCompanyId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _LoginResult_companies(ctx context.Context, field graphql.CollectedField, obj *LoginResult) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_LoginResult_companies,
+		func(ctx context.Context) (any, error) {
+			return obj.Companies, nil
+		},
+		nil,
+		ec.marshalOLoginCompanyOption2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginCompanyOption,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_LoginResult_companies(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "LoginResult",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "companyId":
+				return ec.fieldContext_LoginCompanyOption_companyId(ctx, field)
+			case "companyName":
+				return ec.fieldContext_LoginCompanyOption_companyName(ctx, field)
+			case "companyMemberId":
+				return ec.fieldContext_LoginCompanyOption_companyMemberId(ctx, field)
+			case "isDefault":
+				return ec.fieldContext_LoginCompanyOption_isDefault(ctx, field)
+			case "roleCodes":
+				return ec.fieldContext_LoginCompanyOption_roleCodes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LoginCompanyOption", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -1096,25 +1501,7 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().CreateUser(ctx, fc.Args["input"].(map[string]any))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *User
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *User
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser,
 		true,
 		true,
@@ -1193,25 +1580,7 @@ func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field grap
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().UpdateUser(ctx, fc.Args["id"].(string), fc.Args["input"].(map[string]any))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *User
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *User
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser,
 		true,
 		true,
@@ -1290,25 +1659,7 @@ func (ec *executionContext) _Mutation_deleteUsers(ctx context.Context, field gra
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().DeleteUsers(ctx, fc.Args["id"].([]string), fc.Args["unscoped"].(*bool))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal bool
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal bool
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNBoolean2bool,
 		true,
 		true,
@@ -1349,25 +1700,7 @@ func (ec *executionContext) _Mutation_recoveryUsers(ctx context.Context, field g
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().RecoveryUsers(ctx, fc.Args["id"].([]string))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal bool
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal bool
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNBoolean2bool,
 		true,
 		true,
@@ -1408,25 +1741,7 @@ func (ec *executionContext) _Mutation_createTask(ctx context.Context, field grap
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().CreateTask(ctx, fc.Args["input"].(map[string]any))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *Task
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *Task
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNTask2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTask,
 		true,
 		true,
@@ -1499,25 +1814,7 @@ func (ec *executionContext) _Mutation_updateTask(ctx context.Context, field grap
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().UpdateTask(ctx, fc.Args["id"].(string), fc.Args["input"].(map[string]any))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *Task
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *Task
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNTask2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTask,
 		true,
 		true,
@@ -1590,25 +1887,7 @@ func (ec *executionContext) _Mutation_deleteTasks(ctx context.Context, field gra
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().DeleteTasks(ctx, fc.Args["id"].([]string), fc.Args["unscoped"].(*bool))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal bool
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal bool
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNBoolean2bool,
 		true,
 		true,
@@ -1649,25 +1928,7 @@ func (ec *executionContext) _Mutation_recoveryTasks(ctx context.Context, field g
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Mutation().RecoveryTasks(ctx, fc.Args["id"].([]string))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal bool
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal bool
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalNBoolean2bool,
 		true,
 		true,
@@ -1708,25 +1969,7 @@ func (ec *executionContext) _Query_user(ctx context.Context, field graphql.Colle
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().User(ctx, fc.Args["id"].(*string), fc.Args["filter"].(*UserFilterType))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *User
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *User
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalOUser2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUser,
 		true,
 		false,
@@ -1805,25 +2048,7 @@ func (ec *executionContext) _Query_users(ctx context.Context, field graphql.Coll
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Users(ctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*UserSortType), fc.Args["filter"].(*UserFilterType), fc.Args["rand"].(*bool))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *UserResultType
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *UserResultType
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalOUserResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐUserResultType,
 		true,
 		false,
@@ -1876,25 +2101,7 @@ func (ec *executionContext) _Query_task(ctx context.Context, field graphql.Colle
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Task(ctx, fc.Args["id"].(*string), fc.Args["filter"].(*TaskFilterType))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *Task
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *Task
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalOTask2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTask,
 		true,
 		false,
@@ -1967,25 +2174,7 @@ func (ec *executionContext) _Query_tasks(ctx context.Context, field graphql.Coll
 			fc := graphql.GetFieldContext(ctx)
 			return ec.resolvers.Query().Tasks(ctx, fc.Args["current_page"].(*int), fc.Args["per_page"].(*int), fc.Args["q"].(*string), fc.Args["sort"].([]*TaskSortType), fc.Args["filter"].(*TaskFilterType), fc.Args["rand"].(*bool))
 		},
-		func(ctx context.Context, next graphql.Resolver) graphql.Resolver {
-			directive0 := next
-
-			directive1 := func(ctx context.Context) (any, error) {
-				role, err := ec.unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx, "ALL")
-				if err != nil {
-					var zeroVal *TaskResultType
-					return zeroVal, err
-				}
-				if ec.directives.HasRole == nil {
-					var zeroVal *TaskResultType
-					return zeroVal, errors.New("directive hasRole is not implemented")
-				}
-				return ec.directives.HasRole(ctx, nil, directive0, role)
-			}
-
-			next = directive1
-			return next
-		},
+		nil,
 		ec.marshalOTaskResultType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐTaskResultType,
 		true,
 		false,
@@ -2022,6 +2211,59 @@ func (ec *executionContext) fieldContext_Query_tasks(ctx context.Context, field 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_tasks_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_login,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Login(ctx, fc.Args["input"].(LoginParams))
+		},
+		nil,
+		ec.marshalOLoginResult2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginResult,
+		true,
+		false,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "token":
+				return ec.fieldContext_LoginResult_token(ctx, field)
+			case "permissions":
+				return ec.fieldContext_LoginResult_permissions(ctx, field)
+			case "needSelectCompany":
+				return ec.fieldContext_LoginResult_needSelectCompany(ctx, field)
+			case "currentCompanyId":
+				return ec.fieldContext_LoginResult_currentCompanyId(ctx, field)
+			case "companies":
+				return ec.fieldContext_LoginResult_companies(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type LoginResult", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5090,102 +5332,25 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 		switch k {
 		case "phone":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "phone")
-				if err != nil {
-					var zeroVal string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(string); ok {
-				it["phone"] = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["phone"] = data
 		case "password":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalNString2string(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "password")
-				if err != nil {
-					var zeroVal string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(string); ok {
-				it["password"] = data
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["password"] = data
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "email")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*string); ok {
-				it["email"] = data
-			} else if tmp == nil {
-				it["email"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["email"] = data
 		case "nickname":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -5195,33 +5360,11 @@ func (ec *executionContext) unmarshalInputCreateUserInput(ctx context.Context, o
 			it["nickname"] = data
 		case "age":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("age"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt2ᚖint(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "int")
-				if err != nil {
-					var zeroVal *int
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *int
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*int); ok {
-				it["age"] = data
-			} else if tmp == nil {
-				it["age"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *int`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["age"] = data
 		case "lastName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -6443,106 +6586,25 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 		switch k {
 		case "phone":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "phone")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*string); ok {
-				it["phone"] = data
-			} else if tmp == nil {
-				it["phone"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["phone"] = data
 		case "password":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "password")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*string); ok {
-				it["password"] = data
-			} else if tmp == nil {
-				it["password"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["password"] = data
 		case "email":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOString2ᚖstring(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				required, err := ec.unmarshalOString2ᚖstring(ctx, "true")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "email")
-				if err != nil {
-					var zeroVal *string
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *string
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, required, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*string); ok {
-				it["email"] = data
-			} else if tmp == nil {
-				it["email"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *string`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["email"] = data
 		case "nickname":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("nickname"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -6552,33 +6614,11 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			it["nickname"] = data
 		case "age":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("age"))
-			directive0 := func(ctx context.Context) (any, error) { return ec.unmarshalOInt2ᚖint(ctx, v) }
-
-			directive1 := func(ctx context.Context) (any, error) {
-				typeArg, err := ec.unmarshalOString2ᚖstring(ctx, "int")
-				if err != nil {
-					var zeroVal *int
-					return zeroVal, err
-				}
-				if ec.directives.Validator == nil {
-					var zeroVal *int
-					return zeroVal, errors.New("directive validator is not implemented")
-				}
-				return ec.directives.Validator(ctx, obj, directive0, nil, nil, typeArg, nil, nil, nil, nil, nil, nil)
-			}
-
-			tmp, err := directive1(ctx)
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
 			if err != nil {
-				return it, graphql.ErrorOnPath(ctx, err)
+				return it, err
 			}
-			if data, ok := tmp.(*int); ok {
-				it["age"] = data
-			} else if tmp == nil {
-				it["age"] = nil
-			} else {
-				err := fmt.Errorf(`unexpected type %T from directive, should be *int`, tmp)
-				return it, graphql.ErrorOnPath(ctx, err)
-			}
+			it["age"] = data
 		case "lastName":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("lastName"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -7905,6 +7945,61 @@ func (ec *executionContext) unmarshalInputUserSortType(ctx context.Context, obj 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputloginParams(ctx context.Context, obj any) (LoginParams, error) {
+	var it LoginParams
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"phone", "password", "clientType", "platform", "deviceId"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "phone":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("phone"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Phone = data
+		case "password":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		case "clientType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("clientType"))
+			data, err := ec.unmarshalNClientType2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐClientType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ClientType = data
+		case "platform":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("platform"))
+			data, err := ec.unmarshalNPlatform2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐPlatform(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Platform = data
+		case "deviceId":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deviceId"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeviceID = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -7912,6 +8007,97 @@ func (ec *executionContext) unmarshalInputUserSortType(ctx context.Context, obj 
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var loginCompanyOptionImplementors = []string{"LoginCompanyOption"}
+
+func (ec *executionContext) _LoginCompanyOption(ctx context.Context, sel ast.SelectionSet, obj *LoginCompanyOption) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, loginCompanyOptionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LoginCompanyOption")
+		case "companyId":
+			out.Values[i] = ec._LoginCompanyOption_companyId(ctx, field, obj)
+		case "companyName":
+			out.Values[i] = ec._LoginCompanyOption_companyName(ctx, field, obj)
+		case "companyMemberId":
+			out.Values[i] = ec._LoginCompanyOption_companyMemberId(ctx, field, obj)
+		case "isDefault":
+			out.Values[i] = ec._LoginCompanyOption_isDefault(ctx, field, obj)
+		case "roleCodes":
+			out.Values[i] = ec._LoginCompanyOption_roleCodes(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var loginResultImplementors = []string{"LoginResult"}
+
+func (ec *executionContext) _LoginResult(ctx context.Context, sel ast.SelectionSet, obj *LoginResult) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, loginResultImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LoginResult")
+		case "token":
+			out.Values[i] = ec._LoginResult_token(ctx, field, obj)
+		case "permissions":
+			out.Values[i] = ec._LoginResult_permissions(ctx, field, obj)
+		case "needSelectCompany":
+			out.Values[i] = ec._LoginResult_needSelectCompany(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "currentCompanyId":
+			out.Values[i] = ec._LoginResult_currentCompanyId(ctx, field, obj)
+		case "companies":
+			out.Values[i] = ec._LoginResult_companies(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -8097,6 +8283,25 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_tasks(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "login":
+			field := field
+
+			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_login(ctx, field)
 				return res
 			}
 
@@ -9184,6 +9389,16 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNClientType2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐClientType(ctx context.Context, v any) (ClientType, error) {
+	var res ClientType
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNClientType2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐClientType(ctx context.Context, sel ast.SelectionSet, v ClientType) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNCreateTaskInput2map(ctx context.Context, v any) (map[string]any, error) {
 	res, err := ec.unmarshalInputCreateTaskInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -9270,6 +9485,16 @@ func (ec *executionContext) marshalNInt2int64(ctx context.Context, sel ast.Selec
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNPlatform2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐPlatform(ctx context.Context, v any) (Platform, error) {
+	var res Platform
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPlatform2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐPlatform(ctx context.Context, sel ast.SelectionSet, v Platform) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNRole2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐRole(ctx context.Context, v any) (Role, error) {
@@ -9735,6 +9960,11 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) unmarshalNloginParams2githubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginParams(ctx context.Context, v any) (LoginParams, error) {
+	res, err := ec.unmarshalInputloginParams(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalOAny2interface(ctx context.Context, v any) (any, error) {
 	if v == nil {
 		return nil, nil
@@ -9945,6 +10175,61 @@ func (ec *executionContext) marshalOInt2ᚖint64(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) marshalOLoginCompanyOption2ᚕᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginCompanyOption(ctx context.Context, sel ast.SelectionSet, v []*LoginCompanyOption) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOLoginCompanyOption2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginCompanyOption(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) marshalOLoginCompanyOption2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginCompanyOption(ctx context.Context, sel ast.SelectionSet, v *LoginCompanyOption) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._LoginCompanyOption(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOLoginResult2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐLoginResult(ctx context.Context, sel ast.SelectionSet, v *LoginResult) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._LoginResult(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOObjectSortType2ᚖgithubᚗcomᚋsjᚑdistributorᚋdolphinᚑexampleᚋgenᚐObjectSortType(ctx context.Context, v any) (*ObjectSortType, error) {
 	if v == nil {
 		return nil, nil
@@ -9992,6 +10277,36 @@ func (ec *executionContext) marshalOString2ᚕstringᚄ(ctx context.Context, sel
 		if e == graphql.Null {
 			return graphql.Null
 		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalOString2ᚕᚖstring(ctx context.Context, v any) ([]*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []any
+	vSlice = graphql.CoerceList(v)
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
 	}
 
 	return ret

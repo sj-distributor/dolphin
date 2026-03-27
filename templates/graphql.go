@@ -93,7 +93,7 @@ var GraphqlApi = `[
 			{ "name": "weight", "desc": "权重：用来排序", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" },
 			{ "name": "state", "desc": "状态：1/正常、2/禁用、3/下架", "type": "int(2)", "required": "false", "validator": "justInt", "remark": "" }
 		]
-	},{{- $objComma := "" -}}{{range $obj := .Model.Objects}}{{$objComma}}
+	},{{- $objComma := "" -}}{{range $obj := .Model.DocObjects}}{{$objComma}}
 	{
     "title": "{{$obj.EntityName}}",
     "name": "{{$obj.ToLowerPluralName}}",
@@ -123,6 +123,7 @@ var GraphqlApi = `[
       {{- $relComma := "" -}}{{range $rel := $col.ArgumentsValue}}{{$relComma}}
 			{ "name": "{{$rel.Name}}", "desc": "{{$rel.Name}}", "type": "{{$rel.TargetType}}{{$rel.NonNullType}}", "required": "{{$rel.Required}}", "validator": "", "remark": "" }{{ $relComma = "," }}{{end}}
     ],
+		"typeData": [],
     "data": [
       { "name": "{{$col.GetTableName}}", "title": "{{$col.GetTableName}}", "api": "{{$col.Name}}", "type": "detail", "method": "{{$obj.ToCamel}}" }
     ]

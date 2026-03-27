@@ -178,7 +178,7 @@ func CheckStructFieldIsEmpty(item interface{}, input map[string]interface{}) (er
 	}
 
 	if len(res) > 0 {
-		err = fmt.Errorf(fmt.Sprintf(enums.CannotBeEmpty, strings.Join(res, "，")))
+		err = fmt.Errorf(enums.CannotBeEmpty, strings.Join(res, "，"))
 	}
 	return err
 }

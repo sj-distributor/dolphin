@@ -60,14 +60,26 @@
     ]
   },
 	{
-    "title": "",
+    "title": "用户登录",
+    "name": "login",
+    "type": 1,
+    "default": 1,
+    "fields": [
+			{ "name": "input", "desc": "input", "type": "loginParams!", "required": "true", "validator": "", "remark": "" }
+    ],
+    "data": [
+      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query" }
+    ]
+  },
+	{
+    "title": "webSocket",
     "name": "webSocket",
     "type": 1,
-    "default": ,
+    "default": 1,
     "fields": [
     ],
     "data": [
-      { "name": "", "title": "", "api": "webSocket", "type": "detail", "method": "Subscription" }
+      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription" }
     ]
   }
 ]

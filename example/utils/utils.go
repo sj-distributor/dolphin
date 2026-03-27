@@ -64,7 +64,7 @@ func IsNil(i interface{}) bool {
 	tye := reflect.TypeOf(i).String()
 	if tye == "int" && int(i.(int)) == 0 || tye == "int64" && int64(i.(int64)) == 0 {
 		return true
-	} else if tye == "*int" && int(*i.(*int)) == 0 && tye == "*int64" && int64(*i.(*int64)) == 0 {
+	} else if tye == "*int" && int(*i.(*int)) == 0 || tye == "*int64" && int64(*i.(*int64)) == 0 {
 		return true
 	}
 

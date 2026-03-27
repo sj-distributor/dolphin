@@ -3,6 +3,7 @@ package utils
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -11,11 +12,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// 获取字段名
+// 使用 reflect.DeepEqual 进行深度比较，以正确处理 *string 等指针类型
 func GetFieldName(obj any, value any) string {
 	if objMap, ok := obj.(map[string]interface{}); ok {
 		for key, val := range objMap {
-			if val == value {
+			if reflect.DeepEqual(val, value) {
 				return key
 			}
 		}
@@ -172,18 +173,22 @@ func validateUnique(ctx context.Context, obj any, fieldName string, value any, u
 		return nil // 空值不做唯一性校验
 	}
 
-	// 从 context 获取 db 和 tableName
+	if fieldName == "unknown_field" {
+		return nil // 字段名解析失败时跳过校验，不生成无效 SQL
+	}
+
+	// 从 context 获取 db 和 modelStruct
 	db, ok := ctx.Value("db").(*gorm.DB)
 	if !ok || db == nil {
 		return nil // 无数据库连接时跳过校验
 	}
 
-	tableName, ok := ctx.Value("tableName").(string)
-	if !ok || tableName == "" {
-		return nil // 无表名时跳过校验
+	modelStruct, ok := ctx.Value("modelStruct").(any)
+	if !ok || modelStruct == nil {
+		return nil // 无表模型时跳过校验
 	}
 
-	query := db.Table(tableName).Where(fieldName+" = ?", value)
+	query := db.Model(modelStruct).Where(fieldName+" = ?", value)
 
 	// 可选的唯一性条件范围字段
 	if uniqueScope != nil && *uniqueScope != "" {

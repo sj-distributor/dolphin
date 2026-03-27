@@ -12,6 +12,19 @@ type Model struct {
 	objectMap map[string]Object
 }
 
+type TypeData struct {
+	Name   string          `json:"name"`
+	Fields []FieldMetadata `json:"fields"`
+}
+
+type FieldMetadata struct {
+	Name      string `json:"name"`
+	Desc      string `json:"desc"`
+	Type      string `json:"type"`
+	Required  string `json:"required"`
+	Validator string `json:"validator"`
+}
+
 func (m *Model) SecretKey() string {
 	return GetRandomString(32)
 }
@@ -121,4 +134,36 @@ func (m *Model) HasObjectExtension(name string) bool {
 		}
 	}
 	return false
+}
+
+func (m *Model) GetDefinition(name string) ast.Node {
+	for _, def := range m.Doc.Definitions {
+		switch d := def.(type) {
+		case *ast.ObjectDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		case *ast.InputObjectDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		case *ast.EnumDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		case *ast.ScalarDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		case *ast.InterfaceDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		case *ast.UnionDefinition:
+			if d.Name.Value == name {
+				return d
+			}
+		}
+	}
+	return nil
 }

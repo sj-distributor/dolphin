@@ -67,6 +67,48 @@
     "fields": [
 			{ "name": "input", "desc": "input", "type": "loginParams!", "required": "true", "validator": "", "remark": "" }
     ],
+		"typeData": [
+			{
+				"name": "LoginResult",
+				"fields": [
+					{ "name": "token", "desc": "token", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "permissions", "desc": "权限", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "needSelectCompany", "desc": "是否需要选择公司", "type": "Boolean", "required": "true", "validator": "", "remark": "" },
+					{ "name": "currentCompanyId", "desc": "当前公司ID", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "companies", "desc": "公司列表", "type": "LoginCompanyOption", "required": "false", "validator": "", "remark": "" }
+				]
+			},
+			{
+				"name": "loginParams",
+				"fields": [
+					{ "name": "phone", "desc": "登录账号", "type": "String", "required": "true", "validator": "phone", "remark": "" },
+					{ "name": "password", "desc": "登录密码", "type": "String", "required": "true", "validator": "password", "remark": "" },
+					{ "name": "clientType", "desc": "客户端类型", "type": "ClientType", "required": "true", "validator": "enum", "remark": "" },
+					{ "name": "platform", "desc": "平台", "type": "Platform", "required": "true", "validator": "enum", "remark": "" },
+					{ "name": "deviceId", "desc": "设备ID", "type": "String", "required": "true", "validator": "string", "remark": "" }
+				]
+			},
+			{
+				"name": "LoginCompanyOption",
+				"fields": [
+					{ "name": "companyId", "desc": "公司ID", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "companyName", "desc": "公司名称", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "companyMemberId", "desc": "公司成员ID", "type": "String", "required": "false", "validator": "", "remark": "" },
+					{ "name": "isDefault", "desc": "是否默认", "type": "Boolean", "required": "false", "validator": "", "remark": "" },
+					{ "name": "roleCodes", "desc": "角色代码", "type": "String", "required": "false", "validator": "", "remark": "" }
+				]
+			},
+			{
+				"name": "ClientType",
+				"fields": [
+				]
+			},
+			{
+				"name": "Platform",
+				"fields": [
+				]
+			}
+		],
     "data": [
       { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query" }
     ]
@@ -78,6 +120,8 @@
     "default": 1,
     "fields": [
     ],
+		"typeData": [
+		],
     "data": [
       { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription" }
     ]

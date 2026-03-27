@@ -2,32 +2,32 @@
 directive @hasRole(role: Role!) on FIELD_DEFINITION
 
 enum Role {
-  ALL
-  ADMIN
-  USER
-  GUEST
+  ALL @entity(title: "全部")
+  ADMIN @entity(title: "管理员")
+  USER @entity(title: "用户")
+  GUEST @entity(title: "游客")
 }
 
 enum ClientType {
-  WEB
-  MOBILE
-  DESKTOP
+  WEB @entity(title: "网页")
+  MOBILE @entity(title: "手机")
+  DESKTOP @entity(title: "桌面")
 }
 
 enum Platform {
-  IOS
-  ANDROID
-  WINDOWS
-  MACOS
-  LINUX
+  IOS @entity(title: "iOS")
+  ANDROID @entity(title: "Android")
+  WINDOWS @entity(title: "Windows")
+  MACOS @entity(title: "MacOS")
+  LINUX @entity(title: "Linux")
 }
 
 input loginParams {
-  phone: String! @entity(title: "登录账号")
-  password: String! @entity(title: "登录密码")
-  clientType: ClientType! @entity(title: "客户端类型")
-  platform: Platform! @entity(title: "平台")
-  deviceId: String! @entity(title: "设备ID")
+  phone: String! @entity(title: "登录账号") @validator(required: "true", type: "phone")
+  password: String! @entity(title: "登录密码") @validator(required: "true", type: "password")
+  clientType: ClientType! @entity(title: "客户端类型") @validator(required: "true")
+  platform: Platform! @entity(title: "平台") @validator(required: "true")
+  deviceId: String! @entity(title: "设备ID") @validator(required: "true")
 }
 
 type LoginResult @skip {

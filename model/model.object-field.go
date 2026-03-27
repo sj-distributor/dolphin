@@ -440,6 +440,114 @@ func (o *ObjectField) ArgumentsValue() []ObjectFieldInput {
 	return arguments
 }
 
+func (o *ObjectField) GetTypeData() []TypeData {
+	result := []TypeData{}
+	visited := make(map[string]bool)
+	queue := []string{}
+
+	// Return type
+	queue = append(queue, o.TargetType())
+
+	// Arguments
+	for _, arg := range o.ArgumentsValue() {
+		queue = append(queue, arg.TargetType())
+	}
+
+	for len(queue) > 0 {
+		typeName := queue[0]
+		queue = queue[1:]
+
+		if visited[typeName] || defaultScalars[typeName] {
+			continue
+		}
+		visited[typeName] = true
+
+		def := o.Obj.Model.GetDefinition(typeName)
+		if def == nil {
+			continue
+		}
+
+		typeData := TypeData{Name: typeName}
+
+		switch d := def.(type) {
+		case *ast.ObjectDefinition:
+			for _, field := range d.Fields {
+				fieldType := getNamedType(field.Type).(*ast.Named).Name.Value
+				queue = append(queue, fieldType)
+
+				typeData.Fields = append(typeData.Fields, FieldMetadata{
+					Name:      field.Name.Value,
+					Type:      fieldType,
+					Desc:      o.getFieldDesc(field),
+					Required:  fmt.Sprintf("%t", isNonNullType(field.Type)),
+					Validator: o.getValidatorFromDirectives(field.Directives),
+				})
+			}
+		case *ast.InputObjectDefinition:
+			for _, field := range d.Fields {
+				fieldType := getNamedType(field.Type).(*ast.Named).Name.Value
+				queue = append(queue, fieldType)
+
+				typeData.Fields = append(typeData.Fields, FieldMetadata{
+					Name:      field.Name.Value,
+					Type:      fieldType,
+					Desc:      o.getInputValueDesc(field),
+					Required:  fmt.Sprintf("%t", isNonNullType(field.Type)),
+					Validator: o.getValidatorFromDirectives(field.Directives),
+				})
+			}
+		}
+		result = append(result, typeData)
+	}
+
+	return result
+}
+
+func (o *ObjectField) getFieldDesc(f *ast.FieldDefinition) string {
+	for _, d := range f.Directives {
+		if d.Name.Value == "entity" {
+			for _, arg := range d.Arguments {
+				if arg.Name.Value == "title" {
+					if val, ok := arg.Value.GetValue().(string); ok {
+						return val
+					}
+				}
+			}
+		}
+	}
+	return f.Name.Value
+}
+
+func (o *ObjectField) getInputValueDesc(f *ast.InputValueDefinition) string {
+	for _, d := range f.Directives {
+		if d.Name.Value == "entity" {
+			for _, arg := range d.Arguments {
+				if arg.Name.Value == "title" {
+					if val, ok := arg.Value.GetValue().(string); ok {
+						return val
+					}
+				}
+			}
+		}
+	}
+	return f.Name.Value
+}
+
+func (o *ObjectField) getValidatorFromDirectives(directives []*ast.Directive) string {
+	for _, d := range directives {
+		if d.Name.Value == "validator" {
+			for _, arg := range d.Arguments {
+				if arg.Name.Value == "type" {
+					if val, ok := arg.Value.GetValue().(string); ok {
+						return val
+					}
+				}
+			}
+		}
+	}
+	return ""
+}
+
 // Arguments 返回格式化的 GraphQL 参数字符串
 func (o *ObjectField) Arguments() string {
 	args := o.ArgumentsValue()

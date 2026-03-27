@@ -123,7 +123,16 @@ var GraphqlApi = `[
       {{- $relComma := "" -}}{{range $rel := $col.ArgumentsValue}}{{$relComma}}
 			{ "name": "{{$rel.Name}}", "desc": "{{$rel.Name}}", "type": "{{$rel.TargetType}}{{$rel.NonNullType}}", "required": "{{$rel.Required}}", "validator": "", "remark": "" }{{ $relComma = "," }}{{end}}
     ],
-		"typeData": [],
+		"typeData": [
+			{{- $typeComma := "" -}}{{range $type := $col.GetTypeData}}{{$typeComma}}
+			{
+				"name": "{{$type.Name}}",
+				"fields": [
+					{{- $fieldComma := "" -}}{{range $f := $type.Fields}}{{$fieldComma}}
+					{ "name": "{{$f.Name}}", "desc": "{{$f.Desc}}", "type": "{{$f.Type}}", "required": "{{$f.Required}}", "validator": "{{$f.Validator}}", "remark": "" }{{ $fieldComma = "," }}{{end}}
+				]
+			}{{$typeComma = ","}}{{end}}
+		],
     "data": [
       { "name": "{{$col.GetTableName}}", "title": "{{$col.GetTableName}}", "api": "{{$col.Name}}", "type": "detail", "method": "{{$obj.ToCamel}}" }
     ]

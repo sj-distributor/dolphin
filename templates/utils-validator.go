@@ -13,11 +13,34 @@ import (
 	"gorm.io/gorm"
 )
 
-// 使用 reflect.DeepEqual 进行深度比较，以正确处理 *string 等指针类型
+// getBaseValue 用于剥离指针，获取底层真正的数据值
+func getBaseValue(v any) any {
+	if v == nil {
+		return nil
+	}
+	rv := reflect.ValueOf(v)
+	// 使用 for 循环是为了处理多级指针的情况（例如 **string）
+	for rv.Kind() == reflect.Ptr {
+		if rv.IsNil() {
+			return nil // 如果是空指针，直接返回 nil
+		}
+		rv = rv.Elem() // 获取指针指向的值
+	}
+	return rv.Interface()
+}
+
+// 修改后的 GetFieldName 函数
 func GetFieldName(obj any, value any) string {
+	// 1. 先把目标值 value 的指针剥离掉，拿到真实值
+	targetValue := getBaseValue(value)
+
 	if objMap, ok := obj.(map[string]interface{}); ok {
 		for key, val := range objMap {
-			if reflect.DeepEqual(val, value) {
+			// 2. 把 map 里的值也剥离指针（防止 map 里存的也是指针）
+			currentVal := getBaseValue(val)
+			
+			// 3. 现在的 currentVal 和 targetValue 都是基础类型了，可以直接对比
+			if reflect.DeepEqual(currentVal, targetValue) {
 				return key
 			}
 		}

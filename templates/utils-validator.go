@@ -212,29 +212,47 @@ func validateUnique(ctx context.Context, obj any, fieldName string, value any, u
 		return nil // 无表模型时跳过校验
 	}
 
-	query := db.Model(modelStruct).Where(fieldName+" = ?", value)
-
-	// 可选的唯一性条件范围字段
+	scope := map[string]any{}
 	if uniqueScope != nil && *uniqueScope != "" {
-		if objMap, ok := obj.(map[string]interface{}); ok {
-			if scopeValue, exists := objMap[*uniqueScope]; exists && scopeValue != nil {
-				query = query.Where(*uniqueScope+" = ?", scopeValue)
-			}
+		if scopeValue, exists := uniqueValidationObjectFieldValue(obj, *uniqueScope); exists && scopeValue != nil {
+			scope[normalizeUniqueColumnName(*uniqueScope)] = scopeValue
 		}
 	}
 
-	// 排除软删除的记录
-	query = query.Where("is_delete = ?", 1)
-
-	var count int64
-	if err := query.Count(&count).Error; err != nil {
+	recordID, _ := ctx.Value("recordId").(string)
+	exists, err := UniqueRecordExists(db, modelStruct, fieldName, value, scope, recordID)
+	if err != nil {
 		return nil // 查询出错时不阻塞正常请求
 	}
 
-	if count > 0 {
+	if exists {
 		return fmt.Errorf("%s already exists", fieldName)
 	}
 
 	return nil
+}
+
+func uniqueValidationObjectFieldValue(obj any, fieldName string) (any, bool) {
+	objMap, ok := obj.(map[string]interface{})
+	if !ok {
+		return nil, false
+	}
+
+	candidates := []string{
+		fieldName,
+		normalizeUniqueColumnName(fieldName),
+		graphQLFieldNameFromColumnName(fieldName),
+	}
+	for _, candidate := range candidates {
+		trimmed := strings.TrimSpace(candidate)
+		if trimmed == "" {
+			continue
+		}
+		if value, exists := objMap[trimmed]; exists {
+			return value, true
+		}
+	}
+
+	return nil, false
 }
 `

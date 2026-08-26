@@ -32,7 +32,8 @@ func main() {
 
 	err := app.Run(os.Args)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "Error: %s\n", err)
+		os.Exit(1)
 	}
 }
 
@@ -75,7 +76,11 @@ var migrateCmd = cli.Command{
 }
 
 func automigrate() error {
-	db := gen.NewDBFromEnvVars("")
+	db, err := gen.OpenDBFromEnvVars("")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
 	return db.AutoMigrate()
 }
 
@@ -83,7 +88,10 @@ func startServer(enableCors bool, port string) error {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 
-	db := gen.NewDBFromEnvVars("")
+	db, err := gen.OpenDBFromEnvVars("")
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 
 	eventController, err := gen.NewEventController()
@@ -119,12 +127,6 @@ func startServer(enableCors bool, port string) error {
 		return cli.NewExitError(err, 1)
 	}
 	log.Println("Server gracefully stopped")
-
-	err = db.Close()
-	if err != nil {
-		return cli.NewExitError(err, 1)
-	}
-	log.Println("Database connection closed")
 
 	return nil
 

@@ -359,12 +359,6 @@ type UserSortType struct {
 	Tasks     *TaskSortType   `json:"tasks,omitempty"`
 }
 
-type LoginParams struct {
-	Phone    string `json:"phone"`
-	Password string `json:"password"`
-	DeviceID string `json:"deviceId"`
-}
-
 type ObjectSortType string
 
 const (

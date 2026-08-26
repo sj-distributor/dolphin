@@ -4,16 +4,10 @@ directive @hasPermission(action: String!) on FIELD_DEFINITION
 directive @validator(required: String, immutable: String, type: String, minLength: Int, maxLength: Int, minValue: Int, maxValue: Int, unique: String, uniqueScope: String) on INPUT_FIELD_DEFINITION
 
 enum Role {
-  ALL @entity(title: "全部")
-  ADMIN @entity(title: "管理员")
-  USER @entity(title: "用户")
-  GUEST @entity(title: "游客")
-}
-
-input loginParams {
-  phone: String!
-  password: String!
-  deviceId: String! @entity(title: "设备ID") @validator(required: "true")
+  ALL
+  ADMIN
+  USER
+  GUEST
 }
 
 type User @entity(title: "用户管理") {
@@ -33,10 +27,6 @@ type Task @entity(title: "任务管理") {
 	user: User @relationship(inverse:"tasks")
 }
 
-extend type Query {
-  login(input: loginParams!): Any @entity(title: "用户登录", default: 1)
-}
-
 extend type Subscription {
-  webSocket: Any @entity(title: "webSocket", default: 1)
+  webSocket: Any
 }

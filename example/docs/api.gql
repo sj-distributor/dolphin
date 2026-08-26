@@ -201,11 +201,6 @@
 
 
   
-  # login 接口
-  query login($input: loginParams!) {
-    login(input: $input)
-  }
-  
   # webSocket 接口
   subscription webSocket {
     webSocket

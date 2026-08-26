@@ -102,6 +102,10 @@ func RunInteractiveInDir(cmd, dir string) error {
 	}
 
 	command := exec.Command("sh", "-c", cmd)
+	command.Stdout = os.Stdout
+	command.Stdin = os.Stdin
+	command.Stderr = os.Stderr
+	command.Dir = dir
 	if err := command.Run(); err != nil {
 		return cli.NewExitError(err, 1)
 	}

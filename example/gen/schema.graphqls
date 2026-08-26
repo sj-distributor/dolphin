@@ -61,12 +61,6 @@ input FileField {
 
 directive @hasPermission(action: String!) on FIELD_DEFINITION
 
-input loginParams {
-  phone: String!
-  password: String!
-  deviceId: String!
-}
-
 type User {
   id: ID!
   phone: String!
@@ -106,16 +100,12 @@ type Task {
   createdAt: Int!
 }
 
-extend type Query {
-  login(input: loginParams!): Any
-}
-
 input CreateUserInput {
-  phone: String!
-  password: String!
-  email: String
+  phone: String! @validator(required: "true", type: "phone")
+  password: String! @validator(required: "true", type: "password")
+  email: String @validator(required: "true", type: "email")
   nickname: String
-  age: Int
+  age: Int @validator(type: "int")
   lastName: String
   tasks: [TaskRelationship]
   isDelete: Int
@@ -125,11 +115,11 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  phone: String
-  password: String
-  email: String
+  phone: String @validator(required: "true", type: "phone")
+  password: String @validator(required: "true", type: "password")
+  email: String @validator(required: "true", type: "email")
   nickname: String
-  age: Int
+  age: Int @validator(type: "int")
   lastName: String
   tasks: [TaskRelationship]
   isDelete: Int

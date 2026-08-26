@@ -24,7 +24,7 @@ type DB struct {
 	db *gorm.DB
 }
 
-func NewDBFromEnvVars(name string) *DB {
+func OpenDBFromEnvVars(name string) (*DB, error) {
 	urlString := name
 
 	if urlString == "" {
@@ -32,48 +32,69 @@ func NewDBFromEnvVars(name string) *DB {
 	}
 
 	if urlString == "" {
-		panic(fmt.Errorf("missing DATABASE_URL environment variable"))
+		return nil, databaseURLMissingError()
 	}
-	return NewDBWithString(urlString)
+	return OpenDBWithString(urlString)
 }
 
-func NewDBWithString(urlString string) *DB {
-	u, err := url.Parse(urlString)
+func NewDBFromEnvVars(name string) *DB {
+	db, err := OpenDBFromEnvVars(name)
 	if err != nil {
 		panic(err)
+	}
+	return db
+}
+
+func OpenDBWithString(urlString string) (*DB, error) {
+	u, err := url.Parse(urlString)
+	if err != nil {
+		return nil, invalidDatabaseURLError()
+	}
+	if err := validateDatabaseURL(urlString, u); err != nil {
+		return nil, err
 	}
 
 	// urlString = GetConnectionString(u)
 
 	gormConfig := &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
+		Logger: logger.Default.LogMode(logger.Silent),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix: os.Getenv("TABLE_NAME_PREFIX"),
 		},
 	}
 
-	if os.Getenv("DEBUG") == "true" {
-		gormConfig.Logger = logger.Default.LogMode(logger.Info)
-	}
-
-	dsn, err := GetConnectionString(u)
+	dsnURL := *u
+	dsn, err := GetConnectionString(&dsnURL)
 	if err != nil {
-		panic(err)
+		return nil, unsupportedDatabaseSchemeError(u.Scheme)
 	}
 
 	db, err := gorm.Open(dsn, gormConfig)
 	if err != nil {
-		panic(err)
+		return nil, formatDatabaseConnectionError(u, err)
+	}
+	db.Logger = logger.Default
+	if os.Getenv("DEBUG") == "true" {
+		db.Logger = logger.Default.LogMode(logger.Info)
 	}
 
-	return NewDB(db)
+	return NewDB(db), nil
+}
+
+func NewDBWithString(urlString string) *DB {
+	db, err := OpenDBWithString(urlString)
+	if err != nil {
+		panic(err)
+	}
+	return db
 }
 
 func GetConnectionString(u *url.URL) (gorm.Dialector, error) {
 	if u.Scheme == "postgres" {
 		password, _ := u.User.Password()
 		params := u.Query()
-		params.Set("host", strings.Split(u.Host, ":")[0])
+		params.Set("host", u.Hostname())
 		params.Set("port", u.Port())
 		params.Set("user", u.User.Username())
 		params.Set("password", password)

@@ -1,7 +1,7 @@
 # DATABASE = sqlite3://test.db
 DATABASE = mysql://'root:123456@localhost:3306/dolphin_example?charset=utf8mb4&parseTime=True&loc=Local'
 
-PORT = 8090
+PORT = 8080
 
 mysql:
 	docker run --restart=always -itd --name mysql -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mysql

@@ -148,9 +148,7 @@ func generate(fileDirPath, p string) error {
 		return err
 	}
 
-	fmt.Printf("Running gqlgen generator in %s ...\n", path.Join(p, "gen"))
-
-	if err := templates.RunInteractiveInDir("go mod tidy && go run github.com/99designs/gqlgen", path.Join(p, "gen")); err != nil {
+	if err := runGQLGen(p); err != nil {
 		return err
 	}
 
@@ -161,6 +159,15 @@ func generate(fileDirPath, p string) error {
 func generateInterface(p string, m *model.Model, c *model.Config) error {
 	data := templates.TemplateData{Model: m, Config: c}
 	return templates.WriteInterfaceTemplate(templates.Graphql, path.Join(p, "docs/api.gql"), data)
+}
+
+func runGQLGen(p string) error {
+	return runGQLGenWith(p, templates.RunInteractiveInDir)
+}
+
+func runGQLGenWith(p string, run func(command, dir string) error) error {
+	fmt.Printf("Running gqlgen generator in %s ...\n", p)
+	return run("go mod tidy && go run github.com/99designs/gqlgen", p)
 }
 
 // 生成前端接口接口文档
@@ -174,7 +181,7 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	if err := templates.WriteTemplate(templates.GQLGen, path.Join(p, "gqlgen.yml"), data); err != nil {
 		return err
 	}
-	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
+	if err := createDatabaseFiles(p, m, c); err != nil {
 		return err
 	}
 	if err := templates.WriteTemplate(templates.Model, path.Join(p, "gen/models.go"), data); err != nil {
@@ -236,6 +243,17 @@ func generateFiles(p string, m *model.Model, c *model.Config) error {
 	return nil
 }
 
+func createDatabaseFiles(p string, m *model.Model, c *model.Config) error {
+	if err := utils.EnsureDir(path.Join(p, "gen")); err != nil {
+		return err
+	}
+	data := templates.TemplateData{Model: m, Config: c}
+	if err := templates.WriteTemplate(templates.Database, path.Join(p, "gen/database.go"), data); err != nil {
+		return err
+	}
+	return templates.WriteTemplate(templates.DatabaseErrors, path.Join(p, "gen/database-errors.go"), data)
+}
+
 func createUtilsFile(p string) error {
 	c, err := model.LoadConfigFromPath(p)
 	if err != nil {
@@ -248,6 +266,9 @@ func createUtilsFile(p string) error {
 		return err
 	}
 	if err := templates.WriteTemplate(templates.Rule, path.Join(p, "utils/rule.go"), templates.TemplateData{Config: &c}); err != nil {
+		return err
+	}
+	if err := templates.WriteTemplate(templates.Uniqueness, path.Join(p, "utils/uniqueness.go"), templates.TemplateData{Config: &c}); err != nil {
 		return err
 	}
 

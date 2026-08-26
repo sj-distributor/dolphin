@@ -60,38 +60,16 @@
     ]
   },
 	{
-    "title": "用户登录",
-    "name": "login",
-    "type": 1,
-    "default": 1,
-    "fields": [
-			{ "name": "input", "desc": "input", "type": "loginParams!", "required": "true", "validator": "", "remark": "" }
-    ],
-		"typeData": [
-			{
-				"name": "loginParams",
-				"fields": [
-					{ "name": "phone", "desc": "phone", "type": "String", "required": "true", "validator": "", "remark": "" },
-					{ "name": "password", "desc": "password", "type": "String", "required": "true", "validator": "", "remark": "" },
-					{ "name": "deviceId", "desc": "设备ID", "type": "String", "required": "true", "validator": "", "remark": "" }
-				]
-			}
-		],
-    "data": [
-      { "name": "用户登录", "title": "用户登录", "api": "login", "type": "detail", "method": "Query", "code": "login(input: loginParams!): Any @entity(title: \"用户登录\", default: 1)" }
-    ]
-  },
-	{
-    "title": "webSocket",
+    "title": "",
     "name": "webSocket",
     "type": 1,
-    "default": 1,
+    "default": ,
     "fields": [
     ],
 		"typeData": [
 		],
     "data": [
-      { "name": "webSocket", "title": "webSocket", "api": "webSocket", "type": "detail", "method": "Subscription", "code": "webSocket: Any @entity(title: \"webSocket\", default: 1)" }
+      { "name": "", "title": "", "api": "webSocket", "type": "detail", "method": "Subscription", "code": "webSocket: Any" }
     ]
   }
 ]

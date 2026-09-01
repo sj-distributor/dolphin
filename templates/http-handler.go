@@ -5,16 +5,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gorilla/mux"
-
-	jwtgo "github.com/golang-jwt/jwt/v5"
-
-	"{{.Config.Package}}/auth"
 )
 
 func GetHTTPServeMux(c Config, db *DB) *mux.Router {
@@ -54,61 +48,12 @@ func GetHTTPServeMux(c Config, db *DB) *mux.Router {
 
 // 公共方法，用于处理请求上下文
 func enrichRequestContext(req *http.Request, loaders interface{}, executableSchema interface{}) *http.Request {
-	claims, _ := getJWTClaims(req)
-	var principalID *string
-	if claims != nil {
-		if claims["id"] != nil {
-			id := claims["id"].(string)
-			principalID = &id
-		}
-	}
-
 	// 添加上下文数据
-	ctx := context.WithValue(req.Context(), KeyJWTClaims, claims)
-	if principalID != nil {
-		ctx = context.WithValue(ctx, KeyPrincipalID, principalID)
-	}
+	ctx := req.Context()
 	ctx = context.WithValue(ctx, KeyLoaders, loaders)
 	ctx = context.WithValue(ctx, KeyExecutableSchema, executableSchema)
 
 	// 返回附带上下文的新请求
 	return req.WithContext(ctx)
-}
-
-func getJWTClaims(req *http.Request) (res map[string]interface{}, err error) {
-	// var p *JWTClaims
-	res = map[string]interface{}{}
-
-	tokenStr := strings.Replace(req.Header.Get("Authorization"), "Bearer ", "", 1)
-
-	if tokenStr == "" {
-		return
-	}
-
-	res, err = auth.ParseJWT(tokenStr)
-
-	if err == nil {
-		res = res["content"].(map[string]interface{})
-	}
-
-	// p = &JWTClaims{}
-	// jwtgo.ParseWithClaims(tokenStr, p, nil)
-	return res, err
-}
-
-var MySecret = []byte("cr6ffSvnPwHwVNgQiQMxtrBtcNRa9NuK")
-
-// 这里传入的是手机号，因为我项目登陆用的是手机号和密码
-func MakeToken(phone string) (tokenString string, err error) {
-	claim := auth.JWTClaims{
-		RegisteredClaims: jwtgo.RegisteredClaims{
-			Subject:   phone,
-			ExpiresAt: jwtgo.NewNumericDate(time.Now().Add(3 * time.Hour * time.Duration(1))), // 过期时间3小时
-			IssuedAt:  jwtgo.NewNumericDate(time.Now()),                                       // 签发时间
-			NotBefore: jwtgo.NewNumericDate(time.Now()),                                       // 生效时间
-		}}
-	token := jwtgo.NewWithClaims(jwtgo.SigningMethodHS256, claim) // 使用HS256算法
-	tokenString, err = token.SignedString(MySecret)
-	return tokenString, err
 }
 `

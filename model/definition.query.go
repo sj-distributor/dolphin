@@ -21,6 +21,7 @@ func queryDefinition(m *Model) *ast.ObjectDefinition {
 
 		fields = append(fields, fetchFieldDefinition(obj), listFieldDefinition(obj))
 	}
+	fields = append(fields, rootExtensionFields(m, "Query", fields)...)
 	return &ast.ObjectDefinition{
 		Kind: kinds.ObjectDefinition,
 		Name: &ast.Name{
@@ -29,6 +30,27 @@ func queryDefinition(m *Model) *ast.ObjectDefinition {
 		},
 		Fields: fields,
 	}
+}
+
+// rootExtensionFields returns project-owned named operations for a generated root.
+func rootExtensionFields(m *Model, rootName string, generatedFields []*ast.FieldDefinition) []*ast.FieldDefinition {
+	fields := []*ast.FieldDefinition{}
+	seen := make(map[string]struct{}, len(generatedFields))
+	for _, field := range generatedFields {
+		seen[field.Name.Value] = struct{}{}
+	}
+	for _, extension := range m.ObjectExtensions() {
+		if extension.Object.Name() == rootName {
+			for _, field := range extension.Object.Def.Fields {
+				if _, duplicate := seen[field.Name.Value]; duplicate {
+					continue
+				}
+				seen[field.Name.Value] = struct{}{}
+				fields = append(fields, field)
+			}
+		}
+	}
+	return fields
 }
 
 func fetchFieldDefinition(obj Object) *ast.FieldDefinition {

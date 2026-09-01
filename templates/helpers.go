@@ -45,7 +45,7 @@ func WriteInterfaceTemplateRaw(t, filename string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(filename, content.Bytes(), 0644)
+	err = os.WriteFile(filename, trimTrailingWhitespace(content.Bytes()), 0644)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func WriteTemplateRaw(t, filename string, data interface{}) error {
 		return err
 	}
 
-	err = os.WriteFile(filename, content.Bytes(), 0644)
+	err = os.WriteFile(filename, trimTrailingWhitespace(content.Bytes()), 0644)
 	if err != nil {
 		return err
 	}
@@ -93,6 +93,14 @@ func WriteTemplateRaw(t, filename string, data interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func trimTrailingWhitespace(content []byte) []byte {
+	lines := bytes.Split(content, []byte{'\n'})
+	for index := range lines {
+		lines[index] = bytes.TrimRight(lines[index], " \t\r")
+	}
+	return bytes.Join(lines, []byte{'\n'})
 }
 
 // RunInteractiveInDir ...

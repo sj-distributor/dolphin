@@ -36,9 +36,9 @@ type EventDataValue interface{}
 
 // EventChange ...
 type EventChange struct {
-	Name     string "json:'name'"
-	OldValue string "json:'oldValue'"
-	NewValue string "json:'newValue'"
+	Name     string "json:\"name\""
+	OldValue string "json:\"oldValue\""
+	NewValue string "json:\"newValue\""
 }
 
 type EventController struct {
@@ -187,19 +187,19 @@ func (ec *EventChange) NewValueAs(data interface{}) error {
 }
 
 type EventMetadata struct {
-	Type        EventType "json:'type'"
-	Cursor      string    "json:'cursor'"
-	Entity      string    "json:'entity'"
-	EntityID    string    "json:'entityId'"
-	Date        int64     "json:'date'"
-	PrincipalID *string   "json:'principalId'"
+	Type        EventType "json:\"type\""
+	Cursor      string    "json:\"cursor\""
+	Entity      string    "json:\"entity\""
+	EntityID    string    "json:\"entityId\""
+	Date        int64     "json:\"date\""
+	PrincipalID *string   "json:\"principalId\""
 }
 
 // Event ...
 type Event struct {
 	EventMetadata
-	ID      string         "json:'id'"
-	Changes []*EventChange "json:'changes'"
+	ID      string         "json:\"id\""
+	Changes []*EventChange "json:\"changes\""
 }
 
 // NewEvent ...

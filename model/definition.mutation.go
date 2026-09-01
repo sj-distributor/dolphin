@@ -22,6 +22,7 @@ func mutationDefinition(m *Model) *ast.ObjectDefinition {
 		}
 		fields = append(fields, createFieldDefinition(obj), updateFieldDefinition(obj), deleteFieldDefinition(obj), recoveryFieldDefinition(obj))
 	}
+	fields = append(fields, rootExtensionFields(m, "Mutation", fields)...)
 	return &ast.ObjectDefinition{
 		Kind:   kinds.ObjectDefinition,
 		Name:   nameNode("Mutation"),

@@ -49,3 +49,11 @@ func TestRunInteractiveInDirForwardsStderrAndReturnsFailure(t *testing.T) {
 		t.Fatalf("child stderr was not forwarded, got %q", output)
 	}
 }
+
+func TestTrimTrailingWhitespacePreservesLineStructure(t *testing.T) {
+	input := []byte("root  \n  child\t\n    \nlast")
+	want := "root\n  child\n\nlast"
+	if got := string(trimTrailingWhitespace(input)); got != want {
+		t.Fatalf("trimTrailingWhitespace() = %q, want %q", got, want)
+	}
+}

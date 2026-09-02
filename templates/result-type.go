@@ -110,15 +110,23 @@ func (r *EntityResultType) GetData(ctx context.Context, db *gorm.DB, opts GetIte
 	}
 
 	isAt := false
+	hasIDSort := false
+	idSortPrefix := strings.ToLower(opts.Alias + ".id ")
 
 	for _, s := range sorts {
 		if strings.Contains(s, "_at") {
 			isAt = true
 		}
+		if strings.HasPrefix(strings.ToLower(strings.TrimSpace(s)), idSortPrefix) {
+			hasIDSort = true
+		}
 	}
 
 	if !isAt {
 		sorts = append(sorts, opts.Alias+".created_at DESC")
+	}
+	if !hasIDSort {
+		sorts = append(sorts, opts.Alias+".id DESC")
 	}
 
 	if len(sorts) > 0 {
